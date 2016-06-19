@@ -1,0 +1,21 @@
+{
+    "name": "backbone-form",
+    "authors": [
+        "Rafał Mikołajun <rafal@mikoweb.pl>"
+    ],
+    "keywords": [
+        "backbone",
+        "backbone form",
+        "bind form to model"
+    ],
+    "moduleType": "amd",
+    "license": "GPLv3",
+    "dependencies": {
+        "backbone": "~1.2"
+    },
+    "devDependencies": {
+        "jquery": "~3.0",
+        "expect.js": "~0.3",
+        "mocha": "~2.5"
+    }
+}
