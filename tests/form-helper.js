@@ -4,15 +4,14 @@
     var nodes, formOrder, formAccount, formOrderHelper,
         formAccountHelper;
 
-    $.ajaxSetup({async: false});
     $.ajax({
         url: 'data/form-helper.html',
         dataType: 'html',
+        async: false,
         success: function (html) {
             nodes = $('<div />').html(html);
         }
     });
-    $.ajaxSetup({async: true});
 
     /**
      * @type {jQuery}
