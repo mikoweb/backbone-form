@@ -8,13 +8,17 @@
     Backbone.form = Backbone.form || {};
 
     /**
-     * @param {HTMLFormElement} form
+     * @param {HTMLElement} form
      * @param {String} [prefix]
      * @constructor
      */
     function FormHelper (form, prefix) {
+        if (!form instanceof HTMLElement) {
+            throw new TypeError('Expected HTMLElement');
+        }
+
         /**
-         * @type {HTMLFormElement}
+         * @type {HTMLElement}
          */
         this.form = form;
         this.prefix = prefix || '';
@@ -44,6 +48,10 @@
      * @returns {null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (control) {
+        if (!control instanceof HTMLElement) {
+            throw new TypeError('Expected HTMLElement');
+        }
+
         var type = control.getAttribute('type'),
             name = control.getAttribute('name'),
             tagName = control.tagName.toLowerCase(),
