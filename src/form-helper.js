@@ -13,7 +13,7 @@
      * @constructor
      */
     function FormHelper (form, prefix) {
-        if (!form instanceof HTMLElement) {
+        if (!(form instanceof HTMLElement)) {
             throw new TypeError('Expected HTMLElement');
         }
 
@@ -48,7 +48,7 @@
      * @returns {null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (control) {
-        if (!control instanceof HTMLElement) {
+        if (!(control instanceof HTMLElement)) {
             throw new TypeError('Expected HTMLElement');
         }
 
@@ -108,7 +108,7 @@
      */
     FormHelper.prototype.removePrefix = function (name) {
         return name.indexOf(this.prefix) === 0
-            ? name.substr(this.prefix)
+            ? name.substr(this.prefix.length)
             : name;
     };
 

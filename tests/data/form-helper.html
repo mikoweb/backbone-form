@@ -1,98 +1,103 @@
-<form id="formOrder" name="order">
-    <label>
-        <input type="file" name="order[attachment]" value="file.txt" />
-    </label>
-    <label>
-        <input type="text" name="order[first_name]" value="John" />
-    </label>
-    <label>
-        <input type="text" name="order[last_name]" value="Doe" />
-    </label>
-    <label>
-        <input type="email" name="order[email]" value="john@doe.com" />
-    </label>
-    <label>
-        <input type="tel" name="order[tel]" value="123456789" />
-    </label>
-    <label>
-        <input type="unknown" name="order[unknown]" value="unknown_value" />
-    </label>
-    <label>
-        <input type="radio" name="order[customer_type]" value="company" checked>
-    </label>
-    <label>
-        <input type="radio" name="order[customer_type]" value="person">
-    </label>
-    <label>
-        <input type="radio" name="order[post]" value="1">
-    </label>
-    <label>
-        <input type="radio" name="order[post]" value="2">
-    </label>
-    <label>
-        <input type="radio" name="order[post]" value="3">
-    </label>
-    <label>
-        <input type="checkbox" name="order[agree1]" value="yes">
-    </label>
-    <label>
-        <input type="checkbox" name="order[agree2]" value="yes" checked>
-    </label>
-    <label>
-        <textarea name="order[comment]">lorem ipsum</textarea>
-    </label>
-    <label>
-        <input name="order[address][street]" value="Mickiewicza 45">
-    </label>
-    <label>
-        <input name="order[address][house_number]" value="10">
-    </label>
-    <label>
-        <select name="order[address][city]">
-            <option value="warszawa">Warszawa</option>
-            <option value="wrocław">Wrocław</option>
-            <option value="poznań">Poznań</option>
-            <option value="gdynia" selected>Gdynia</option>
-            <option value="olsztyn">Olsztyn</option>
-        </select>
-    </label>
-    <button name="order[button1]" type="button" value="btn1_value"></button>
-    <button name="order[button2]" type="reset" value="btn2_value"></button>
-    <button name="order[button3]" type="submit" value="btn3_value"></button>
-    <input name="order[button4]" type="submit" value="bt4_value">
-    <input name="order[button5]" type="reset" value="btn5_value">
-    <input name="order[image]" type="image" value="Image Value" src="test.png" alt="image">
-    <label>
-        <select name="order[item][]">
-            <option value="item1"></option>
-            <option value="item2"></option>
-            <option value="item3" selected></option>
-            <option value="item4"></option>
-            <option value="item5" selected></option>
-            <option value="item6" selected></option>
-            <option value="item7"></option>
-            <option value="item8"></option>
-        </select>
-    </label>
-    <label>
-        <input type="checkbox" name="order[addition][]" value="addition1">
-        <input type="checkbox" name="order[addition][]" value="addition2">
-        <input type="checkbox" name="order[addition][]" value="addition3" checked>
-        <input type="checkbox" name="order[addition][]" value="addition4">
-        <input type="checkbox" name="order[addition][]" value="addition5" checked>
-    </label>
-</form>
-<form id="formWihoutPrefix" name="account">
-    <label>
-        <input type="text" name="first_name" value="Corrado" />
-    </label>
-    <label>
-        <input type="text" name="last_name" value="Provera" />
-    </label>
-    <label>
-        <input name="address[street]" value="Alzaia Naviglio Grande">
-    </label>
-    <label>
-        <input name="address[house_number]" value="65">
-    </label>
-</form>
+<!DOCTYPE html>
+<html>
+<body>
+    <form id="formOrder" name="order">
+        <label>
+            <input type="file" name="order[attachment]" value="file.txt" />
+        </label>
+        <label>
+            <input type="text" name="order[first_name]" value="John" />
+        </label>
+        <label>
+            <input type="text" name="order[last_name]" value="Doe" />
+        </label>
+        <label>
+            <input type="email" name="order[email]" value="john@doe.com" />
+        </label>
+        <label>
+            <input type="tel" name="order[tel]" value="123456789" />
+        </label>
+        <label>
+            <input type="unknown" name="order[unknown]" value="unknown_value" />
+        </label>
+        <label>
+            <input type="radio" name="order[customer_type]" value="company" checked>
+        </label>
+        <label>
+            <input type="radio" name="order[customer_type]" value="person">
+        </label>
+        <label>
+            <input type="radio" name="order[post]" value="1">
+        </label>
+        <label>
+            <input type="radio" name="order[post]" value="2">
+        </label>
+        <label>
+            <input type="radio" name="order[post]" value="3">
+        </label>
+        <label>
+            <input type="checkbox" name="order[agree1]" value="yes">
+        </label>
+        <label>
+            <input type="checkbox" name="order[agree2]" value="yes" checked>
+        </label>
+        <label>
+            <textarea name="order[comment]">lorem ipsum</textarea>
+        </label>
+        <label>
+            <input name="order[address][street]" value="Mickiewicza 45">
+        </label>
+        <label>
+            <input name="order[address][house_number]" value="10">
+        </label>
+        <label>
+            <select name="order[address][city]">
+                <option value="warszawa">Warszawa</option>
+                <option value="wrocław">Wrocław</option>
+                <option value="poznań">Poznań</option>
+                <option value="gdynia" selected>Gdynia</option>
+                <option value="olsztyn">Olsztyn</option>
+            </select>
+        </label>
+        <button name="order[button1]" type="button" value="btn1_value"></button>
+        <button name="order[button2]" type="reset" value="btn2_value"></button>
+        <button name="order[button3]" type="submit" value="btn3_value"></button>
+        <input name="order[button4]" type="submit" value="bt4_value">
+        <input name="order[button5]" type="reset" value="btn5_value">
+        <input name="order[image]" type="image" value="Image Value" src="test.png" alt="image">
+        <label>
+            <select name="order[item][]">
+                <option value="item1"></option>
+                <option value="item2"></option>
+                <option value="item3" selected></option>
+                <option value="item4"></option>
+                <option value="item5" selected></option>
+                <option value="item6" selected></option>
+                <option value="item7"></option>
+                <option value="item8"></option>
+            </select>
+        </label>
+        <label>
+            <input type="checkbox" name="order[addition][]" value="addition1">
+            <input type="checkbox" name="order[addition][]" value="addition2">
+            <input type="checkbox" name="order[addition][]" value="addition3" checked>
+            <input type="checkbox" name="order[addition][]" value="addition4">
+            <input type="checkbox" name="order[addition][]" value="addition5" checked>
+        </label>
+    </form>
+    <form id="formWihoutPrefix" name="account">
+        <label>
+            <input type="text" name="first_name" value="Corrado" />
+        </label>
+        <label>
+            <input type="text" name="last_name" value="Provera" />
+        </label>
+        <label>
+            <input name="address[street]" value="Alzaia Naviglio Grande">
+        </label>
+        <label>
+            <input name="address[house_number]" value="65">
+        </label>
+    </form>
+</body>
+</html>
