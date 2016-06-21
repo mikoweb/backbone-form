@@ -24,6 +24,18 @@
     formAccount = nodes.find('#formWihoutPrefix');
     formAccountHelper = new Backbone.form.FormHelper(formAccount.get(0));
 
+    /**
+     * @param {String} name
+     * @param {String} nameWithoutPrefix
+     * @param {*} expectValue
+     */
+    function testFormControl (name, nameWithoutPrefix, expectValue) {
+        it('Sprawdzanie wartości pola ' + name, function () {
+            expect(formOrderHelper.getControlValue(name)).to.eql(expectValue);
+            expect(formOrderHelper.removePrefix(name)).to.be(nameWithoutPrefix);
+        });
+    }
+
     describe('FormHelper', function () {
         describe('#removePrefix()', function () {
             it('Powinno zwrócić nazwę pola "address[city]" bez prefiksu', function () {
@@ -50,6 +62,7 @@
                 expect(helper.removePrefix('address[city]')).to.be('address[city]');
             });
         });
+
         describe('#removeExtremeBrackets()', function () {
             var helper = new Backbone.form.FormHelper(document.createElement('FORM'));
 
@@ -68,6 +81,39 @@
             it('Wyrażenie z jednym domknięciem ale z więcej niż jednym otwarciem zostanie przetworzone', function () {
                 expect(helper.removeExtremeBrackets('[foo[bar]')).to.be('foo[bar');
             });
+        });
+
+        describe('#getInputCheckedValue()', function () {
+            it('Nieistniejące pole zwraca pustą tablicę', function () {
+                expect(formOrderHelper.getInputCheckedValue('gjfdhkjhkjgh')).to.eql([]);
+            });
+
+            it('Porównanie wartości radio order[customer_type]', function () {
+                expect(formOrderHelper.getInputCheckedValue('order[customer_type]')).to.eql(['company']);
+            });
+
+            it('Kiedy wszystkie pola radio posiadają atrybut checked zwracana jest wartość ostatniego pola', function () {
+                expect(formOrderHelper.getInputCheckedValue('order[post]')).to.eql([3]);
+            });
+
+            it('Porównanie wartości checkbox order[addition][]', function () {
+                expect(formOrderHelper.getInputCheckedValue('order[addition][]')).to.eql(['addition3', 'addition5']);
+            });
+
+            it('Porównanie wartości checkbox order[rules]', function () {
+                expect(formOrderHelper.getInputCheckedValue('order[rules]')).to.eql([]);
+            });
+
+            it('Wartość pola nieposiadającego właściwości checked to pusta tablica', function () {
+                expect(formOrderHelper.getInputCheckedValue('order[first_name]')).to.eql([]);
+            });
+        });
+
+        describe('Porównywanie wartości pól formularza "order"', function () {
+            testFormControl('order[attachment]', '[attachment]', null);
+            testFormControl('order[first_name]', '[first_name]', 'John');
+            testFormControl('order[last_name]', '[last_name]', 'Doe');
+            testFormControl('order[email]', '[email]', 'john@doe.com');
         });
     });
 }());

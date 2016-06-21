@@ -43,20 +43,21 @@
     };
 
     /**
-     * @param {HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement} control
+     * @param {String} name
      *
      * @returns {null|String|Array}
      */
-    FormHelper.prototype.getControlValue = function (control) {
-        if (!(control instanceof HTMLElement)) {
-            throw new TypeError('Expected HTMLElement');
+    FormHelper.prototype.getControlValue = function (name) {
+        var control, type, tagName, value = null, arr, i;
+
+        control = this.form.querySelector('[name="' + name + '"]');
+
+        if (control === null) {
+            throw new Error('Not found form control by name "' + name + '"');
         }
 
-        var type = control.getAttribute('type'),
-            name = control.getAttribute('name'),
-            tagName = control.tagName.toLowerCase(),
-            value = null,
-            arr, i;
+        type = control.getAttribute('type');
+        tagName = control.tagName.toLowerCase();
 
         switch (tagName) {
             case 'input':
@@ -76,7 +77,7 @@
                             value = arr[arr.length - 1];
                         }
                     }
-                } else if (type !== 'button' && type !== 'submit' && type !== 'image') {
+                } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'file') {
                     value = control.value;
                 }
                 break;
