@@ -77,7 +77,7 @@
                             value = arr[arr.length - 1];
                         }
                     }
-                } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'file') {
+                } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'file' && type !== 'reset') {
                     value = control.value;
                 }
                 break;

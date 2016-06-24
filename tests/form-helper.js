@@ -1,8 +1,7 @@
 (function () {
     "use strict";
 
-    var nodes, formOrder, formAccount, formOrderHelper,
-        formAccountHelper;
+    var nodes, formOrder, formOrderHelper;
 
     $.ajax({
         url: 'data/form-helper.html',
@@ -18,11 +17,6 @@
      */
     formOrder = nodes.find('#formOrder');
     formOrderHelper = new Backbone.form.FormHelper(formOrder.get(0), 'order');
-    /**
-     * @type {jQuery}
-     */
-    formAccount = nodes.find('#formWihoutPrefix');
-    formAccountHelper = new Backbone.form.FormHelper(formAccount.get(0));
 
     /**
      * @param {String} name
@@ -114,6 +108,26 @@
             testFormControl('order[first_name]', '[first_name]', 'John');
             testFormControl('order[last_name]', '[last_name]', 'Doe');
             testFormControl('order[email]', '[email]', 'john@doe.com');
+            testFormControl('order[tel]', '[tel]', '123456789');
+            testFormControl('order[unknown]', '[unknown]', 'unknown_value');
+            testFormControl('order[customer_type]', '[customer_type]', 'company');
+            testFormControl('order[post]', '[post]', '3');
+            testFormControl('order[agree1]', '[agree1]', null);
+            testFormControl('order[agree2]', '[agree2]', 'yes');
+            testFormControl('order[comment]', '[comment]', 'lorem ipsum');
+            testFormControl('order[address][street]', '[address][street]', 'Mickiewicza 45');
+            testFormControl('order[address][house_number]', '[address][house_number]', '10');
+            testFormControl('order[address][city]', '[address][city]', 'gdynia');
+            testFormControl('order[button1]', '[button1]', null);
+            testFormControl('order[button2]', '[button2]', null);
+            testFormControl('order[button3]', '[button3]', null);
+            testFormControl('order[button4]', '[button4]', null);
+            testFormControl('order[button5]', '[button5]', null);
+            testFormControl('order[image]', '[image]', null);
+            testFormControl('order[item][]', '[item][]', ['item3', 'item5', 'item6']);
+            testFormControl('order[sub_item][]', '[sub_item][]', 'item3');
+            testFormControl('order[addition][]', '[addition][]', ['addition3', 'addition5']);
+            testFormControl('order[rules]', '[rules]', null);
         });
     });
 }());
