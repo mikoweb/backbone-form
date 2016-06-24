@@ -105,7 +105,7 @@
     /**
      * @param {String} name
      *
-     * @return {String}
+     * @returns {String}
      */
     FormHelper.prototype.removePrefix = function (name) {
         return name.indexOf(this.prefix) === 0
@@ -116,12 +116,70 @@
     /**
      * @param {String} name
      *
-     * @return {String}
+     * @returns {String}
      */
     FormHelper.prototype.removeExtremeBrackets = function (name) {
         return name.indexOf('[') === 0 && name.indexOf(']') === name.length-1
             ? name.substr(1, name.length-2)
             : name;
+    };
+
+    /**
+     * @param {String} name
+     * @param {Boolean} keepPrefix
+     * @param {String} mode
+     * @param {String} [divider]
+     *
+     * @returns {Object}
+     */
+    FormHelper.prototype.getObjectFromName = function (name, keepPrefix, mode, divider) {
+        var obj = {}, prefix = null, prefixPos, cursor = obj, lastItem = null, lastName = null, value;
+
+        if (typeof name !== 'string') {
+            throw new TypeError('name is not string');
+        }
+
+        if (typeof keepPrefix !== 'boolean') {
+            throw new TypeError('keepPrefix is not boolean');
+        }
+
+        value = this.getControlValue(name);
+
+        switch (mode) {
+            case 'brackets':
+                var regex = /\[(.*?)\]/g, results;
+
+                prefixPos = name.indexOf('[');
+
+                if (prefixPos > 0) {
+                    prefix = name.substr(0, prefixPos);
+
+                    if (keepPrefix) {
+                        cursor[prefix] = {};
+                        cursor = cursor[prefix];
+                    }
+
+                    while (results = regex.exec(name)) {
+                        lastItem = cursor;
+                        lastName = results[1];
+                        cursor[results[1]] = {};
+                        cursor = cursor[results[1]];
+                    }
+
+                    if (lastItem !== null && lastName !== null) {
+                        lastItem[lastName] = value;
+                    }
+                } else if (prefixPos === -1) {
+                    cursor[name] = value;
+                }
+                break;
+            default:
+                throw new Error('Unexpected mode');
+        }
+
+        console.log(obj);
+
+        return obj;
     };
 
     Backbone.form.FormHelper = FormHelper;

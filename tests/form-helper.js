@@ -129,5 +129,37 @@
             testFormControl('order[addition][]', '[addition][]', ['addition3', 'addition5']);
             testFormControl('order[rules]', '[rules]', null);
         });
+
+        describe('#getObjectFromName', function () {
+            it('Sprawdzanie wartości pola "simple_name" z prefiksem', function () {
+                expect(formOrderHelper.getObjectFromName('simple_name', true, 'brackets')).to.eql({
+                    simple_name: 'lorem ipsum'
+                });
+            });
+
+            it('Sprawdzanie wartości pola "simple_name" bez prefiksu', function () {
+                expect(formOrderHelper.getObjectFromName('simple_name', false, 'brackets')).to.eql({
+                    simple_name: 'lorem ipsum'
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order[address][street] z prefiksem"', function () {
+                expect(formOrderHelper.getObjectFromName('order[address][street]', true, 'brackets')).to.eql({
+                    order: {
+                        address: {
+                            street: 'Mickiewicza 45'
+                        }
+                    }
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order[address][street] bez prefiksu"', function () {
+                expect(formOrderHelper.getObjectFromName('order[address][street]', false, 'brackets')).to.eql({
+                    address: {
+                        street: 'Mickiewicza 45'
+                    }
+                });
+            });
+        });
     });
 }());
