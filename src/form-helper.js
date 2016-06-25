@@ -27,6 +27,15 @@
     /**
      * @param {String} name
      *
+     * @returns {Boolean}
+     */
+    function hasArrayBrackets (name) {
+        return name.substr(name.length - 2) === '[]';
+    }
+
+    /**
+     * @param {String} name
+     *
      * @returns {Array}
      */
     FormHelper.prototype.getInputCheckedValue = function (name) {
@@ -71,7 +80,7 @@
                     arr = this.getInputCheckedValue(name);
 
                     if (arr.length) {
-                        if (name.substr(name.length - 2) === '[]') {
+                        if (hasArrayBrackets(name)) {
                             value = arr;
                         } else {
                             value = arr[arr.length - 1];
@@ -82,7 +91,7 @@
                 }
                 break;
             case 'select':
-                if (control.multiple && name.substr(name.length - 2) === '[]') {
+                if (control.multiple && hasArrayBrackets(name)) {
                     if (control.selectedOptions.length) {
                         value = [];
 
@@ -128,11 +137,11 @@
      * @param {String} name
      * @param {Boolean} keepPrefix
      * @param {String} mode
-     * @param {String} [divider]
+     * @param {String} [separator]
      *
      * @returns {Object}
      */
-    FormHelper.prototype.getObjectFromName = function (name, keepPrefix, mode, divider) {
+    FormHelper.prototype.getObjectFromName = function (name, keepPrefix, mode, separator) {
         var obj = {}, prefix = null, prefixPos, cursor = obj, lastItem = null, lastName = null, value;
 
         if (typeof name !== 'string') {
@@ -144,6 +153,10 @@
         }
 
         value = this.getControlValue(name);
+
+        if (hasArrayBrackets(name)) {
+            name = name.substr(0, name.length - 2);
+        }
 
         switch (mode) {
             case 'brackets':
@@ -173,11 +186,31 @@
                     cursor[name] = value;
                 }
                 break;
+            case 'separator':
+                if (typeof separator !== 'string') {
+                    throw new TypeError('separator is not string');
+                }
+
+                if (!separator.length) {
+                    throw new TypeError('separator is empty');
+                }
+
+                name.split(separator).forEach(function (element, index, array) {
+                    if (keepPrefix || (!keepPrefix && index !== 0) || array.length === 1) {
+                        lastItem = cursor;
+                        lastName = element;
+                        cursor[element] = {};
+                        cursor = cursor[element];
+                    }
+                });
+
+                if (lastItem !== null && lastName !== null) {
+                    lastItem[lastName] = value;
+                }
+                break;
             default:
                 throw new Error('Unexpected mode');
         }
-
-        console.log(obj);
 
         return obj;
     };

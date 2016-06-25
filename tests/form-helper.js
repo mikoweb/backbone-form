@@ -130,7 +130,7 @@
             testFormControl('order[rules]', '[rules]', null);
         });
 
-        describe('#getObjectFromName', function () {
+        describe('#getObjectFromName - w konwencji nazwenictwa z nawiasami', function () {
             it('Sprawdzanie wartości pola "simple_name" z prefiksem', function () {
                 expect(formOrderHelper.getObjectFromName('simple_name', true, 'brackets')).to.eql({
                     simple_name: 'lorem ipsum'
@@ -143,7 +143,7 @@
                 });
             });
 
-            it('Sprawdzanie wartości pola "order[address][street] z prefiksem"', function () {
+            it('Sprawdzanie wartości pola "order[address][street]" z prefiksem', function () {
                 expect(formOrderHelper.getObjectFromName('order[address][street]', true, 'brackets')).to.eql({
                     order: {
                         address: {
@@ -153,10 +153,56 @@
                 });
             });
 
-            it('Sprawdzanie wartości pola "order[address][street] bez prefiksu"', function () {
+            it('Sprawdzanie wartości pola "order[address][street]" bez prefiksu', function () {
                 expect(formOrderHelper.getObjectFromName('order[address][street]', false, 'brackets')).to.eql({
                     address: {
                         street: 'Mickiewicza 45'
+                    }
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order[addition][]" z prefiksem', function () {
+                expect(formOrderHelper.getObjectFromName('order[addition][]', true, 'brackets')).to.eql({
+                    order: {
+                        addition: ['addition3', 'addition5']
+                    }
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order[addition][]" bez prefiksu', function () {
+                expect(formOrderHelper.getObjectFromName('order[addition][]', false, 'brackets')).to.eql({
+                    addition: ['addition3', 'addition5']
+                });
+            });
+        });
+
+        describe('#getObjectFromName - w konwencji nazwenictwa z separatorem', function () {
+            it('Sprawdzanie wartości pola "simple_name" z prefiksem', function () {
+                expect(formOrderHelper.getObjectFromName('simple_name', true, 'separator', '.')).to.eql({
+                    simple_name: 'lorem ipsum'
+                });
+            });
+
+            it('Sprawdzanie wartości pola "simple_name" bez prefiksu', function () {
+                expect(formOrderHelper.getObjectFromName('simple_name', false, 'separator', '.')).to.eql({
+                    simple_name: 'lorem ipsum'
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order.address.city" z prefiksem', function () {
+                expect(formOrderHelper.getObjectFromName('order.address.city', true, 'separator', '.')).to.eql({
+                    order: {
+                        address: {
+                            city: 'Warszawa'
+                        }
+                    }
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order.address.city" bez prefixu', function () {
+                expect(formOrderHelper.getObjectFromName('order.address.city', false, 'separator', '.')).to.eql({
+                    address: {
+                        city: 'Warszawa'
                     }
                 });
             });
