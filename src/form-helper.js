@@ -7,21 +7,57 @@
 
     Backbone.form = Backbone.form || {};
 
+    var MODES = {
+        brackets: 'brackets',
+        separator: 'separator'
+    };
+
     /**
      * @param {HTMLElement} form
-     * @param {String} [prefix]
+     * @param {String} mode
+     * @param {String} [separator]
      * @constructor
      */
-    function FormHelper (form, prefix) {
+    function FormHelper (form, mode, separator) {
+        var validMode = false, k;
+
         if (!(form instanceof HTMLElement)) {
             throw new TypeError('Expected HTMLElement');
+        }
+
+        if (_.isUndefined(mode)) {
+            throw new TypeError('Expected mode');
+        }
+
+        for (k in MODES) {
+            if (MODES.hasOwnProperty(k)) {
+                if (mode === MODES[k]) {
+                    validMode = true;
+                    break;
+                }
+            }
+        }
+
+        if (!validMode) {
+            throw new TypeError('Unexpected mode');
+        }
+
+        if (mode === MODES.separator) {
+            if (typeof separator !== 'string') {
+                throw new TypeError('separator is not string');
+            }
+
+            if (!separator.length) {
+                throw new TypeError('separator is empty');
+            }
         }
 
         /**
          * @type {HTMLElement}
          */
         this.form = form;
-        this.prefix = prefix || '';
+        this.mode = mode;
+        this.separator = separator;
     }
 
     /**
@@ -114,12 +150,49 @@
     /**
      * @param {String} name
      *
+     * @returns {String|null}
+     */
+    FormHelper.prototype.getPrefix = function (name) {
+        var prefix = null, prefixPos = null;
+
+        if (hasArrayBrackets(name)) {
+            name = name.substr(0, name.length - 2);
+        }
+
+        switch (this.mode) {
+            case MODES.brackets:
+                prefixPos = name.indexOf('[');
+
+                if (prefixPos > 0) {
+                    prefix = name.substr(0, prefixPos);
+                }
+                break;
+            case MODES.separator:
+                var names = name.split(this.separator, 2);
+
+                if (names.length > 1) {
+                    prefix = names[0];
+                }
+                break;
+        }
+
+        return prefix;
+    };
+
+    /**
+     * @param {String} name
+     *
      * @returns {String}
      */
     FormHelper.prototype.removePrefix = function (name) {
-        return name.indexOf(this.prefix) === 0
-            ? name.substr(this.prefix.length)
-            : name;
+        var prefix = this.getPrefix(name), value = name;
+
+        if (prefix !== null) {
+            value = name.substr(this.mode === MODES.separator 
+                ? (prefix.length + this.separator.length) : prefix.length);
+        }
+
+        return value;
     };
 
     /**
@@ -136,13 +209,11 @@
     /**
      * @param {String} name
      * @param {Boolean} keepPrefix
-     * @param {String} mode
-     * @param {String} [separator]
      *
      * @returns {Object}
      */
-    FormHelper.prototype.getObjectFromName = function (name, keepPrefix, mode, separator) {
-        var obj = {}, prefix = null, prefixPos, cursor = obj, lastItem = null, lastName = null, value;
+    FormHelper.prototype.getObjectFromName = function (name, keepPrefix) {
+        var obj = {}, prefix = this.getPrefix(name), cursor = obj, lastItem = null, lastName = null, value;
 
         if (typeof name !== 'string') {
             throw new TypeError('name is not string');
@@ -158,15 +229,11 @@
             name = name.substr(0, name.length - 2);
         }
 
-        switch (mode) {
-            case 'brackets':
+        switch (this.mode) {
+            case MODES.brackets:
                 var regex = /\[(.*?)\]/g, results;
 
-                prefixPos = name.indexOf('[');
-
-                if (prefixPos > 0) {
-                    prefix = name.substr(0, prefixPos);
-
+                if (prefix !== null) {
                     if (keepPrefix) {
                         cursor[prefix] = {};
                         cursor = cursor[prefix];
@@ -182,20 +249,12 @@
                     if (lastItem !== null && lastName !== null) {
                         lastItem[lastName] = value;
                     }
-                } else if (prefixPos === -1) {
+                } else {
                     cursor[name] = value;
                 }
                 break;
-            case 'separator':
-                if (typeof separator !== 'string') {
-                    throw new TypeError('separator is not string');
-                }
-
-                if (!separator.length) {
-                    throw new TypeError('separator is empty');
-                }
-
-                name.split(separator).forEach(function (element, index, array) {
+            case MODES.separator:
+                name.split(this.separator).forEach(function (element, index, array) {
                     if (keepPrefix || (!keepPrefix && index !== 0) || array.length === 1) {
                         lastItem = cursor;
                         lastName = element;
@@ -208,8 +267,6 @@
                     lastItem[lastName] = value;
                 }
                 break;
-            default:
-                throw new Error('Unexpected mode');
         }
 
         return obj;
