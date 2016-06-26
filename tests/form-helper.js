@@ -206,6 +206,34 @@
                     }
                 });
             });
+
+            it('Sprawdzanie wartości pola "order.email" z prefiksem', function () {
+                expect(formOrderHelper.getObjectFromName('order.email', true, 'separator', '.')).to.eql({
+                    order: {
+                        email: 'jan@kowalski.pl'
+                    }
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order.email" bez prefiksu', function () {
+                expect(formOrderHelper.getObjectFromName('order.email', false, 'separator', '.')).to.eql({
+                    email: 'jan@kowalski.pl'
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order.item[]" z prefiksem', function () {
+                expect(formOrderHelper.getObjectFromName('order.item[]', true, 'separator', '.')).to.eql({
+                    order: {
+                        item: ['item3', 'item5', 'item6']
+                    }
+                });
+            });
+
+            it('Sprawdzanie wartości pola "order.item[]" bez prefiksu', function () {
+                expect(formOrderHelper.getObjectFromName('order.item[]', false, 'separator', '.')).to.eql({
+                    item: ['item3', 'item5', 'item6']
+                });
+            });
         });
     });
 }());
