@@ -216,10 +216,4 @@
     };
 
     Backbone.form.FormHelper = FormHelper;
-
-    if (typeof define === 'function' && define.amd) {
-        define('backbone.form.form-helper', ['backbone'], function (Backbone) {
-            return Backbone.form.FormHelper;
-        });
-    }
 }());
