@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    var nodes, formOrder, formOrderHelper;
+    var nodes, formOrder, formOrderHelper, formOrderHelperSeparator;
 
     $.ajax({
         url: 'data/form-helper.html',
@@ -16,7 +16,8 @@
      * @type {jQuery}
      */
     formOrder = nodes.find('#formOrder');
-    formOrderHelper = new Backbone.form.FormHelper(formOrder.get(0), 'order');
+    formOrderHelper = new Backbone.form.FormHelper(formOrder.get(0), 'brackets');
+    formOrderHelperSeparator = new Backbone.form.FormHelper(formOrder.get(0), 'separator', '.');
 
     /**
      * @param {String} name
@@ -31,34 +32,59 @@
     }
 
     describe('FormHelper', function () {
+        describe('#getPrefix()', function () {
+            it('Powinno zwrócić prefiks', function () {
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets'),
+                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+
+                expect(helper.getPrefix('foo[bar][dupa]')).to.be('foo');
+                expect(helper.getPrefix('foo[bar][dupa][]')).to.be('foo');
+                expect(helperSeparator.getPrefix('foo.bar.dupa')).to.be('foo');
+                expect(helperSeparator.getPrefix('foo.bar.dupa[]')).to.be('foo');
+            });
+
+            it('Jeżeli nie ma prefiksu to powinno zwrócić null', function () {
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets'),
+                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+
+                expect(helper.getPrefix('foo')).to.be(null);
+                expect(helper.getPrefix('foo[]')).to.be(null);
+                expect(helperSeparator.getPrefix('foo')).to.be(null);
+                expect(helperSeparator.getPrefix('foo[]')).to.be(null);
+            });
+        });
+
         describe('#removePrefix()', function () {
-            it('Powinno zwrócić nazwę pola "address[city]" bez prefiksu', function () {
-                var helper = new Backbone.form.FormHelper(
-                    document.createElement('DIV'),
-                    'address'
-                );
+            it('Testowanie czy zwraca nazwy bez prefiksów', function () {
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets');
                 expect(helper.removePrefix('address[city]')).to.be('[city]');
+                expect(helper.removePrefix('address[item][]')).to.be('[item][]');
+                expect(helper.removePrefix('address[1][street]')).to.be('[1][street]');
+
+                var helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+                expect(helperSeparator.removePrefix('address.city')).to.be('city');
+                expect(helperSeparator.removePrefix('address.item[]')).to.be('item[]');
+                expect(helperSeparator.removePrefix('address.1.street')).to.be('1.street');
+
+                var helperDoubleSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '||');
+                expect(helperDoubleSeparator.removePrefix('address||city')).to.be('city');
+                expect(helperDoubleSeparator.removePrefix('address||item[]')).to.be('item[]');
+                expect(helperDoubleSeparator.removePrefix('address||1||street')).to.be('1||street');
             });
 
-            it('Prefiks rozpoczyna się tylko i wyłącznie na pierwszym znaku', function () {
-                var helper = new Backbone.form.FormHelper(
-                    document.createElement('DIV'),
-                    'ddress[ci'
-                );
-                expect(helper.removePrefix('address[city]')).to.be('address[city]');
-            });
+            it('Wyrażenie bez prefiksu jest nienaruszone', function () {
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets'),
+                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
 
-            it('Wielkość liter ma znaczenie', function () {
-                var helper = new Backbone.form.FormHelper(
-                    document.createElement('DIV'),
-                    'aDdReSs'
-                );
-                expect(helper.removePrefix('address[city]')).to.be('address[city]');
+                expect(helper.removePrefix('foo_bar')).to.be('foo_bar');
+                expect(helper.removePrefix('foo_bar[]')).to.be('foo_bar[]');
+                expect(helperSeparator.removePrefix('foo_bar')).to.be('foo_bar');
+                expect(helperSeparator.removePrefix('foo_bar[]')).to.be('foo_bar[]');
             });
         });
 
         describe('#removeExtremeBrackets()', function () {
-            var helper = new Backbone.form.FormHelper(document.createElement('FORM'));
+            var helper = new Backbone.form.FormHelper(document.createElement('FORM'), 'brackets');
 
             it('Powinno wywalić nawiasy na początku i końcu', function () {
                 expect(helper.removeExtremeBrackets('[last_name]')).to.be('last_name');
@@ -132,19 +158,19 @@
 
         describe('#getObjectFromName - w konwencji nazwenictwa z nawiasami', function () {
             it('Sprawdzanie wartości pola "simple_name" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('simple_name', true, 'brackets')).to.eql({
+                expect(formOrderHelper.getObjectFromName('simple_name', true)).to.eql({
                     simple_name: 'lorem ipsum'
                 });
             });
 
             it('Sprawdzanie wartości pola "simple_name" bez prefiksu', function () {
-                expect(formOrderHelper.getObjectFromName('simple_name', false, 'brackets')).to.eql({
+                expect(formOrderHelper.getObjectFromName('simple_name', false)).to.eql({
                     simple_name: 'lorem ipsum'
                 });
             });
 
             it('Sprawdzanie wartości pola "order[address][street]" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('order[address][street]', true, 'brackets')).to.eql({
+                expect(formOrderHelper.getObjectFromName('order[address][street]', true)).to.eql({
                     order: {
                         address: {
                             street: 'Mickiewicza 45'
@@ -154,7 +180,7 @@
             });
 
             it('Sprawdzanie wartości pola "order[address][street]" bez prefiksu', function () {
-                expect(formOrderHelper.getObjectFromName('order[address][street]', false, 'brackets')).to.eql({
+                expect(formOrderHelper.getObjectFromName('order[address][street]', false)).to.eql({
                     address: {
                         street: 'Mickiewicza 45'
                     }
@@ -162,7 +188,7 @@
             });
 
             it('Sprawdzanie wartości pola "order[addition][]" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('order[addition][]', true, 'brackets')).to.eql({
+                expect(formOrderHelper.getObjectFromName('order[addition][]', true)).to.eql({
                     order: {
                         addition: ['addition3', 'addition5']
                     }
@@ -170,7 +196,7 @@
             });
 
             it('Sprawdzanie wartości pola "order[addition][]" bez prefiksu', function () {
-                expect(formOrderHelper.getObjectFromName('order[addition][]', false, 'brackets')).to.eql({
+                expect(formOrderHelper.getObjectFromName('order[addition][]', false)).to.eql({
                     addition: ['addition3', 'addition5']
                 });
             });
@@ -178,19 +204,19 @@
 
         describe('#getObjectFromName - w konwencji nazwenictwa z separatorem', function () {
             it('Sprawdzanie wartości pola "simple_name" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('simple_name', true, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('simple_name', true)).to.eql({
                     simple_name: 'lorem ipsum'
                 });
             });
 
             it('Sprawdzanie wartości pola "simple_name" bez prefiksu', function () {
-                expect(formOrderHelper.getObjectFromName('simple_name', false, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('simple_name', false)).to.eql({
                     simple_name: 'lorem ipsum'
                 });
             });
 
             it('Sprawdzanie wartości pola "order.address.city" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('order.address.city', true, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('order.address.city', true)).to.eql({
                     order: {
                         address: {
                             city: 'Warszawa'
@@ -200,7 +226,7 @@
             });
 
             it('Sprawdzanie wartości pola "order.address.city" bez prefixu', function () {
-                expect(formOrderHelper.getObjectFromName('order.address.city', false, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('order.address.city', false)).to.eql({
                     address: {
                         city: 'Warszawa'
                     }
@@ -208,7 +234,7 @@
             });
 
             it('Sprawdzanie wartości pola "order.email" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('order.email', true, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('order.email', true)).to.eql({
                     order: {
                         email: 'jan@kowalski.pl'
                     }
@@ -216,13 +242,13 @@
             });
 
             it('Sprawdzanie wartości pola "order.email" bez prefiksu', function () {
-                expect(formOrderHelper.getObjectFromName('order.email', false, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('order.email', false)).to.eql({
                     email: 'jan@kowalski.pl'
                 });
             });
 
             it('Sprawdzanie wartości pola "order.item[]" z prefiksem', function () {
-                expect(formOrderHelper.getObjectFromName('order.item[]', true, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('order.item[]', true)).to.eql({
                     order: {
                         item: ['item3', 'item5', 'item6']
                     }
@@ -230,7 +256,7 @@
             });
 
             it('Sprawdzanie wartości pola "order.item[]" bez prefiksu', function () {
-                expect(formOrderHelper.getObjectFromName('order.item[]', false, 'separator', '.')).to.eql({
+                expect(formOrderHelperSeparator.getObjectFromName('order.item[]', false)).to.eql({
                     item: ['item3', 'item5', 'item6']
                 });
             });
