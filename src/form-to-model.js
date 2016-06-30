@@ -18,7 +18,7 @@
 
         this.model = data.model;
         this.form = data.form;
-        this.options = _.defaults(options, {
+        this.options = _.defaults(options || {}, {
             naming: 'brackets',
             separator: null,
             auto: true,
@@ -94,6 +94,20 @@
                 }
             }
         }
+    };
+
+    /**
+     * @return {Backbone.Model}
+     */
+    FormToModel.prototype.getModel = function () {
+        return this.model;
+    };
+
+    /**
+     * @return {HTMLElement}
+     */
+    FormToModel.prototype.getForm = function () {
+        return this.form;
     };
 
     Backbone.form.FormToModel = FormToModel;
