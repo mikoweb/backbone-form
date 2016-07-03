@@ -21,7 +21,8 @@
         describe('#bindControl() - z nawiasami, bez prefiksu', function () {
             var Model = Backbone.Model.extend(),
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
-                    keepPrefix: false
+                    keepPrefix: false,
+                    auto: false
                 }),
                 model = formToModel.getModel();
 
@@ -77,7 +78,9 @@
         });
         describe('#bindControl() - z nawiasami, z prefiksem', function () {
             var Model = Backbone.Model.extend(),
-                formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
+                formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                    auto: false
+                }),
                 model = formToModel.getModel();
 
             function testOrder (controlName, value) {
@@ -163,7 +166,8 @@
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                     keepPrefix: false,
                     naming: Backbone.form.FormHelper.MODES.separator,
-                    separator: '.'
+                    separator: '.',
+                    auto: false
                 }),
                 model = formToModel.getModel();
 
@@ -190,7 +194,8 @@
             var Model = Backbone.Model.extend(),
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                     naming: Backbone.form.FormHelper.MODES.separator,
-                    separator: '.'
+                    separator: '.',
+                    auto: false
                 }),
                 model = formToModel.getModel();
 
@@ -229,6 +234,42 @@
                 expect(model.get('order[comment]')).to.eql('lorem ipsum');
                 formToModel.bindControl('order[address][city]');
                 expect(model.get('order[address][city]')).to.eql('gdynia');
+            });
+        });
+
+        describe('#bind()', function () {
+            it('Weryfikacja danych - naming: brackets, keepPrefix: true', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {auto: false}),
+                    model = formToModel.getModel(), order;
+
+                formToModel.bind();
+                order = model.get('order');
+                expect(order.attachment).to.be(undefined);
+                expect(order.first_name).to.be('John');
+                expect(order.last_name).to.be('Doe');
+                expect(order.email).to.be('john@doe.com');
+                expect(order.tel).to.be('123456789');
+                expect(order.unknown).to.be('unknown_value');
+                expect(order.customer_type).to.be('company');
+                expect(order.post).to.be('3');
+                expect(order.agree1).to.be(undefined);
+                expect(order.agree2).to.be('yes');
+                expect(order.comment).to.be('lorem ipsum');
+                expect(order.address).to.eql({
+                    street: 'Mickiewicza 45',
+                    house_number: '10',
+                    city: 'gdynia'
+                });
+                expect(order.button1).to.be(undefined);
+                expect(order.button2).to.be(undefined);
+                expect(order.button3).to.be(undefined);
+                expect(order.button4).to.be(undefined);
+                expect(order.button5).to.be(undefined);
+                expect(order.image).to.be(undefined);
+                expect(order.item).to.eql(['item3', 'item5', 'item6']);
+                expect(order.sub_item).to.be('item3');
+                expect(order.addition).to.eql(['addition3', 'addition5']);
             });
         });
     });
