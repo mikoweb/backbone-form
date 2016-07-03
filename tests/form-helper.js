@@ -130,6 +130,10 @@
         });
 
         describe('Porównywanie wartości pól formularza "order"', function () {
+            it('Musi rzucić wyjątek, bo nie ma pola o nazwie abcdef', function () {
+                expect(formOrderHelper.getControlValue).withArgs('abcdef').to.throwException();
+            });
+
             testFormControl('order[attachment]', '[attachment]', null);
             testFormControl('order[first_name]', '[first_name]', 'John');
             testFormControl('order[last_name]', '[last_name]', 'Doe');
