@@ -157,5 +157,79 @@
                 expect(model.get('order.address.city')).to.eql('Warszawa');
             });
         });
+
+        describe('#bindControl() - z separatorem, bez prefiksu', function () {
+            var Model = Backbone.Model.extend(),
+                formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                    keepPrefix: false,
+                    naming: Backbone.form.FormHelper.MODES.separator,
+                    separator: '.'
+                }),
+                model = formToModel.getModel();
+
+            function test (controlName, modelField, value) {
+                it("model.get('" + modelField + "') powinno zwrócić '" + value + "'", function () {
+                    formToModel.bindControl(controlName);
+                    console.log(model);
+                    expect(model.get(modelField)).to.eql(value);
+                });
+            }
+
+            test('simple_name', 'simple_name', 'lorem ipsum');
+            test('order.first_name', 'first_name', 'Jan');
+            test('order.last_name', 'last_name', 'Kowalski');
+            test('order.email', 'email', 'jan@kowalski.pl');
+            test('order.address.city', 'address', {
+                city: 'Warszawa'
+            });
+            test('order.item[]', 'item', ['item3', 'item5', 'item6']);
+            test('order[address][house_number]', 'order[address][house_number]', '10');
+        });
+
+        describe('#bindControl() - z separatorem, z prefiksem', function () {
+            var Model = Backbone.Model.extend(),
+                formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                    naming: Backbone.form.FormHelper.MODES.separator,
+                    separator: '.'
+                }),
+                model = formToModel.getModel();
+
+            function testOrder (controlName, value) {
+                formToModel.bindControl(controlName);
+                expect(model.get('order')).to.eql(value);
+            }
+
+            it('Wartość simple_name to "lorem ipsum"', function () {
+                formToModel.bindControl('simple_name');
+                expect(model.get('simple_name')).to.eql('lorem ipsum');
+            });
+
+            it('Sprawdzanie czy obiekt zwracany przez model.get("order") jest budowany we właściwy sposób po każdym wywołaniu formToModel.bindControl', function () {
+                var value = {};
+
+                value.first_name = 'Jan';
+                testOrder('order.first_name', value);
+
+                value.last_name = 'Kowalski';
+                testOrder('order.last_name', value);
+
+                value.email = 'jan@kowalski.pl';
+                testOrder('order.email', value);
+
+                value.address = {};
+                value.address.city = 'Warszawa';
+                testOrder('order.address.city', value);
+
+                value.item = ['item3', 'item5', 'item6'];
+                testOrder('order.item[]', value);
+            });
+
+            it('Sprawdzanie wartości pól z nawiasami', function () {
+                formToModel.bindControl('order[comment]');
+                expect(model.get('order[comment]')).to.eql('lorem ipsum');
+                formToModel.bindControl('order[address][city]');
+                expect(model.get('order[address][city]')).to.eql('gdynia');
+            });
+        });
     });
 }());
