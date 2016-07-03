@@ -97,6 +97,32 @@
         <label>
             <input type="text" name="simple_name" value="lorem ipsum">
         </label>
+        <fieldset>
+            <legend>Nazwy z separatorem</legend>
+            <label>
+                <input type="text" name="order.first_name" value="Jan">
+            </label>
+            <label>
+                <input type="text" name="order.last_name" value="Kowalski">
+            </label>
+            <label>
+                <input type="email" name="order.email" value="jan@kowalski.pl">
+            </label>
+            <label>
+                <input name="order.address.city" type="text" value="Warszawa">
+            </label>
+            <label>
+                <select name="order.item[]" multiple>
+                    <option value="item1"></option>
+                    <option value="item2"></option>
+                    <option value="item3" selected></option>
+                    <option value="item4"></option>
+                    <option value="item5" selected></option>
+                    <option value="item6" selected></option>
+                    <option value="item7"></option>
+                </select>
+            </label>
+        </fieldset>
     </form>
 </body>
 </html>

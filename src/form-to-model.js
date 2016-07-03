@@ -22,7 +22,7 @@
             naming: 'brackets',
             separator: null,
             auto: true,
-            keepPrefix: false
+            keepPrefix: true
         });
 
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
@@ -41,8 +41,10 @@
             if (source.hasOwnProperty(prop)) {
                 if (target[prop] && typeof source[prop] === 'object') {
                     mergeObject(target[prop], source[prop]);
-                } else {
+                } else if (source[prop] !== null) {
                     target[prop] = source[prop];
+                } else if (target[prop] && source[prop] === null) {
+                    delete target[prop];
                 }
             }
         }
@@ -89,6 +91,8 @@
             if (value[key] !== null) {
                 if (typeof oldValue === 'object' && typeof value[key] === 'object') {
                     this.model.set(key, mergeObject(oldValue, value[key]));
+                } else if (oldValue === undefined && typeof value[key] === 'object') {
+                    this.model.set(key, mergeObject({}, value[key]));
                 } else {
                     this.model.set(key, value[key]);
                 }
