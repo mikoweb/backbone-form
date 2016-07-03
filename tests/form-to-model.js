@@ -83,7 +83,6 @@
             function testOrder (controlName, value) {
                 formToModel.bindControl(controlName);
                 expect(model.get('order')).to.eql(value);
-                console.log(model.get('order'));
             }
 
             it('Wartość simple_name to "lorem ipsum"', function () {
