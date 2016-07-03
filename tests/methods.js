@@ -38,7 +38,7 @@
 
             it('Sprawdzanie czy domyślne opcje są jak być powinny', function () {
                 expect(defaults).to.eql({
-                    naming: 'brackets',
+                    naming: Backbone.form.FormHelper.MODES.brackets,
                     separator: null,
                     auto: true,
                     keepPrefix: true
@@ -48,12 +48,12 @@
             it('Sprawdzanie czy można zmienić opcje', function () {
                 Backbone.form.setFormToModelDefaults({
                     keepPrefix: false,
-                    naming: 'separator',
+                    naming: Backbone.form.FormHelper.MODES.separator,
                     separator: '.'
                 });
 
                 expect(Backbone.form.getFormToModelDefaults()).to.eql({
-                    naming: 'separator',
+                    naming: Backbone.form.FormHelper.MODES.separator,
                     separator: '.',
                     auto: true,
                     keepPrefix: false

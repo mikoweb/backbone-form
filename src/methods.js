@@ -54,12 +54,10 @@
      */
     Backbone.form.setFormToModelDefaults = function (options) {
         formToModelDefaults = _.defaults(options || {}, {
-            naming: 'brackets',
+            naming: Backbone.form.FormHelper.MODES.brackets,
             separator: null,
             auto: true,
             keepPrefix: true
         });
     };
-
-    Backbone.form.setFormToModelDefaults();
 }());

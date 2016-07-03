@@ -16,8 +16,8 @@
      * @type {jQuery}
      */
     formOrder = nodes.find('#formOrder');
-    formOrderHelper = new Backbone.form.FormHelper(formOrder.get(0), 'brackets');
-    formOrderHelperSeparator = new Backbone.form.FormHelper(formOrder.get(0), 'separator', '.');
+    formOrderHelper = new Backbone.form.FormHelper(formOrder.get(0), Backbone.form.FormHelper.MODES.brackets);
+    formOrderHelperSeparator = new Backbone.form.FormHelper(formOrder.get(0), Backbone.form.FormHelper.MODES.separator, '.');
 
     /**
      * @param {String} name
@@ -34,8 +34,8 @@
     describe('FormHelper', function () {
         describe('#getPrefix()', function () {
             it('Powinno zwrócić prefiks', function () {
-                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets'),
-                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.brackets),
+                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.separator, '.');
 
                 expect(helper.getPrefix('foo[bar][dupa]')).to.be('foo');
                 expect(helper.getPrefix('foo[bar][dupa][]')).to.be('foo');
@@ -44,8 +44,8 @@
             });
 
             it('Jeżeli nie ma prefiksu to powinno zwrócić null', function () {
-                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets'),
-                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.brackets),
+                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.separator, '.');
 
                 expect(helper.getPrefix('foo')).to.be(null);
                 expect(helper.getPrefix('foo[]')).to.be(null);
@@ -56,25 +56,25 @@
 
         describe('#removePrefix()', function () {
             it('Testowanie czy zwraca nazwy bez prefiksów', function () {
-                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets');
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.brackets);
                 expect(helper.removePrefix('address[city]')).to.be('[city]');
                 expect(helper.removePrefix('address[item][]')).to.be('[item][]');
                 expect(helper.removePrefix('address[1][street]')).to.be('[1][street]');
 
-                var helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+                var helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.separator, '.');
                 expect(helperSeparator.removePrefix('address.city')).to.be('city');
                 expect(helperSeparator.removePrefix('address.item[]')).to.be('item[]');
                 expect(helperSeparator.removePrefix('address.1.street')).to.be('1.street');
 
-                var helperDoubleSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '||');
+                var helperDoubleSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.separator, '||');
                 expect(helperDoubleSeparator.removePrefix('address||city')).to.be('city');
                 expect(helperDoubleSeparator.removePrefix('address||item[]')).to.be('item[]');
                 expect(helperDoubleSeparator.removePrefix('address||1||street')).to.be('1||street');
             });
 
             it('Wyrażenie bez prefiksu jest nienaruszone', function () {
-                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), 'brackets'),
-                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), 'separator', '.');
+                var helper = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.brackets),
+                    helperSeparator = new Backbone.form.FormHelper(document.createElement('DIV'), Backbone.form.FormHelper.MODES.separator, '.');
 
                 expect(helper.removePrefix('foo_bar')).to.be('foo_bar');
                 expect(helper.removePrefix('foo_bar[]')).to.be('foo_bar[]');
@@ -84,7 +84,7 @@
         });
 
         describe('#removeExtremeBrackets()', function () {
-            var helper = new Backbone.form.FormHelper(document.createElement('FORM'), 'brackets');
+            var helper = new Backbone.form.FormHelper(document.createElement('FORM'), Backbone.form.FormHelper.MODES.brackets);
 
             it('Powinno wywalić nawiasy na początku i końcu', function () {
                 expect(helper.removeExtremeBrackets('[last_name]')).to.be('last_name');
