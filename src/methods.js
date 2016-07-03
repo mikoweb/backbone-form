@@ -7,6 +7,8 @@
 
     Backbone.form = Backbone.form || {};
 
+    var formToModelDefaults = {};
+
     /**
      * @param {Backbone.Model} model
      * @param {HTMLElement|jQuery} form
@@ -39,4 +41,25 @@
             form: form
         };
     };
+
+    /**
+     * @returns {Object}
+     */
+    Backbone.form.getFormToModelDefaults = function () {
+        return formToModelDefaults;
+    };
+
+    /**
+     * @param {Object} [options]
+     */
+    Backbone.form.setFormToModelDefaults = function (options) {
+        formToModelDefaults = _.defaults(options || {}, {
+            naming: 'brackets',
+            separator: null,
+            auto: true,
+            keepPrefix: true
+        });
+    };
+
+    Backbone.form.setFormToModelDefaults();
 }());

@@ -18,13 +18,7 @@
 
         this.model = data.model;
         this.form = data.form;
-        this.options = _.defaults(options || {}, {
-            naming: 'brackets',
-            separator: null,
-            auto: true,
-            keepPrefix: true
-        });
-
+        this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
     }
 
