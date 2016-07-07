@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <form id="formAutobinding">
+        <label>
+            <input type="file" name="order[attachment]">
+        </label>
+        <label>
+            <input type="text" name="order[first_name]">
+        </label>
+        <label>
+            <input type="text" name="order[last_name]">
+        </label>
+        <label>
+            <input type="email" name="order[email]">
+        </label>
+        <label>
+            <input type="tel" name="order[tel]">
+        </label>
+        <label>
+            <input type="unknown" name="order[unknown]">
+        </label>
+        <label>
+            <input type="radio" name="order[customer_type]" value="company">
+        </label>
+        <label>
+            <input type="radio" name="order[customer_type]" value="person">
+        </label>
+        <label>
+            <input type="radio" name="order[post]" value="1">
+        </label>
+        <label>
+            <input type="radio" name="order[post]" value="2">
+        </label>
+        <label>
+            <input type="radio" name="order[post]" value="3">
+        </label>
+        <label>
+            <input type="checkbox" name="order[agree1]" value="yes">
+        </label>
+        <label>
+            <input type="checkbox" name="order[agree2]" value="yes">
+        </label>
+        <label>
+            <textarea name="order[comment]"></textarea>
+        </label>
+        <label>
+            <input name="order[address][street]">
+        </label>
+        <label>
+            <input name="order[address][house_number]">
+        </label>
+        <label>
+            <select name="order[address][city]">
+                <option value="warszawa">Warszawa</option>
+                <option value="wrocław">Wrocław</option>
+                <option value="poznań">Poznań</option>
+                <option value="gdynia">Gdynia</option>
+                <option value="olsztyn">Olsztyn</option>
+            </select>
+        </label>
+        <button name="order[button1]" type="button"></button>
+        <button name="order[button2]" type="reset"></button>
+        <button name="order[button3]" type="submit"></button>
+        <input name="order[button4]" type="submit">
+        <input name="order[button5]" type="reset">
+        <input name="order[image]" type="image" alt="image">
+        <label>
+            <select name="order[item][]" multiple>
+                <option value="item1"></option>
+                <option value="item2"></option>
+                <option value="item3"></option>
+                <option value="item4"></option>
+                <option value="item5"></option>
+                <option value="item6"></option>
+                <option value="item7"></option>
+                <option value="item8"></option>
+            </select>
+        </label>
+        <label>
+            <select name="order[sub_item][]">
+                <option value="item1"></option>
+                <option value="item2"></option>
+                <option value="item3"></option>
+            </select>
+        </label>
+        <label>
+            <input type="checkbox" name="order[addition][]" value="addition1">
+            <input type="checkbox" name="order[addition][]" value="addition2">
+            <input type="checkbox" name="order[addition][]" value="addition3">
+            <input type="checkbox" name="order[addition][]" value="addition4">
+            <input type="checkbox" name="order[addition][]" value="addition5">
+        </label>
+        <label>
+            <input type="checkbox" name="order[rules]" value="yes">
+        </label>
+    </form>
+</body>
+</html>
