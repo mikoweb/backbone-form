@@ -20,6 +20,7 @@
         this.form = data.form;
         this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
+        this.auto(this.options.auto);
     }
 
     /**
@@ -106,6 +107,21 @@
      */
     FormToModel.prototype.getForm = function () {
         return this.form;
+    };
+
+    /**
+     * @param {Boolean} auto
+     */
+    FormToModel.prototype.auto = function (auto) {
+        if (typeof auto !== 'boolean') {
+            throw new TypeError('Auto must be boolean');
+        }
+
+        if (auto) {
+            // @todo zaimplementować tryb automatycznego bindowania
+        } else {
+            // @todo zaimplementować wyłącznik automatycznego bindowania
+        }
     };
 
     Backbone.form.FormToModel = FormToModel;
