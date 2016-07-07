@@ -270,6 +270,55 @@
                 expect(order.item).to.eql(['item3', 'item5', 'item6']);
                 expect(order.sub_item).to.be('item3');
                 expect(order.addition).to.eql(['addition3', 'addition5']);
+
+                expect(model.get('simple_name')).to.be('lorem ipsum');
+                expect(model.get('order.first_name')).to.be('Jan');
+                expect(model.get('order.last_name')).to.be('Kowalski');
+                expect(model.get('order.email')).to.be('jan@kowalski.pl');
+                expect(model.get('order.address.city')).to.be('Warszawa');
+            });
+
+            it('Weryfikacja danych - naming: brackets, keepPrefix: false', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                        auto: false,
+                        keepPrefix: false
+                    }),
+                    model = formToModel.getModel();
+
+                formToModel.bind();
+
+                expect(model.get('attachment')).to.be(undefined);
+                expect(model.get('first_name')).to.be('John');
+                expect(model.get('last_name')).to.be('Doe');
+                expect(model.get('email')).to.be('john@doe.com');
+                expect(model.get('tel')).to.be('123456789');
+                expect(model.get('unknown')).to.be('unknown_value');
+                expect(model.get('customer_type')).to.be('company');
+                expect(model.get('post')).to.be('3');
+                expect(model.get('agree1')).to.be(undefined);
+                expect(model.get('agree2')).to.be('yes');
+                expect(model.get('comment')).to.be('lorem ipsum');
+                expect(model.get('address')).to.eql({
+                    street: 'Mickiewicza 45',
+                    house_number: '10',
+                    city: 'gdynia'
+                });
+                expect(model.get('button1')).to.be(undefined);
+                expect(model.get('button2')).to.be(undefined);
+                expect(model.get('button3')).to.be(undefined);
+                expect(model.get('button4')).to.be(undefined);
+                expect(model.get('button5')).to.be(undefined);
+                expect(model.get('image')).to.be(undefined);
+                expect(model.get('item')).to.eql(['item3', 'item5', 'item6']);
+                expect(model.get('sub_item')).to.be('item3');
+                expect(model.get('addition')).to.eql(['addition3', 'addition5']);
+
+                expect(model.get('simple_name')).to.be('lorem ipsum');
+                expect(model.get('order.first_name')).to.be('Jan');
+                expect(model.get('order.last_name')).to.be('Kowalski');
+                expect(model.get('order.email')).to.be('jan@kowalski.pl');
+                expect(model.get('order.address.city')).to.be('Warszawa');
             });
         });
     });
