@@ -174,7 +174,6 @@
             function test (controlName, modelField, value) {
                 it("model.get('" + modelField + "') powinno zwrócić '" + value + "'", function () {
                     formToModel.bindControl(controlName);
-                    console.log(model);
                     expect(model.get(modelField)).to.eql(value);
                 });
             }
