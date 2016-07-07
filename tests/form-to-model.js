@@ -320,6 +320,50 @@
                 expect(model.get('order.email')).to.be('jan@kowalski.pl');
                 expect(model.get('order.address.city')).to.be('Warszawa');
             });
+
+            it('Weryfikacja danych - naming: separator, keepPrefix: true', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                        auto: false,
+                        naming: Backbone.form.FormHelper.MODES.separator,
+                        separator: '.'
+                    }),
+                    model = formToModel.getModel(), order;
+
+                formToModel.bind();
+                order = model.get('order');
+
+                expect(order.first_name).to.be('Jan');
+                expect(order.last_name).to.be('Kowalski');
+                expect(order.email).to.be('jan@kowalski.pl');
+                expect(order.address).to.eql({
+                    city: 'Warszawa'
+                });
+
+                expect(model.get('order[first_name]')).to.be('John');
+            });
+
+            it('Weryfikacja danych - naming: separator, keepPrefix: false', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                        auto: false,
+                        naming: Backbone.form.FormHelper.MODES.separator,
+                        separator: '.',
+                        keepPrefix: false
+                    }),
+                    model = formToModel.getModel();
+
+                formToModel.bind();
+
+                expect(model.get('first_name')).to.be('Jan');
+                expect(model.get('last_name')).to.be('Kowalski');
+                expect(model.get('email')).to.be('jan@kowalski.pl');
+                expect(model.get('address')).to.eql({
+                    city: 'Warszawa'
+                });
+
+                expect(model.get('order[address][street]')).to.be('Mickiewicza 45');
+            });
         });
     });
 }());
