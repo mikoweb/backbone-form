@@ -7,6 +7,21 @@
 
     Backbone.form = Backbone.form || {};
 
+    var formSelectors = {
+        selectable: 'select, input[type="checkbox"], input[type="radio"]',
+        inputable: 'textarea, input:not([type="radio"],[type="checkbox"],[type="button"],[type="submit"],[type="image"],[type="reset"],[type="file"])'
+    };
+
+    if (Object.freeze) {
+        Object.freeze(formSelectors);
+    }
+
+    function jQueryTest () {
+        if (typeof jQuery === 'undefined') {
+            throw new Error('Auto bind requires jQuery but it is not found');
+        }
+    }
+
     /**
      * @param {Backbone.Model} model
      * @param {HTMLElement|jQuery} form
@@ -16,10 +31,19 @@
     function FormToModel (model, form, options) {
         var data = Backbone.form.validModelForm(model, form);
 
+        this._auto = false;
         this.model = data.model;
         this.form = data.form;
         this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
+
+        try {
+            jQueryTest();
+            this.$form = jQuery(this.form);
+        } catch (e) {
+            this.$form = null;
+        }
+
         this.auto(this.options.auto);
     }
 
@@ -45,6 +69,15 @@
         }
 
         return target;
+    }
+
+    /**
+     * @param {Event} e
+     */
+    function controlBind (e) {
+        if (e.currentTarget !== this.getForm()) {
+            this.bindControl(e.currentTarget.getAttribute('name'));
+        }
     }
 
     /**
@@ -117,11 +150,25 @@
             throw new TypeError('Auto must be boolean');
         }
 
-        if (auto) {
-            // @todo zaimplementować tryb automatycznego bindowania
-        } else {
-            // @todo zaimplementować wyłącznik automatycznego bindowania
+        if (auto && !this._auto) {
+            jQueryTest();
+            this.bind();
+            this.$form.on('propertychange change', formSelectors.selectable, $.proxy(controlBind, this));
+            this.$form.on('propertychange change keyup paste input', formSelectors.inputable, $.proxy(controlBind, this));
+        } else if (!auto && this._auto) {
+            jQueryTest();
+            this.$form.off('propertychange change', formSelectors.selectable, controlBind);
+            this.$form.off('propertychange change keyup paste input', formSelectors.inputable, controlBind);
         }
+
+        this._auto = auto;
+    };
+
+    /**
+     * @returns {Boolean}
+     */
+    FormToModel.prototype.isAuto = function () {
+        return this._auto;
     };
 
     Backbone.form.FormToModel = FormToModel;
