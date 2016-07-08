@@ -63,8 +63,6 @@
 
         triggerName = triggerName || 'change';
 
-
-
         if (input.prop('tagName') === 'SELECT'
             || (input.prop('tagName') === 'INPUT' && (
                 input.attr('type') === 'radio' || input.attr('type') === 'checkbox'
