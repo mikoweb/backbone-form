@@ -56,7 +56,7 @@
         formToModelDefaults = _.defaults(options || {}, {
             naming: Backbone.form.FormHelper.MODES.brackets,
             separator: null,
-            auto: true,
+            auto: false,
             keepPrefix: true
         });
     };

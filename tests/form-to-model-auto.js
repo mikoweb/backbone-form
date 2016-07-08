@@ -16,7 +16,10 @@
         });
 
         form = container.find('#formAutobinding');
-        formToModel = new Backbone.form.FormToModel(new Model(), form, {keepPrefix: false});
+        formToModel = new Backbone.form.FormToModel(new Model(), form, {
+            keepPrefix: false,
+            auto: true
+        });
         model = formToModel.getModel();
     }
 

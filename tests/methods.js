@@ -40,7 +40,7 @@
                 expect(defaults).to.eql({
                     naming: Backbone.form.FormHelper.MODES.brackets,
                     separator: null,
-                    auto: true,
+                    auto: false,
                     keepPrefix: true
                 });
             });
@@ -55,7 +55,7 @@
                 expect(Backbone.form.getFormToModelDefaults()).to.eql({
                     naming: Backbone.form.FormHelper.MODES.separator,
                     separator: '.',
-                    auto: true,
+                    auto: false,
                     keepPrefix: false
                 });
             });
