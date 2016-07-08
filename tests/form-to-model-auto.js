@@ -196,5 +196,18 @@
             emptyValuesTest();
             triggerTest('paste');
         });
+
+        it('Sprawdzanie czy włącznik/wyłącznik działa', function () {
+            loadForm();
+            emptyValuesTest();
+
+            formToModel.auto(false);
+            testValueTrigger('order[last_name]', 'last_name', function (val, modelName) {
+                expect(model.get(modelName)).to.eql('');
+            }, 'change');
+
+            formToModel.auto(true);
+            testValueTrigger('order[last_name]', 'last_name', null, 'change');
+        });
     });
 }());
