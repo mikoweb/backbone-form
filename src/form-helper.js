@@ -276,5 +276,16 @@
         return obj;
     };
 
+    /**
+     * @param {Backbone.Model} model
+     * @param {String} attribute
+     * @param {String} [prefix]
+     *
+     * @returns {String}
+     */
+    FormHelper.prototype.getNameFromModelAttribute = function (model, attribute, prefix) {
+        // @todo ta metoda ma wygenerować nazwę pola formularza dla podanego atrybutu modelu, jest to odwrotność getObjectFromName
+    };
+
     Backbone.form.FormHelper = FormHelper;
 }());
