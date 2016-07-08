@@ -153,12 +153,12 @@
         if (auto && !this._auto) {
             jQueryTest();
             this.bind();
-            this.$form.on('propertychange change', formSelectors.selectable, $.proxy(controlBind, this));
-            this.$form.on('propertychange change keyup paste input', formSelectors.inputable, $.proxy(controlBind, this));
+            this.$form.on('change', formSelectors.selectable, $.proxy(controlBind, this));
+            this.$form.on('change keyup paste input', formSelectors.inputable, $.proxy(controlBind, this));
         } else if (!auto && this._auto) {
             jQueryTest();
-            this.$form.off('propertychange change', formSelectors.selectable, controlBind);
-            this.$form.off('propertychange change keyup paste input', formSelectors.inputable, controlBind);
+            this.$form.off('change', formSelectors.selectable, controlBind);
+            this.$form.off('change keyup paste input', formSelectors.inputable, controlBind);
         }
 
         this._auto = auto;
