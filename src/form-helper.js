@@ -134,8 +134,15 @@
                 }
                 break;
             case 'select':
-                if (control.val().length) {
-                    value = control.val();
+                var selectVal = control.val();
+                if (typeof selectVal === 'string') {
+                    value = selectVal;
+                } else if (_.isArray(selectVal)) {
+                    if (control.attr('multiple') && hasArrayBrackets(name) && selectVal.length) {
+                        value = selectVal;
+                    } else if (!hasArrayBrackets(name) && selectVal.length) {
+                        value = selectVal[selectVal.length-1];
+                    }
                 }
                 break;
             case 'textarea':

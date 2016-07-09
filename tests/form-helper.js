@@ -153,8 +153,10 @@
             testFormControl('order[button5]', '[button5]', null);
             testFormControl('order[image]', '[image]', null);
             testFormControl('order[item][]', '[item][]', ['item3', 'item5', 'item6']);
+            testFormControl('order[item2]', '[item2]', 'item5');
             testFormControl('order[sub_item][]', '[sub_item][]', 'item3');
             testFormControl('order[addition][]', '[addition][]', ['addition3', 'addition5']);
+            testFormControl('order[addition2]', '[addition2]', 'addition4');
             testFormControl('order[rules]', '[rules]', null);
         });
 
