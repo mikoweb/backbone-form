@@ -7,7 +7,8 @@
 
     Backbone.form = Backbone.form || {};
 
-    var formToModelDefaults = {};
+    var formToModelDefaults = {},
+        modelToFormDefaults = {};
 
     /**
      * @param {Backbone.Model} model
@@ -58,6 +59,24 @@
             separator: null,
             auto: false,
             keepPrefix: true
+        });
+    };
+
+    /**
+     * @returns {Object}
+     */
+    Backbone.form.getModelToFormDefaults = function () {
+        return modelToFormDefaults;
+    };
+
+    /**
+     * @param {Object} [options]
+     */
+    Backbone.form.setModelToFormDefaults = function (options) {
+        modelToFormDefaults = _.defaults(options || {}, {
+            naming: Backbone.form.FormHelper.MODES.brackets,
+            separator: null,
+            auto: false
         });
     };
 }());
