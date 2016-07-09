@@ -122,27 +122,18 @@
                 } else if (type === 'checkbox') {
                     arr = this.getInputCheckedValue(controls);
 
-                    if (arr.length) {
-                        if (hasArrayBrackets(name)) {
-                            value = arr;
-                        } else {
-                            value = arr[arr.length - 1];
-                        }
+                    if (arr.length === 1) {
+                        value = arr[0];
+                    } else if (arr.length > 1) {
+                        value = arr;
                     }
                 } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'file' && type !== 'reset') {
                     value = control.val();
                 }
                 break;
             case 'select':
-                var selectVal = control.val();
-                if (typeof selectVal === 'string') {
-                    value = selectVal;
-                } else if (_.isArray(selectVal)) {
-                    if (control.attr('multiple') && hasArrayBrackets(name) && selectVal.length) {
-                        value = selectVal;
-                    } else if (!hasArrayBrackets(name) && selectVal.length) {
-                        value = selectVal[selectVal.length-1];
-                    }
+                if (control.val().length) {
+                    value = control.val();
                 }
                 break;
             case 'textarea':
