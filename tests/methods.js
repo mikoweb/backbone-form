@@ -20,16 +20,16 @@
             });
 
             it('Bez argumentów rzuci wyjątek', function () {
-                expect(Backbone.form.validModelForm).withArgs().to.throwException();
+                expect(Backbone.form.validModelForm).withArgs().to.throwException(/model is undefined/);
             });
 
             it('Niewłaściwy typ modelu rzuci wyjątek', function () {
-                expect(Backbone.form.validModelForm).withArgs(new Date()).to.throwException();
+                expect(Backbone.form.validModelForm).withArgs(new Date(), document.createElement('FORM')).to.throwException(/expected Backbone.Model/);
             });
 
             it('Niewłaściwy typ formularza rzuci wyjątek', function () {
                 var Model = Backbone.Model.extend();
-                expect(Backbone.form.validModelForm).withArgs(new Model(), new Model()).to.throwException();
+                expect(Backbone.form.validModelForm).withArgs(new Model(), new Model()).to.throwException(/expected HTMLElement/);
             });
         });
 
