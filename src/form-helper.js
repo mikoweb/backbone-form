@@ -277,14 +277,64 @@
     };
 
     /**
-     * @param {Backbone.Model} model
-     * @param {String} attribute
+     * @param {String} path
      * @param {String} [prefix]
+     * @param {Boolean} [isCollection]
      *
      * @returns {String}
      */
-    FormHelper.prototype.getNameFromModelAttribute = function (model, attribute, prefix) {
-        // @todo ta metoda ma wygenerować nazwę pola formularza dla podanego atrybutu modelu, jest to odwrotność getObjectFromName
+    FormHelper.prototype.createName = function (path, prefix, isCollection) {
+        var name, levels, i;
+
+        if (typeof path !== 'string') {
+            throw new TypeError('Path must be string');
+        }
+
+        if (path.length === 0) {
+            throw new Error('Path must be longer than 0 characters');
+        }
+
+        if (prefix !== undefined) {
+            if (typeof prefix !== 'string') {
+                throw new TypeError('Prefix must be string');
+            }
+
+            if (prefix.length === 0) {
+                throw new Error('Prefix must be longer than 0 characters');
+            }
+        }
+
+        levels = path.split('.');
+
+        switch (this.mode) {
+            case FormHelper.MODES.brackets:
+                if (prefix) {
+                    name = prefix + '[' + levels[0] + ']';
+                } else if (levels.length > 0) {
+                    name = levels[0];
+                }
+
+                for (i = 1; i < levels.length; ++i) {
+                    name += '[' + levels[i] + ']';
+                }
+
+                break;
+            case FormHelper.MODES.separator:
+                name = prefix ? (prefix + this.separator) : '';
+
+                for (i = 0; i < levels.length; ++i) {
+                    name += levels[i] + this.separator;
+                }
+
+                name = name.substr(0, name.length - this.separator.length);
+                break;
+        }
+
+        if (isCollection) {
+            name += '[]';
+        }
+
+        return name;
     };
 
     Backbone.form.FormHelper = FormHelper;
