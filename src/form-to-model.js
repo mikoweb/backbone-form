@@ -16,12 +16,6 @@
         Object.freeze(formSelectors);
     }
 
-    function jQueryTest () {
-        if (typeof jQuery === 'undefined') {
-            throw new Error('Auto bind requires jQuery but it is not found');
-        }
-    }
-
     /**
      * @param {Backbone.Model} model
      * @param {HTMLElement|jQuery} form
@@ -36,14 +30,7 @@
         this.form = data.form;
         this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
-
-        try {
-            jQueryTest();
-            this.$form = jQuery(this.form);
-        } catch (e) {
-            this.$form = null;
-        }
-
+        this.$form = $(this.form);
         this.auto(this.options.auto);
     }
 
@@ -119,7 +106,7 @@
             if (value[key] !== null) {
                 if (typeof oldValue === 'object' && typeof value[key] === 'object') {
                     this.model.set(key, mergeObject(oldValue, value[key]));
-                } else if (oldValue === undefined && typeof value[key] === 'object') {
+                } else if (_.isUndefined(oldValue) && typeof value[key] === 'object') {
                     this.model.set(key, mergeObject({}, value[key]));
                 } else {
                     this.model.set(key, value[key]);
@@ -151,12 +138,10 @@
         }
 
         if (auto && !this._auto) {
-            jQueryTest();
             this.bind();
             this.$form.on('change', formSelectors.selectable, $.proxy(controlBind, this));
             this.$form.on('change keyup paste input', formSelectors.inputable, $.proxy(controlBind, this));
         } else if (!auto && this._auto) {
-            jQueryTest();
             this.$form.off('change', formSelectors.selectable, controlBind);
             this.$form.off('change keyup paste input', formSelectors.inputable, controlBind);
         }

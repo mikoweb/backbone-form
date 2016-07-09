@@ -33,10 +33,7 @@
                 });
             }
 
-            it('Musi rzucić wyjątek, bo nie ma pola o nazwie abcdef', function () {
-                expect(formToModel.bindControl).withArgs('abcdef').to.throwException();
-            });
-
+            test('not_found_control', 'not_found_control', undefined);
             test('simple_name', 'simple_name', 'lorem ipsum');
             test('order[attachment]', 'attachment', undefined);
             test('order[first_name]', 'first_name', 'John');

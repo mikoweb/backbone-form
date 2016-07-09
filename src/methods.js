@@ -25,12 +25,12 @@
             throw new TypeError('form is undefined');
         }
 
-        if (form.jquery) {
-            form = form.get(0);
-        }
-
         if (!(model instanceof Backbone.Model)) {
             throw new TypeError('expected Backbone.Model');
+        }
+
+        if (!(form instanceof HTMLElement) && _.isFunction(form.get)) {
+            form = form.get(0);
         }
 
         if (!(form instanceof HTMLElement)) {

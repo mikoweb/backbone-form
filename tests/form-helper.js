@@ -109,6 +109,7 @@
             });
 
             it('Porównanie wartości radio order[customer_type]', function () {
+                expect(formOrderHelper.getInputCheckedValue(formOrder.find('[name="order[customer_type]"]'))).to.eql(['company']);
                 expect(formOrderHelper.getInputCheckedValue('order[customer_type]')).to.eql(['company']);
             });
 
@@ -130,10 +131,7 @@
         });
 
         describe('Porównywanie wartości pól formularza "order"', function () {
-            it('Musi rzucić wyjątek, bo nie ma pola o nazwie abcdef', function () {
-                expect(formOrderHelper.getControlValue).withArgs('abcdef').to.throwException();
-            });
-
+            testFormControl('order[not_found_control]', '[not_found_control]', null);
             testFormControl('order[attachment]', '[attachment]', null);
             testFormControl('order[first_name]', '[first_name]', 'John');
             testFormControl('order[last_name]', '[last_name]', 'Doe');

@@ -47,10 +47,7 @@
             }
         }
 
-        /**
-         * @type {HTMLElement}
-         */
-        this.form = form;
+        this.form = $(form);
         this.mode = mode;
         this.separator = separator;
     }
@@ -74,19 +71,27 @@
     }
 
     /**
-     * @param {String} name
+     * @param {String|jQuery} selector
      *
      * @returns {Array}
      */
-    FormHelper.prototype.getInputCheckedValue = function (name) {
-        var arr = [], found, i;
+    FormHelper.prototype.getInputCheckedValue = function (selector) {
+        var arr = [], elements;
 
-        found = this.form.querySelectorAll('[name="' + name + '"]');
-        for (i = 0; i < found.length; i++) {
-            if (found[i].checked) {
-                arr.push(found[i].value);
-            }
+        if (typeof selector === 'string') {
+            elements = this.form.find('[name="' + selector + '"]');
+        } else if (_.isFunction(selector.each)) {
+            elements = selector;
+        } else {
+            throw new Error('Unexpected value');
         }
+
+        elements.each(function () {
+            var $this = $(this);
+            if ($this.is(':checked')) {
+                arr.push($this.val());
+            }
+        });
 
         return arr;
     };
@@ -97,27 +102,25 @@
      * @returns {null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (name) {
-        var control, type, tagName, value = null, arr, i;
+        var controls = this.form.find('[name="' + name + '"]'),
+            control = controls.eq(0),
+            type, tagName, value = null, arr;
 
-        control = this.form.querySelector('[name="' + name + '"]');
-
-        if (control === null) {
-            throw new Error('Not found form control by name "' + name + '"');
+        if (control.length) {
+            type = control.attr('type');
+            tagName = control.prop('tagName').toLowerCase();
         }
-
-        type = control.getAttribute('type');
-        tagName = control.tagName.toLowerCase();
 
         switch (tagName) {
             case 'input':
                 if (type === 'radio') {
-                    arr = this.getInputCheckedValue(name);
+                    arr = this.getInputCheckedValue(controls);
 
                     if (arr.length) {
                         value = arr[arr.length - 1];
                     }
                 } else if (type === 'checkbox') {
-                    arr = this.getInputCheckedValue(name);
+                    arr = this.getInputCheckedValue(controls);
 
                     if (arr.length) {
                         if (hasArrayBrackets(name)) {
@@ -127,24 +130,16 @@
                         }
                     }
                 } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'file' && type !== 'reset') {
-                    value = control.value;
+                    value = control.val();
                 }
                 break;
             case 'select':
-                if (control.multiple && hasArrayBrackets(name)) {
-                    if (control.selectedOptions.length) {
-                        value = [];
-
-                        for (i = 0; i < control.selectedOptions.length; ++i) {
-                            value.push(control.selectedOptions[i].value);
-                        }
-                    }
-                } else {
-                    value = control.value;
+                if (control.val().length) {
+                    value = control.val();
                 }
                 break;
             case 'textarea':
-                value = control.value;
+                value = control.val();
                 break;
         }
 
@@ -294,7 +289,7 @@
             throw new Error('Path must be longer than 0 characters');
         }
 
-        if (prefix !== undefined) {
+        if (!_.isUndefined(prefix)) {
             if (typeof prefix !== 'string') {
                 throw new TypeError('Prefix must be string');
             }
