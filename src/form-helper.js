@@ -359,7 +359,7 @@
             throw new Error('Path must be longer than 0 characters');
         }
 
-        if (!_.isUndefined(prefix)) {
+        if (!_.isUndefined(prefix) && !_.isNull(prefix)) {
             if (typeof prefix !== 'string') {
                 throw new TypeError('Prefix must be string');
             }
