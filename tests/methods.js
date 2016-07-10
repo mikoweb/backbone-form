@@ -65,5 +65,37 @@
                 expect(Backbone.form.getFormToModelDefaults()).to.eql(defaults);
             });
         });
+
+        describe('Domyślne opcje klasy ModelToForm', function () {
+            var defaults = _.clone(Backbone.form.getModelToFormDefaults());
+
+            it('Sprawdzanie czy domyślne opcje są jak być powinny', function () {
+                expect(defaults).to.eql({
+                    naming: Backbone.form.FormHelper.MODES.brackets,
+                    separator: null,
+                    auto: false,
+                    prefix: null
+                });
+            });
+
+            it('Sprawdzanie czy można zmienić opcje', function () {
+                Backbone.form.setModelToFormDefaults({
+                    auto: true,
+                    prefix: 'lorem'
+                });
+
+                expect(Backbone.form.getModelToFormDefaults()).to.eql({
+                    naming: Backbone.form.FormHelper.MODES.brackets,
+                    separator: null,
+                    auto: true,
+                    prefix: 'lorem'
+                });
+            });
+
+            it('Sprawdzanie czy można przywrócić opcje domyślne', function () {
+                Backbone.form.setModelToFormDefaults();
+                expect(Backbone.form.getModelToFormDefaults()).to.eql(defaults);
+            });
+        });
     });
 }());
