@@ -293,7 +293,7 @@
                 expect(helper.createName('root.foo.bar.item', 'lorem', true)).to.be('lorem[root][foo][bar][item][]');
             });
 
-            it('Sprawdzanie czy nazwy z prefiksem "." są prawidłowe', function () {
+            it('Sprawdzanie czy nazwy z separatorem "." są prawidłowe', function () {
                 var helper = new Backbone.form.FormHelper(
                     document.createElement('FORM'),
                     Backbone.form.FormHelper.MODES.separator,
@@ -318,7 +318,7 @@
                 expect(helper.createName('root.foo.bar.item', 'lorem', true)).to.be('lorem.root.foo.bar.item[]');
             });
 
-            it('Sprawdzanie czy nazwy z prefiksem "||" są prawidłowe', function () {
+            it('Sprawdzanie czy nazwy z separatorem "||" są prawidłowe', function () {
                 var helper = new Backbone.form.FormHelper(
                     document.createElement('FORM'),
                     Backbone.form.FormHelper.MODES.separator,
