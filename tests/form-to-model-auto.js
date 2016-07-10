@@ -144,11 +144,11 @@
         if (triggerName === 'change') {
             input = $('[name="order[agree1]"]').attr('checked', 'checked');
             input.trigger(triggerName);
-            expect(model.get('agree1')).to.be('yes');
+            expect(model.get('agree1')).to.eql(['yes']);
 
             input = $('[name="order[agree2]"]').attr('checked', 'checked');
             input.trigger(triggerName);
-            expect(model.get('agree2')).to.be('yes');
+            expect(model.get('agree2')).to.eql(['yes']);
         }
 
         testValueTrigger('order[comment]', 'comment', null, triggerName);

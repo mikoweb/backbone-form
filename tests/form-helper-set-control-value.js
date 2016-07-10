@@ -115,9 +115,9 @@
                 helper.setControlValue('order[addition][]', []);
                 expect(helper.getControlValue('order[addition][]')).to.be(null);
                 helper.setControlValue('order[addition][]', 'addition3');
-                expect(helper.getControlValue('order[addition][]')).to.be('addition3');
+                expect(helper.getControlValue('order[addition][]')).to.eql(['addition3']);
                 helper.setControlValue('order[addition][]', ['addition2']);
-                expect(helper.getControlValue('order[addition][]')).to.be('addition2');
+                expect(helper.getControlValue('order[addition][]')).to.eql(['addition2']);
                 helper.setControlValue('order[addition][]', ['addition2', 'addition1', 'addition5']);
                 expect(helper.getControlValue('order[addition][]')).to.eql(['addition1', 'addition2', 'addition5']);
             });
