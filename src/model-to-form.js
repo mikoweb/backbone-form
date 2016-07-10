@@ -21,6 +21,8 @@
         this.form = data.form;
         this.options = _.defaults(options || {}, Backbone.form.getModelToFormDefaults());
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
+        this.prefix = this.options.prefix;
+        this.$form = $(this.form);
         this.auto(this.options.auto);
     }
 
@@ -28,9 +30,40 @@
     };
 
     /**
-     * @param {String} attr
+     * @param {Array|String[]} attr
      */
     ModelToForm.prototype.bindAttribute = function (attr) {
+        var i, current, value, name;
+
+        if (!_.isArray(attr)) {
+            throw new TypeError('Attribute must be Array');
+        }
+
+        if (attr.length === 0) {
+            throw new TypeError('Array is empty!');
+        }
+
+        current = this.model.get(attr[0]);
+        i = 1;
+        while (!_.isUndefined(current) && i < attr.length) {
+            current = current[attr[i]];
+            ++i;
+        }
+
+        if (attr.length === i && ((!_.isUndefined(current) && !_.isObject(current)) || _.isArray(current))) {
+            if (_.isArray(current)) {
+                value = current;
+                name = this.formHelper.createName(attr.join('.'), this.prefix, true);
+                if (!this.$form.find('[name="' + name + '"]').length) {
+                    name = this.formHelper.createName(attr.join('.'), this.prefix);
+                }
+            } else {
+                value = current.toString();
+                name = this.formHelper.createName(attr.join('.'), this.prefix);
+            }
+
+            this.formHelper.setControlValue(name, value);
+        }
     };
 
     /**
