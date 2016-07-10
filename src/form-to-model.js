@@ -45,7 +45,7 @@
 
         for (prop in source) {
             if (source.hasOwnProperty(prop)) {
-                if (target[prop] && typeof source[prop] === 'object') {
+                if (target[prop] && _.isObject(source[prop]) && !_.isArray(source[prop])) {
                     mergeObject(target[prop], source[prop]);
                 } else if (source[prop] !== null) {
                     target[prop] = source[prop];
