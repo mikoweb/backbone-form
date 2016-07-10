@@ -71,6 +71,52 @@
     }
 
     /**
+     * @param {String} name
+     * @returns {Object}
+     */
+    function controlInfo (name) {
+        if (!_.isString(name)) {
+            throw new TypeError('Name must be string');
+        }
+
+        var controls = this.form.find('[name="' + name + '"]'),
+            control = controls.eq(0),
+            type = null, tagName = null;
+
+        if (control.length) {
+            type = control.attr('type');
+            tagName = control.prop('tagName').toLowerCase();
+        }
+
+        return {
+            /**
+             * @returns {jQuery}
+             */
+            getControls: function () {
+                return controls;
+            },
+            /**
+             * @returns {jQuery}
+             */
+            getControl: function () {
+                return control;
+            },
+            /**
+             * @returns {String|null}
+             */
+            getType: function () {
+                return type;
+            },
+            /**
+             * @returns {String|null}
+             */
+            getTagName: function () {
+                return tagName;
+            }
+        };
+    }
+
+    /**
      * @param {String|jQuery} selector
      *
      * @returns {Array}
@@ -102,46 +148,74 @@
      * @returns {null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (name) {
-        var controls = this.form.find('[name="' + name + '"]'),
-            control = controls.eq(0),
-            type, tagName, value = null, arr;
+        var info = controlInfo.call(this, name), value = null, arr, type = info.getType();
 
-        if (control.length) {
-            type = control.attr('type');
-            tagName = control.prop('tagName').toLowerCase();
-        }
-
-        switch (tagName) {
+        switch (info.getTagName()) {
             case 'input':
                 if (type === 'radio') {
-                    arr = this.getInputCheckedValue(controls);
+                    arr = this.getInputCheckedValue(info.getControls());
 
                     if (arr.length) {
                         value = arr[arr.length - 1];
                     }
                 } else if (type === 'checkbox') {
-                    arr = this.getInputCheckedValue(controls);
+                    arr = this.getInputCheckedValue(info.getControls());
 
                     if (arr.length === 1) {
                         value = arr[0];
                     } else if (arr.length > 1) {
                         value = arr;
                     }
-                } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'file' && type !== 'reset') {
-                    value = control.val();
+                } else if (type !== 'button' && type !== 'submit' && type !== 'image' 
+                    && type !== 'file' && type !== 'reset'
+                ) {
+                    value = info.getControl().val();
                 }
                 break;
             case 'select':
-                if (control.val().length) {
-                    value = control.val();
+                var selectVal = info.getControl().val();
+                if (selectVal && selectVal.length) {
+                    value = selectVal;
                 }
                 break;
             case 'textarea':
-                value = control.val();
+                value = info.getControl().val();
                 break;
         }
 
         return value;
+    };
+
+    /**
+     * @param {String} name
+     * @param {String|Array} value
+     */
+    FormHelper.prototype.setControlValue = function (name, value) {
+        var info = controlInfo.call(this, name), type = info.getType();
+
+        if (!(_.isString(value) || _.isArray(value))) {
+            throw new TypeError('Unexpected value');
+        }
+
+        switch (info.getTagName()) {
+            case 'input':
+                if (type === 'radio') {
+                    info.getControls().val(_.isArray(value) ? (value.length ? [value[0]] : []) : [value]);
+                } else if (type === 'checkbox') {
+                    info.getControls().val(_.isString(value) ? [value] : value);
+                } else if (type !== 'button' && type !== 'submit' && type !== 'image' 
+                    && type !== 'file' && type !== 'reset'
+                ) {
+                    info.getControl().val(_.isArray(value) ? (value.length ? value[0] : '') : value);
+                }
+                break;
+            case 'select':
+                info.getControls().val(_.isString(value) ? [value] : value);
+                break;
+            case 'textarea':
+                info.getControl().val(_.isArray(value) ? (value.length ? value[0] : '') : value);
+                break;
+        }
     };
 
     /**
