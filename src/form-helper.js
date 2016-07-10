@@ -161,9 +161,7 @@
                 } else if (type === 'checkbox') {
                     arr = this.getInputCheckedValue(info.getControls());
 
-                    if (arr.length === 1) {
-                        value = arr[0];
-                    } else if (arr.length > 1) {
+                    if (arr.length) {
                         value = arr;
                     }
                 } else if (type !== 'button' && type !== 'submit' && type !== 'image' 
