@@ -27,11 +27,26 @@
 
             it('Sprawdzanie czy wartości atrybutów modelu zostały prawidłowo naniesione na formularz', function () {
                 model.set({
-                    first_name: 'Sebastien'
+                    first_name: 'Sebastien',
+                    last_name: 'Loeb',
+                    email: 'test@test.test',
+                    tel: '123456789',
+                    unknown: 'lorem',
+                    customer_type: 'person'
                 });
 
                 modelToForm.bindAttribute(['first_name']);
                 expect(modelToForm.formHelper.getControlValue('order[first_name]')).to.be('Sebastien');
+                modelToForm.bindAttribute(['last_name']);
+                expect(modelToForm.formHelper.getControlValue('order[last_name]')).to.be('Loeb');
+                modelToForm.bindAttribute(['email']);
+                expect(modelToForm.formHelper.getControlValue('order[email]')).to.be('test@test.test');
+                modelToForm.bindAttribute(['tel']);
+                expect(modelToForm.formHelper.getControlValue('order[tel]')).to.be('123456789');
+                modelToForm.bindAttribute(['unknown']);
+                expect(modelToForm.formHelper.getControlValue('order[unknown]')).to.be('lorem');
+                modelToForm.bindAttribute(['customer_type']);
+                expect(modelToForm.formHelper.getControlValue('order[customer_type]')).to.be('person');
             });
         });
     });
