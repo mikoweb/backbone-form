@@ -186,13 +186,19 @@
 
     /**
      * @param {String} name
-     * @param {String|Array} value
+     * @param {String|Array|Boolean} value
      */
     FormHelper.prototype.setControlValue = function (name, value) {
         var info = controlInfo.call(this, name), type = info.getType();
 
-        if (!(_.isString(value) || _.isArray(value))) {
+        if (!(_.isString(value) || _.isArray(value) || _.isBoolean(value))) {
             throw new TypeError('Unexpected value');
+        }
+
+        if (_.isBoolean(value) && (info.getTagName() !== 'input' || type !== 'checkbox'
+            || info.getControls().length !== 1)
+        ) {
+            value = '';
         }
 
         switch (info.getTagName()) {
@@ -200,7 +206,11 @@
                 if (type === 'radio') {
                     info.getControls().val(_.isArray(value) ? (value.length ? [value[0]] : []) : [value]);
                 } else if (type === 'checkbox') {
-                    info.getControls().val(_.isString(value) ? [value] : value);
+                    if (_.isBoolean(value)) {
+                        info.getControl().prop('checked', value);
+                    } else {
+                        info.getControls().val(_.isArray(value) ? value : [value]);
+                    }
                 } else if (type !== 'button' && type !== 'submit' && type !== 'image' 
                     && type !== 'file' && type !== 'reset'
                 ) {
@@ -208,7 +218,7 @@
                 }
                 break;
             case 'select':
-                info.getControls().val(_.isString(value) ? [value] : value);
+                info.getControls().val(_.isArray(value) ? value : [value]);
                 break;
             case 'textarea':
                 info.getControl().val(_.isArray(value) ? (value.length ? value[0] : '') : value);

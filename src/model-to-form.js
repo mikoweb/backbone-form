@@ -52,17 +52,15 @@
 
         if (attr.length === i && ((!_.isUndefined(current) && !_.isObject(current)) || _.isArray(current))) {
             if (_.isArray(current)) {
-                value = current;
                 name = this.formHelper.createName(attr.join('.'), this.prefix, true);
                 if (!this.$form.find('[name="' + name + '"]').length) {
                     name = this.formHelper.createName(attr.join('.'), this.prefix);
                 }
             } else {
-                value = current.toString();
                 name = this.formHelper.createName(attr.join('.'), this.prefix);
             }
 
-            this.formHelper.setControlValue(name, value);
+            this.formHelper.setControlValue(name, current);
         }
     };
 
