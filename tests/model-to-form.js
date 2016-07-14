@@ -32,7 +32,8 @@
                     email: 'test@test.test',
                     tel: '123456789',
                     unknown: 'lorem',
-                    customer_type: 'person'
+                    customer_type: 'person',
+                    post: 'no exists value'
                 });
 
                 modelToForm.bindAttribute(['first_name']);
@@ -47,6 +48,8 @@
                 expect(modelToForm.formHelper.getControlValue('order[unknown]')).to.be('lorem');
                 modelToForm.bindAttribute(['customer_type']);
                 expect(modelToForm.formHelper.getControlValue('order[customer_type]')).to.be('person');
+                modelToForm.bindAttribute(['post']);
+                expect(modelToForm.formHelper.getControlValue('order[post]')).to.be(null);
             });
         });
     });
