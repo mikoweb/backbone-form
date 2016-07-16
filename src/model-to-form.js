@@ -26,7 +26,26 @@
         this.auto(this.options.auto);
     }
 
+    /**
+     * @param attributes
+     * @param {Array} path
+     */
+    function bind (attributes, path) {
+        var context = this;
+
+        if (_.isObject(attributes) && !_.isArray(attributes)) {
+            _.each(attributes, function (attr, key) {
+                var contextPath = _.clone(path);
+                contextPath.push(key);
+                bind.call(context, attr, contextPath);
+            });
+        } else if (!_.isUndefined(attributes)) {
+            this.bindAttribute(path);
+        }
+    }
+
     ModelToForm.prototype.bind = function () {
+        bind.call(this, this.model.attributes, []);
     };
 
     /**
