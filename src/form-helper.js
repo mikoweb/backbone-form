@@ -192,7 +192,7 @@
         var info = controlInfo.call(this, name), type = info.getType();
 
         if (!(_.isString(value) || _.isArray(value) || _.isBoolean(value))) {
-            throw new TypeError('Unexpected value');
+            throw new TypeError('Unexpected value with name ' + name);
         }
 
         if (_.isBoolean(value) && (info.getTagName() !== 'input' || type !== 'checkbox'
