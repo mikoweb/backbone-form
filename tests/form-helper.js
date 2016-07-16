@@ -270,27 +270,27 @@
             it('Sprawdzanie czy nazwy z nawiasami są prawidłowe', function () {
                 var helper = new Backbone.form.FormHelper(document.createElement('FORM'), Backbone.form.FormHelper.MODES.brackets);
 
-                expect(helper.createName).to.throwException(/Path must be string/);
-                expect(helper.createName).withArgs('').to.throwException(/Path must be longer than 0 characters/);
-                expect(helper.createName).withArgs('harry_lepper', {}).to.throwException(/Prefix must be string/);
-                expect(helper.createName).withArgs('harry_lepper', '').to.throwException(/Prefix must be longer than 0 characters/);
+                expect(helper.createName).to.throwException(/Path must be Array/);
+                expect(helper.createName).withArgs([]).to.throwException(/Path is empty!/);
+                expect(helper.createName).withArgs(['harry_lepper'], {}).to.throwException(/Prefix must be string/);
+                expect(helper.createName).withArgs(['harry_lepper'], '').to.throwException(/Prefix must be longer than 0 characters/);
 
-                expect(helper.createName('harry_lepper')).to.be('harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc')).to.be('mc[harry_lepper]');
-                expect(helper.createName('harry_lepper', 'mc', false)).to.be('mc[harry_lepper]');
-                expect(helper.createName('harry_lepper', 'mc', true)).to.be('mc[harry_lepper][]');
+                expect(helper.createName(['harry_lepper'])).to.be('harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc')).to.be('mc[harry_lepper]');
+                expect(helper.createName(['harry_lepper'], 'mc', false)).to.be('mc[harry_lepper]');
+                expect(helper.createName(['harry_lepper'], 'mc', true)).to.be('mc[harry_lepper][]');
 
-                expect(helper.createName('foo.bar')).to.be('foo[bar]');
-                expect(helper.createName('foo.bar', 'lorem')).to.be('lorem[foo][bar]');
-                expect(helper.createName('foo.bar', 'lorem', true)).to.be('lorem[foo][bar][]');
+                expect(helper.createName(['foo', 'bar'])).to.be('foo[bar]');
+                expect(helper.createName(['foo', 'bar'], 'lorem')).to.be('lorem[foo][bar]');
+                expect(helper.createName(['foo', 'bar'], 'lorem', true)).to.be('lorem[foo][bar][]');
 
-                expect(helper.createName('foo.bar.foo')).to.be('foo[bar][foo]');
-                expect(helper.createName('foo.bar.foo', 'lorem')).to.be('lorem[foo][bar][foo]');
-                expect(helper.createName('foo.bar.foo', 'lorem', true)).to.be('lorem[foo][bar][foo][]');
+                expect(helper.createName(['foo', 'bar', 'foo'])).to.be('foo[bar][foo]');
+                expect(helper.createName(['foo', 'bar', 'foo'], 'lorem')).to.be('lorem[foo][bar][foo]');
+                expect(helper.createName(['foo', 'bar', 'foo'], 'lorem', true)).to.be('lorem[foo][bar][foo][]');
 
-                expect(helper.createName('root.foo.bar.item')).to.be('root[foo][bar][item]');
-                expect(helper.createName('root.foo.bar.item', 'lorem')).to.be('lorem[root][foo][bar][item]');
-                expect(helper.createName('root.foo.bar.item', 'lorem', true)).to.be('lorem[root][foo][bar][item][]');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'])).to.be('root[foo][bar][item]');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'], 'lorem')).to.be('lorem[root][foo][bar][item]');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'], 'lorem', true)).to.be('lorem[root][foo][bar][item][]');
             });
 
             it('Sprawdzanie czy nazwy z separatorem "." są prawidłowe', function () {
@@ -300,22 +300,22 @@
                     '.'
                 );
 
-                expect(helper.createName('harry_lepper')).to.be('harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc')).to.be('mc.harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc', false)).to.be('mc.harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc', true)).to.be('mc.harry_lepper[]');
+                expect(helper.createName(['harry_lepper'])).to.be('harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc')).to.be('mc.harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc', false)).to.be('mc.harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc', true)).to.be('mc.harry_lepper[]');
 
-                expect(helper.createName('foo.bar')).to.be('foo.bar');
-                expect(helper.createName('foo.bar', 'lorem')).to.be('lorem.foo.bar');
-                expect(helper.createName('foo.bar', 'lorem', true)).to.be('lorem.foo.bar[]');
+                expect(helper.createName(['foo', 'bar'])).to.be('foo.bar');
+                expect(helper.createName(['foo', 'bar'], 'lorem')).to.be('lorem.foo.bar');
+                expect(helper.createName(['foo', 'bar'], 'lorem', true)).to.be('lorem.foo.bar[]');
 
-                expect(helper.createName('foo.bar.foo')).to.be('foo.bar.foo');
-                expect(helper.createName('foo.bar.foo', 'lorem')).to.be('lorem.foo.bar.foo');
-                expect(helper.createName('foo.bar.foo', 'lorem', true)).to.be('lorem.foo.bar.foo[]');
+                expect(helper.createName(['foo', 'bar', 'foo'])).to.be('foo.bar.foo');
+                expect(helper.createName(['foo', 'bar', 'foo'], 'lorem')).to.be('lorem.foo.bar.foo');
+                expect(helper.createName(['foo', 'bar', 'foo'], 'lorem', true)).to.be('lorem.foo.bar.foo[]');
 
-                expect(helper.createName('root.foo.bar.item')).to.be('root.foo.bar.item');
-                expect(helper.createName('root.foo.bar.item', 'lorem')).to.be('lorem.root.foo.bar.item');
-                expect(helper.createName('root.foo.bar.item', 'lorem', true)).to.be('lorem.root.foo.bar.item[]');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'])).to.be('root.foo.bar.item');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'], 'lorem')).to.be('lorem.root.foo.bar.item');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'], 'lorem', true)).to.be('lorem.root.foo.bar.item[]');
             });
 
             it('Sprawdzanie czy nazwy z separatorem "||" są prawidłowe', function () {
@@ -325,22 +325,22 @@
                     '||'
                 );
 
-                expect(helper.createName('harry_lepper')).to.be('harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc')).to.be('mc||harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc', false)).to.be('mc||harry_lepper');
-                expect(helper.createName('harry_lepper', 'mc', true)).to.be('mc||harry_lepper[]');
+                expect(helper.createName(['harry_lepper'])).to.be('harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc')).to.be('mc||harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc', false)).to.be('mc||harry_lepper');
+                expect(helper.createName(['harry_lepper'], 'mc', true)).to.be('mc||harry_lepper[]');
 
-                expect(helper.createName('foo.bar')).to.be('foo||bar');
-                expect(helper.createName('foo.bar', 'lorem')).to.be('lorem||foo||bar');
-                expect(helper.createName('foo.bar', 'lorem', true)).to.be('lorem||foo||bar[]');
+                expect(helper.createName(['foo', 'bar'])).to.be('foo||bar');
+                expect(helper.createName(['foo', 'bar'], 'lorem')).to.be('lorem||foo||bar');
+                expect(helper.createName(['foo', 'bar'], 'lorem', true)).to.be('lorem||foo||bar[]');
 
-                expect(helper.createName('foo.bar.foo')).to.be('foo||bar||foo');
-                expect(helper.createName('foo.bar.foo', 'lorem')).to.be('lorem||foo||bar||foo');
-                expect(helper.createName('foo.bar.foo', 'lorem', true)).to.be('lorem||foo||bar||foo[]');
+                expect(helper.createName(['foo', 'bar', 'foo'])).to.be('foo||bar||foo');
+                expect(helper.createName(['foo', 'bar', 'foo'], 'lorem')).to.be('lorem||foo||bar||foo');
+                expect(helper.createName(['foo', 'bar', 'foo'], 'lorem', true)).to.be('lorem||foo||bar||foo[]');
 
-                expect(helper.createName('root.foo.bar.item')).to.be('root||foo||bar||item');
-                expect(helper.createName('root.foo.bar.item', 'lorem')).to.be('lorem||root||foo||bar||item');
-                expect(helper.createName('root.foo.bar.item', 'lorem', true)).to.be('lorem||root||foo||bar||item[]');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'])).to.be('root||foo||bar||item');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'], 'lorem')).to.be('lorem||root||foo||bar||item');
+                expect(helper.createName(['root', 'foo', 'bar', 'item'], 'lorem', true)).to.be('lorem||root||foo||bar||item[]');
             });
         });
     });
