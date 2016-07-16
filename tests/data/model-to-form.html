@@ -94,6 +94,32 @@
         <label>
             <input type="checkbox" name="order[rules]" value="yes">
         </label>
+        <fieldset>
+            <legend>Nazwy z separatorem</legend>
+            <label>
+                <input type="text" name="order.first_name">
+            </label>
+            <label>
+                <input type="text" name="order.last_name">
+            </label>
+            <label>
+                <input type="email" name="order.email">
+            </label>
+            <label>
+                <input name="order.address.city" type="text">
+            </label>
+            <label>
+                <select name="order.item[]" multiple>
+                    <option value="item1"></option>
+                    <option value="item2"></option>
+                    <option value="item3"></option>
+                    <option value="item4"></option>
+                    <option value="item5"></option>
+                    <option value="item6"></option>
+                    <option value="item7"></option>
+                </select>
+            </label>
+        </fieldset>
     </form>
 </body>
 </html>
