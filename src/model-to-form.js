@@ -33,7 +33,7 @@
      * @param {Array|String[]} attr
      */
     ModelToForm.prototype.bindAttribute = function (attr) {
-        var i, current, value, name;
+        var i, current, name;
 
         if (!_.isArray(attr)) {
             throw new TypeError('Attribute must be Array');
