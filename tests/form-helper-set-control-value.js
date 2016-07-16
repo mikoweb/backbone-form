@@ -40,7 +40,7 @@
                 }
 
                 expect(exception).to.a(TypeError);
-                expect(exception.message).to.be('Unexpected value');
+                expect(exception.message).to.be('Unexpected value with name order[first_name]');
 
                 exception = null;
                 try {
@@ -50,7 +50,7 @@
                 }
 
                 expect(exception).to.a(TypeError);
-                expect(exception.message).to.be('Unexpected value');
+                expect(exception.message).to.be('Unexpected value with name order[first_name]');
 
                 exception = null;
                 try {
