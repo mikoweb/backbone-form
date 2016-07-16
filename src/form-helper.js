@@ -191,7 +191,7 @@
     FormHelper.prototype.setControlValue = function (name, value) {
         var info = controlInfo.call(this, name), type = info.getType();
 
-        if (!(_.isString(value) || _.isArray(value) || _.isBoolean(value))) {
+        if ((_.isObject(value) && !_.isArray(value)) || _.isFunction(value) || _.isUndefined(value)) {
             throw new TypeError('Unexpected value with name ' + name);
         }
 
@@ -352,21 +352,21 @@
     };
 
     /**
-     * @param {String} path
+     * @param {Array} path
      * @param {String} [prefix]
      * @param {Boolean} [isCollection]
      *
      * @returns {String}
      */
     FormHelper.prototype.createName = function (path, prefix, isCollection) {
-        var name, levels, i;
+        var name, i;
 
-        if (typeof path !== 'string') {
-            throw new TypeError('Path must be string');
+        if (!_.isArray(path)) {
+            throw new TypeError('Path must be Array');
         }
 
         if (path.length === 0) {
-            throw new Error('Path must be longer than 0 characters');
+            throw new Error('Path is empty!');
         }
 
         if (!_.isUndefined(prefix) && !_.isNull(prefix)) {
@@ -379,26 +379,24 @@
             }
         }
 
-        levels = path.split('.');
-
         switch (this.mode) {
             case FormHelper.MODES.brackets:
                 if (prefix) {
-                    name = prefix + '[' + levels[0] + ']';
-                } else if (levels.length > 0) {
-                    name = levels[0];
+                    name = prefix + '[' + path[0] + ']';
+                } else if (path.length > 0) {
+                    name = path[0];
                 }
 
-                for (i = 1; i < levels.length; ++i) {
-                    name += '[' + levels[i] + ']';
+                for (i = 1; i < path.length; ++i) {
+                    name += '[' + path[i] + ']';
                 }
 
                 break;
             case FormHelper.MODES.separator:
                 name = prefix ? (prefix + this.separator) : '';
 
-                for (i = 0; i < levels.length; ++i) {
-                    name += levels[i] + this.separator;
+                for (i = 0; i < path.length; ++i) {
+                    name += path[i] + this.separator;
                 }
 
                 name = name.substr(0, name.length - this.separator.length);

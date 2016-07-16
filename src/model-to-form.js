@@ -40,7 +40,7 @@
         }
 
         if (attr.length === 0) {
-            throw new TypeError('Array is empty!');
+            throw new TypeError('Attribute is empty!');
         }
 
         current = this.model.get(attr[0]);
@@ -52,12 +52,12 @@
 
         if (attr.length === i && ((!_.isUndefined(current) && !_.isObject(current)) || _.isArray(current))) {
             if (_.isArray(current)) {
-                name = this.formHelper.createName(attr.join('.'), this.prefix, true);
+                name = this.formHelper.createName(attr, this.prefix, true);
                 if (!this.$form.find('[name="' + name + '"]').length) {
-                    name = this.formHelper.createName(attr.join('.'), this.prefix);
+                    name = this.formHelper.createName(attr, this.prefix);
                 }
             } else {
-                name = this.formHelper.createName(attr.join('.'), this.prefix);
+                name = this.formHelper.createName(attr, this.prefix);
             }
 
             this.formHelper.setControlValue(name, current);
