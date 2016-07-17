@@ -11,7 +11,8 @@
     "moduleType": "amd",
     "license": "GPLv3",
     "dependencies": {
-        "backbone": "~1.2"
+        "backbone": "~1.2",
+        "deep-diff": "0.3.3"
     },
     "devDependencies": {
         "jquery": "~3.0",
