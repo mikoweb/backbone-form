@@ -34,7 +34,7 @@
         });
 
         describe('Domyślne opcje klasy FormToModel', function () {
-            var defaults = _.clone(Backbone.form.getFormToModelDefaults());
+            var defaults = $.extend(true, {}, Backbone.form.getFormToModelDefaults());
 
             it('Sprawdzanie czy domyślne opcje są jak być powinny', function () {
                 expect(defaults).to.eql({
@@ -67,7 +67,7 @@
         });
 
         describe('Domyślne opcje klasy ModelToForm', function () {
-            var defaults = _.clone(Backbone.form.getModelToFormDefaults());
+            var defaults = $.extend(true, {}, Backbone.form.getModelToFormDefaults());
 
             it('Sprawdzanie czy domyślne opcje są jak być powinny', function () {
                 expect(defaults).to.eql({
