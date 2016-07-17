@@ -133,6 +133,55 @@
             expect(formHelper.getControlValue('order[rules]')).to.eql(['yes']);
             model.set('order.item[]', ['item2', 'item1']);
             expect(formHelper.getControlValue('order.item[]')).to.eql(['item1', 'item2']);
+            model.set('simple_name', 'lorem ipsum');
+            expect(formHelper.getControlValue('simple_name')).to.be('lorem ipsum');
+
+            model.clear();
+            expect(formHelper.getControlValue('order[first_name]')).to.be('');
+            expect(formHelper.getControlValue('order[last_name]')).to.be('');
+            expect(formHelper.getControlValue('order[email]')).to.be('');
+            expect(formHelper.getControlValue('order[tel]')).to.be('');
+            expect(formHelper.getControlValue('order[unknown]')).to.be('');
+            expect(formHelper.getControlValue('order[customer_type]')).to.be(null);
+            expect(formHelper.getControlValue('order[post]')).to.be(null);
+            expect(formHelper.getControlValue('order[agree1]')).to.be(null);
+            expect(formHelper.getControlValue('order[agree2]')).to.be(null);
+            expect(formHelper.getControlValue('order[comment]')).to.be('');
+            expect(formHelper.getControlValue('order[address][street]')).to.be('');
+            expect(formHelper.getControlValue('order[address][house_number]')).to.be('');
+            expect(formHelper.getControlValue('order[address][city]')).to.be(null);
+            expect(formHelper.getControlValue('order[item][]')).to.be(null);
+            expect(formHelper.getControlValue('order[sub_item][]')).to.be('item1');
+            expect(formHelper.getControlValue('order[addition][]')).to.be(null);
+            expect(formHelper.getControlValue('order[rules]')).to.be(null);
+
+            model.set({
+                order: {
+                    first_name: 'AAAA',
+                    last_name: 'BBBB'
+                }
+            });
+
+            expect(formHelper.getControlValue('order[first_name]')).to.be('AAAA');
+            expect(formHelper.getControlValue('order[last_name]')).to.be('BBBB');
+
+            model.set({
+                order: {
+                    first_name: 'CCCC'
+                }
+            });
+
+            expect(formHelper.getControlValue('order[first_name]')).to.be('CCCC');
+            expect(formHelper.getControlValue('order[last_name]')).to.be('');
+
+            model.set({
+                order: {
+                    last_name: 'DDDD'
+                }
+            });
+
+            expect(formHelper.getControlValue('order[first_name]')).to.be('');
+            expect(formHelper.getControlValue('order[last_name]')).to.be('DDDD');
         });
     });
 }());
