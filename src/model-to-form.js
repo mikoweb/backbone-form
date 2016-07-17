@@ -44,6 +44,14 @@
         }
     }
 
+    /**
+     * @param {Backbone.Model} model
+     */
+    function onModelChange (model) {
+        console.log(model.changedAttributes());
+        bind.call(this, model.changedAttributes(), []);
+    }
+
     ModelToForm.prototype.bind = function () {
         bind.call(this, this.model.attributes, []);
     };
@@ -103,6 +111,12 @@
     ModelToForm.prototype.auto = function (auto) {
         if (typeof auto !== 'boolean') {
             throw new TypeError('Auto must be boolean');
+        }
+
+        if (auto && !this._auto) {
+            this.model.on('change', onModelChange, this);
+        } else if (!auto && this._auto) {
+            this.model.off('change', onModelChange);
         }
 
         this._auto = auto;
