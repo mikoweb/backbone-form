@@ -105,7 +105,7 @@
 
             if (value[key] !== null) {
                 if (typeof oldValue === 'object' && typeof value[key] === 'object') {
-                    this.model.set(key, mergeObject(oldValue, value[key]));
+                    this.model.set(key, mergeObject($.extend(true, {}, oldValue), value[key]));
                 } else if (_.isUndefined(oldValue) && typeof value[key] === 'object') {
                     this.model.set(key, mergeObject({}, value[key]));
                 } else {
