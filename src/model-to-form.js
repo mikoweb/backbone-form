@@ -27,20 +27,52 @@
     }
 
     /**
+     * @param {Array|String[]} attr
+     * @param value
+     */
+    function controlName (attr, value) {
+        var name;
+
+        if (_.isArray(value)) {
+            name = this.formHelper.createName(attr, this.prefix, true);
+            if (!this.$form.find('[name="' + name + '"]').length) {
+                name = this.formHelper.createName(attr, this.prefix);
+            }
+        } else {
+            name = this.formHelper.createName(attr, this.prefix);
+        }
+
+        return name;
+    }
+
+    /**
+     * @param {Array|String[]} attr
+     * @param lastValue
+     */
+    function clearControlValue (attr, lastValue) {
+        this.formHelper.setControlValue(controlName.call(this, attr, lastValue), null);
+    }
+
+    /**
      * @param attributes
      * @param {Array} path
+     * @param {Boolean} [clear]
      */
-    function bind (attributes, path) {
+    function bind (attributes, path, clear) {
         var context = this;
 
         if (_.isObject(attributes) && !_.isArray(attributes)) {
             _.each(attributes, function (attr, key) {
                 var contextPath = _.clone(path);
                 contextPath.push(key);
-                bind.call(context, attr, contextPath);
+                bind.call(context, attr, contextPath, clear);
             });
         } else if (!_.isUndefined(attributes)) {
-            this.bindAttribute(path);
+            if (clear === true) {
+                clearControlValue.call(this, path, attributes);
+            } else {
+                this.bindAttribute(path);
+            }
         }
     }
 
@@ -48,11 +80,35 @@
      * @param {Backbone.Model} model
      */
     function onModelChange (model) {
-        console.log(model.changedAttributes());
-        bind.call(this, model.changedAttributes(), []);
+        var deepDiff = DeepDiff.noConflict(),
+            diff = deepDiff.diff(model.previousAttributes(), model.attributes), i;
+
+        for (i = 0; i < diff.length; ++i) {
+            if (diff[i].kind === 'D') {
+                bind.call(this, diff[i].lhs, diff[i].path, true);
+            } else {
+                bind.call(this, diff[i].rhs, diff[i].path);
+            }
+        }
     }
 
-    ModelToForm.prototype.bind = function () {
+    /**
+     * @param {Boolean} [diffPrevious]
+     */
+    ModelToForm.prototype.bind = function (diffPrevious) {
+        diffPrevious = diffPrevious || false;
+
+        if (diffPrevious) {
+            var deepDiff = DeepDiff.noConflict(),
+                diff = deepDiff.diff(this.model.previousAttributes(), this.model.attributes), i;
+
+            for (i = 0; i < diff.length; ++i) {
+                if (diff[i].kind === 'D') {
+                    bind.call(this, diff[i].lhs, diff[i].path, true);
+                }
+            }
+        }
+
         bind.call(this, this.model.attributes, []);
     };
 
@@ -60,7 +116,7 @@
      * @param {Array|String[]} attr
      */
     ModelToForm.prototype.bindAttribute = function (attr) {
-        var i, current, name;
+        var i, current;
 
         if (!_.isArray(attr)) {
             throw new TypeError('Attribute must be Array');
@@ -78,16 +134,7 @@
         }
 
         if (attr.length === i && ((!_.isUndefined(current) && !_.isObject(current)) || _.isArray(current))) {
-            if (_.isArray(current)) {
-                name = this.formHelper.createName(attr, this.prefix, true);
-                if (!this.$form.find('[name="' + name + '"]').length) {
-                    name = this.formHelper.createName(attr, this.prefix);
-                }
-            } else {
-                name = this.formHelper.createName(attr, this.prefix);
-            }
-
-            this.formHelper.setControlValue(name, current);
+            this.formHelper.setControlValue(controlName.call(this, attr, current), current);
         }
     };
 
