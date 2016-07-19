@@ -25,6 +25,9 @@
     function FormToModel (model, form, options) {
         var data = Backbone.form.validModelForm(model, form);
 
+        _.extend(this, Backbone.Events);
+        delete this.bind;
+        delete this.unbind;
         this._auto = false;
         this.model = data.model;
         this.form = data.form;
@@ -81,9 +84,13 @@
     FormToModel.prototype.bind = function () {
         var inputs = this.form.querySelectorAll('[name]'), i;
 
+        this.trigger('bind:before', inputs);
+
         for (i = 0; i < inputs.length; i++) {
             this.bindControl(inputs[i].getAttribute('name'));
         }
+
+        this.trigger('bind:after', inputs);
     };
 
     /**
@@ -91,7 +98,7 @@
      */
     FormToModel.prototype.bindControl = function (name) {
         var value = this.formHelper.getObjectFromName(name, this.options.keepPrefix),
-            keys = _.keys(value), key, oldValue;
+            keys = _.keys(value), key, oldValue, fail = true;
 
         if (keys.length > 1) {
             throw new this.WildcardValueError('Control "' + name + '" has ' + keys.length + ' values');
@@ -102,6 +109,8 @@
             oldValue = this.model.get(key);
 
             if (value[key] !== null) {
+                this.trigger('bind:control:before', name, value, oldValue);
+
                 if (typeof oldValue === 'object' && typeof value[key] === 'object') {
                     this.model.set(key, mergeObject($.extend(true, {}, oldValue), value[key]));
                 } else if (_.isUndefined(oldValue) && typeof value[key] === 'object') {
@@ -109,7 +118,14 @@
                 } else {
                     this.model.set(key, value[key]);
                 }
+
+                fail = false;
+                this.trigger('bind:control:after', name, value, oldValue);
             }
+        }
+
+        if (fail) {
+            this.trigger('bind:control:fail', name, value);
         }
     };
 
