@@ -172,7 +172,9 @@
             expect(formToModel.isAuto()).to.be(true);
         });
 
-        it('Model powinien być zapełniony danymi od razu', function () {
+        it('Model nie powinien być zapełniony danymi od razu', function () {
+            expect(emptyValuesTest).to.throwException(/expected undefined to equal ''/);
+            formToModel.bind();
             emptyValuesTest();
         });
 
@@ -182,24 +184,28 @@
 
         it('Wywoływanie zdarzenia input na polach formularza', function () {
             loadForm();
+            formToModel.bind();
             emptyValuesTest();
             triggerTest('input');
         });
 
         it('Wywoływanie zdarzenia keyup na polach formularza', function () {
             loadForm();
+            formToModel.bind();
             emptyValuesTest();
             triggerTest('keyup');
         });
 
         it('Wywoływanie zdarzenia paste na polach formularza', function () {
             loadForm();
+            formToModel.bind();
             emptyValuesTest();
             triggerTest('paste');
         });
 
         it('Sprawdzanie czy włącznik/wyłącznik działa', function () {
             loadForm();
+            formToModel.bind();
             emptyValuesTest();
 
             formToModel.auto(false);
