@@ -138,7 +138,6 @@
         }
 
         if (auto && !this._auto) {
-            this.bind();
             this.$form.on('change', formSelectors.selectable, $.proxy(controlBind, this));
             this.$form.on('change keyup paste input', formSelectors.inputable, $.proxy(controlBind, this));
         } else if (!auto && this._auto) {
