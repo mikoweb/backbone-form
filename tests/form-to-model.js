@@ -1,7 +1,13 @@
 (function () {
     "use strict";
 
-    var nodes, formOrder;
+    var nodes, formOrder, bindCounter = {
+        controlFails: 0,
+        controlBefore: 0,
+        controlAfter: 0,
+        bindBefore: 0,
+        bindAfter: 0
+    };
 
     $.ajax({
         url: 'data/form-to-model.html',
@@ -11,6 +17,30 @@
             nodes = $('<div />').html(html);
         }
     });
+
+    function addFailListener (formToModel) {
+        formToModel.on('bind:control:fail', function () {
+            ++bindCounter.controlFails;
+        });
+    }
+
+    function addCommonListeners (formToModel) {
+        formToModel.on('bind:control:before', function () {
+            ++bindCounter.controlBefore;
+        });
+
+        formToModel.on('bind:control:after', function () {
+            ++bindCounter.controlAfter;
+        });
+
+        formToModel.on('bind:before', function () {
+            ++bindCounter.bindBefore;
+        });
+
+        formToModel.on('bind:after', function () {
+            ++bindCounter.bindAfter;
+        });
+    }
 
     /**
      * @type {jQuery}
@@ -26,6 +56,9 @@
                 }),
                 model = formToModel.getModel();
 
+            addFailListener(formToModel);
+            addCommonListeners(formToModel);
+
             function test (controlName, modelField, value) {
                 it("model.get('" + modelField + "') powinno zwrócić '" + value + "'", function () {
                     formToModel.bindControl(controlName);
@@ -34,8 +67,10 @@
             }
 
             test('not_found_control', 'not_found_control', undefined);
+            --bindCounter.controlFails;
             test('simple_name', 'simple_name', 'lorem ipsum');
             test('order[attachment]', 'attachment', undefined);
+            --bindCounter.controlFails;
             test('order[first_name]', 'first_name', 'John');
             test('order[last_name]', 'last_name', 'Doe');
             test('order[email]', 'email', 'john@doe.com');
@@ -43,6 +78,7 @@
             test('order[unknown]', 'unknown', 'unknown_value');
             test('order[post]', 'post', '3');
             test('order[agree1]', 'agree1', undefined);
+            --bindCounter.controlFails;
             test('order[agree2]', 'agree2', ['yes']);
             test('order[comment]', 'comment', 'lorem ipsum');
             test('order[address][street]', 'address', {
@@ -58,15 +94,22 @@
                 city: 'gdynia'
             });
             test('order[button1]', 'button1', undefined);
+            --bindCounter.controlFails;
             test('order[button2]', 'button2', undefined);
+            --bindCounter.controlFails;
             test('order[button3]', 'button3', undefined);
+            --bindCounter.controlFails;
             test('order[button4]', 'button4', undefined);
+            --bindCounter.controlFails;
             test('order[button5]', 'button5', undefined);
+            --bindCounter.controlFails;
             test('order[image]', 'image', undefined);
+            --bindCounter.controlFails;
             test('order[item][]', 'item', ['item3', 'item5', 'item6']);
             test('order[sub_item][]', 'sub_item', 'item3');
             test('order[addition][]', 'addition', ['addition3', 'addition5']);
             test('order[rules]', 'rules', undefined);
+            --bindCounter.controlFails;
             test('order.first_name', 'order.first_name', 'Jan');
             test('order.last_name', 'order.last_name', 'Kowalski');
             test('order.email', 'order.email', 'jan@kowalski.pl');
@@ -79,6 +122,9 @@
                     auto: false
                 }),
                 model = formToModel.getModel();
+
+            addFailListener(formToModel);
+            addCommonListeners(formToModel);
 
             function testOrder (controlName, value) {
                 formToModel.bindControl(controlName);
@@ -168,6 +214,9 @@
                 }),
                 model = formToModel.getModel();
 
+            addFailListener(formToModel);
+            addCommonListeners(formToModel);
+
             function test (controlName, modelField, value) {
                 it("model.get('" + modelField + "') powinno zwrócić '" + value + "'", function () {
                     formToModel.bindControl(controlName);
@@ -194,6 +243,9 @@
                     auto: false
                 }),
                 model = formToModel.getModel();
+
+            addFailListener(formToModel);
+            addCommonListeners(formToModel);
 
             function testOrder (controlName, value) {
                 formToModel.bindControl(controlName);
@@ -239,6 +291,8 @@
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {auto: false}),
                     model = formToModel.getModel(), order;
 
+                addCommonListeners(formToModel);
+
                 formToModel.bind();
                 order = model.get('order');
                 expect(order.attachment).to.be(undefined);
@@ -282,8 +336,9 @@
                     }),
                     model = formToModel.getModel();
 
-                formToModel.bind();
+                addCommonListeners(formToModel);
 
+                formToModel.bind();
                 expect(model.get('attachment')).to.be(undefined);
                 expect(model.get('first_name')).to.be('John');
                 expect(model.get('last_name')).to.be('Doe');
@@ -326,6 +381,8 @@
                     }),
                     model = formToModel.getModel(), order;
 
+                addCommonListeners(formToModel);
+
                 formToModel.bind();
                 order = model.get('order');
 
@@ -349,8 +406,9 @@
                     }),
                     model = formToModel.getModel();
 
-                formToModel.bind();
+                addCommonListeners(formToModel);
 
+                formToModel.bind();
                 expect(model.get('first_name')).to.be('Jan');
                 expect(model.get('last_name')).to.be('Kowalski');
                 expect(model.get('email')).to.be('jan@kowalski.pl');
@@ -359,6 +417,28 @@
                 });
 
                 expect(model.get('order[address][street]')).to.be('Mickiewicza 45');
+            });
+        });
+
+        describe('Test wartości licznika wywołań listerów', function () {
+            it('bind:control:fail poza kontrolowanymi failami nie powinno się wykonać', function () {
+                expect(bindCounter.controlFails).to.be(0);
+            });
+
+            it('bind:control:before powinno się wykonać conajmniej raz', function () {
+                expect(bindCounter.controlBefore).to.be.greaterThan(0);
+            });
+
+            it('bind:control:before powinno się wykonać tyle samo razy co bind:control:after', function () {
+                expect(bindCounter.controlBefore).to.be(bindCounter.controlAfter);
+            });
+
+            it('bind:before powinno się wykonać conajmniej raz', function () {
+                expect(bindCounter.bindBefore).to.be.greaterThan(0);
+            });
+
+            it('bind:before powinno się wykonać tyle samo razy co bind:after', function () {
+                expect(bindCounter.bindBefore).to.be(bindCounter.bindAfter);
             });
         });
     });
