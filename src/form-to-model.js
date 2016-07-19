@@ -81,8 +81,6 @@
     FormToModel.prototype.bind = function () {
         var inputs = this.form.querySelectorAll('[name]'), i;
 
-        this.model.clear();
-
         for (i = 0; i < inputs.length; i++) {
             this.bindControl(inputs[i].getAttribute('name'));
         }
