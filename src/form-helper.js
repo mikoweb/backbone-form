@@ -352,6 +352,23 @@
     };
 
     /**
+     * @param {Object} object
+     *
+     * @returns {Array}
+     */
+    FormHelper.prototype.getObjectPath = function (object) {
+        var path = [], keys = _.keys(object), cursor = object;
+
+        while (keys.length === 1 && _.isObject(cursor) && !_.isArray(cursor)) {
+            cursor = cursor[keys[0]];
+            path.push(keys[0]);
+            keys = _.keys(cursor);
+        }
+
+        return (_.isObject(cursor) && !_.isArray(cursor)) ? [] : path;
+    };
+
+    /**
      * @param {Array} path
      * @param {String} [prefix]
      * @param {Boolean} [isCollection]
