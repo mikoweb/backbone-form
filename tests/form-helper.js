@@ -266,6 +266,29 @@
             });
         });
 
+        describe('#getObjectPath', function () {
+            it('Funkcja powinna zwrócić pustą tablicę kiedy otrzyma niewłaściwą wartość', function () {
+                expect(formOrderHelperSeparator.getObjectPath('string')).to.eql([]);
+                expect(formOrderHelperSeparator.getObjectPath([1, 2, 3])).to.eql([]);
+                expect(formOrderHelperSeparator.getObjectPath({foo: '123', bar: '123'})).to.eql([]);
+                expect(formOrderHelperSeparator.getObjectPath({foo: {bar: '123', foo: '123'}})).to.eql([]);
+            });
+
+            it('Sprawdzanie czy funkcja zwraca prawidłowe ścieżki', function () {
+                expect(formOrderHelperSeparator.getObjectPath({})).to.eql([]);
+                expect(formOrderHelperSeparator.getObjectPath({foo: [{foo: 1}]})).to.eql(['foo']);
+                expect(formOrderHelperSeparator.getObjectPath({foo: {bar: []}})).to.eql(['foo', 'bar']);
+                expect(formOrderHelperSeparator.getObjectPath({foo: {bar: 'test'}})).to.eql(['foo', 'bar']);
+                expect(formOrderHelperSeparator.getObjectPath({
+                    foo: {
+                        bar: {
+                            lorem: 'lorem'
+                        }
+                    }
+                })).to.eql(['foo', 'bar', 'lorem']);
+            });
+        });
+
         describe('#createName', function () {
             it('Sprawdzanie czy nazwy z nawiasami są prawidłowe', function () {
                 var helper = new Backbone.form.FormHelper(document.createElement('FORM'), Backbone.form.FormHelper.MODES.brackets);
