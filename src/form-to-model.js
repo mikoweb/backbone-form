@@ -73,12 +73,15 @@
 
     /**
      * @param {Object} value
+     *
+     * @return {Boolean}
      */
     function clearAttr (value) {
-        var path = this.formHelper.getObjectPath(value);
+        var path = this.formHelper.getObjectPath(value), cleared = false;
 
         if (path.length === 1) {
             this.model.unset(path[0], {silent: true});
+            cleared = true;
         } else if (path.length > 1) {
             var attr, prevAttr, i, found = true,
                 length = path.length - 1;
@@ -106,9 +109,13 @@
                     if (_.keys(this.model.get(path[0])).length === 0) {
                         this.model.unset(path[0], {silent: true});
                     }
+
+                    cleared = true;
                 }
             }
         }
+
+        return cleared;
     }
 
     /**
@@ -126,6 +133,7 @@
         var inputs = this.$form.find('[name]'), i;
 
         this.trigger('bind:before', inputs);
+        this.sync();
 
         for (i = 0; i < inputs.length; i++) {
             this.bindControl(inputs.get(i).getAttribute('name'));
@@ -216,7 +224,7 @@
     };
 
     FormToModel.prototype.sync = function () {
-        var name, control;
+        var name, control, toDelete = [], i;
 
         this.trigger('sync:before', this._toSynchronize);
 
@@ -224,14 +232,19 @@
             if (this._toSynchronize.hasOwnProperty(name)) {
                 control = this.$form.find('[name="' + name + '"]');
                 if (control.length === 0) {
-                    clearAttr.call(this, this._toSynchronize[name].value);
+                    if (clearAttr.call(this, this._toSynchronize[name].value)) {
+                        toDelete.push(name);
+                    }
                 } else if (control.length !== this._toSynchronize[name].length) {
                     this.bindControl(name);
                 }
             }
         }
 
-        this._toSynchronize = {};
+        for (i = 0; i < toDelete.length; ++i) {
+            delete this._toSynchronize[toDelete[i]];
+        }
+
         this.trigger('sync:after', this._toSynchronize);
     };
 
