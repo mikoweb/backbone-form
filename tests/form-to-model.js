@@ -420,6 +420,72 @@
             });
         });
 
+        describe('#sync()', function () {
+            it('Kiedy pole zostanie usunięte jego wartość powinna zostać usunięta z modelu', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
+                    model = formToModel.getModel(), order;
+
+                formToModel.bind();
+                order = model.get('order');
+
+                expect(model.get('simple_name')).to.be('lorem ipsum');
+                formOrder.find('[name="simple_name"]').remove();
+                expect(model.get('simple_name')).to.be('lorem ipsum');
+                formToModel.sync();
+                expect(model.get('simple_name')).to.be(undefined);
+
+                expect(order.first_name).to.be('John');
+                formOrder.find('[name="order[first_name]"]').remove();
+                expect(order.first_name).to.be('John');
+                formToModel.sync();
+                expect(order.first_name).to.be(undefined);
+
+                expect(order.address.street).to.be('Mickiewicza 45');
+                formOrder.find('[name="order[address][street]"]').remove();
+                expect(order.address.street).to.be('Mickiewicza 45');
+                formToModel.bind();
+                expect(order.address.street).to.be(undefined);
+            });
+
+            it('Kiedy zostanie dodane/usunięte pole wielokrotnego wyboru powinno zostać wywołane bindControl', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
+                    model = formToModel.getModel(), order;
+
+                formToModel.bind();
+                order = model.get('order');
+                expect(order.addition).to.eql(['addition3', 'addition5']);
+                formOrder.find('[name="order[addition][]"][value="addition3"]').remove();
+                expect(order.addition).to.eql(['addition3', 'addition5']);
+                formToModel.sync();
+                order = model.get('order');
+                expect(order.addition).to.eql(['addition5']);
+                formOrder.append(
+                    $('<input />')
+                        .attr('name', 'order[addition][]')
+                        .attr('type', 'checkbox')
+                        .attr('value', 'test')
+                        .attr('checked', 'checked')
+                );
+                formToModel.sync();
+                order = model.get('order');
+                expect(order.addition).to.eql(['addition5', 'test']);
+            });
+
+            it('Usunięcie wszystkich kontrolek powinno wyczyścić model.', function () {
+                var Model = Backbone.Model.extend(),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
+                    model = formToModel.getModel();
+
+                formToModel.bind();
+                expect(model.attributes).to.not.eql({});
+                formOrder.find('[name]').remove();
+                formToModel.sync();
+                expect(model.attributes).to.eql({});
+            });
+        });
+
         describe('Test wartości licznika wywołań listerów', function () {
             it('bind:control:fail poza kontrolowanymi failami nie powinno się wykonać', function () {
                 expect(bindCounter.controlFails).to.be(0);
