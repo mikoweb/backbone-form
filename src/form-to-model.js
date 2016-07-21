@@ -29,6 +29,7 @@
         delete this.bind;
         delete this.unbind;
         this._auto = false;
+        this._toSynchronize = {};
         this.model = data.model;
         this.form = data.form;
         this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
@@ -71,6 +72,46 @@
     }
 
     /**
+     * @param {Object} value
+     */
+    function clearAttr (value) {
+        var path = this.formHelper.getObjectPath(value);
+
+        if (path.length === 1) {
+            this.model.unset(path[0], {silent: true});
+        } else if (path.length > 1) {
+            var attr, prevAttr, i, found = true,
+                length = path.length - 1;
+
+            attr = this.model.get(path[0]);
+            if (_.isObject(attr) && !_.isArray(attr)) {
+                i = 1;
+                while (i < length && found) {
+                    prevAttr = attr;
+                    attr = attr[path[i]];
+                    if (!(_.isObject(attr) && !_.isArray(attr))) {
+                        found = false;
+                    }
+
+                    ++i;
+                }
+
+                if (found) {
+                    delete attr[path[path.length - 1]];
+
+                    if (prevAttr && _.keys(attr).length === 0 && path.length - 2 > -1) {
+                        delete prevAttr[path[path.length - 2]];
+                    }
+
+                    if (_.keys(this.model.get(path[0])).length === 0) {
+                        this.model.unset(path[0], {silent: true});
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * @param {String} message
      * @constructor
      */
@@ -82,12 +123,12 @@
     FormToModel.prototype.WildcardValueError.prototype = new Error();
 
     FormToModel.prototype.bind = function () {
-        var inputs = this.form.querySelectorAll('[name]'), i;
+        var inputs = this.$form.find('[name]'), i;
 
         this.trigger('bind:before', inputs);
 
         for (i = 0; i < inputs.length; i++) {
-            this.bindControl(inputs[i].getAttribute('name'));
+            this.bindControl(inputs.get(i).getAttribute('name'));
         }
 
         this.trigger('bind:after', inputs);
@@ -120,6 +161,11 @@
                 }
 
                 fail = false;
+                this._toSynchronize[name] = {
+                    value: value,
+                    length: this.$form.find('[name="' + name + '"]').length
+                };
+
                 this.trigger('bind:control:after', name, value, oldValue);
             }
         }
@@ -167,6 +213,26 @@
      */
     FormToModel.prototype.isAuto = function () {
         return this._auto;
+    };
+
+    FormToModel.prototype.sync = function () {
+        var name, control;
+
+        this.trigger('sync:before', this._toSynchronize);
+
+        for (name in this._toSynchronize) {
+            if (this._toSynchronize.hasOwnProperty(name)) {
+                control = this.$form.find('[name="' + name + '"]');
+                if (control.length === 0) {
+                    clearAttr.call(this, this._toSynchronize[name].value);
+                } else if (control.length !== this._toSynchronize[name].length) {
+                    this.bindControl(name);
+                }
+            }
+        }
+
+        this._toSynchronize = {};
+        this.trigger('sync:after', this._toSynchronize);
     };
 
     Backbone.form.FormToModel = FormToModel;
