@@ -28,13 +28,22 @@
 
     /**
      * @param {Object} obj
+     *
+     * @returns {Boolean}
+     */
+    related.isRelatedWith = function (obj) {
+        return _.contains(this._related, obj);
+    };
+
+    /**
+     * @param {Object} obj
      */
     related.addRelated = function (obj) {
         throwIsUnexpectedRelated.call(this, obj);
 
-        if (!_.contains(this._related, obj)) {
+        if (!this.isRelatedWith(obj)) {
             this._related.push(obj);
-            if (!_.contains(obj.getRelated(), this)) {
+            if (!obj.isRelatedWith(this)) {
                 obj.addRelated(this);
             }
         }
@@ -46,11 +55,11 @@
     related.removeRelated = function (obj) {
         throwIsUnexpectedRelated.call(this, obj);
 
-        if (_.contains(this._related, obj)) {
+        if (this.isRelatedWith(obj)) {
             this._related = _.reject(this._related, function (item) {
                 return obj === item;
             });
-            if (_.contains(obj.getRelated(), this)) {
+            if (obj.isRelatedWith(this)) {
                 obj.removeRelated(this);
             }
         }
