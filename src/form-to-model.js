@@ -29,6 +29,7 @@
         delete this.bind;
         delete this.unbind;
         this._auto = false;
+        this._silent = false;
         this._toSynchronize = {};
         this.model = data.model;
         this.form = data.form;
@@ -66,7 +67,7 @@
      * @param {Event} e
      */
     function controlBind (e) {
-        if (e.currentTarget !== this.getForm()) {
+        if (!this._silent && e.currentTarget !== this.getForm()) {
             this.bindControl(e.currentTarget.getAttribute('name'));
         }
     }

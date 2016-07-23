@@ -20,6 +20,7 @@
         delete this.bind;
         delete this.unbind;
         this._auto = false;
+        this._silent = false;
         this.model = data.model;
         this.form = data.form;
         this.options = _.defaults(options || {}, Backbone.form.getModelToFormDefaults());
@@ -83,14 +84,16 @@
      * @param {Backbone.Model} model
      */
     function onModelChange (model) {
-        var deepDiff = DeepDiff.noConflict(),
-            diff = deepDiff.diff(model.previousAttributes(), model.attributes), i;
+        if (!this._silent) {
+            var deepDiff = DeepDiff.noConflict(),
+                diff = deepDiff.diff(model.previousAttributes(), model.attributes), i;
 
-        for (i = 0; i < diff.length; ++i) {
-            if (diff[i].kind === 'D') {
-                bind.call(this, diff[i].lhs, diff[i].path, true);
-            } else {
-                bind.call(this, diff[i].rhs, diff[i].path);
+            for (i = 0; i < diff.length; ++i) {
+                if (diff[i].kind === 'D') {
+                    bind.call(this, diff[i].lhs, diff[i].path, true);
+                } else {
+                    bind.call(this, diff[i].rhs, diff[i].path);
+                }
             }
         }
     }
