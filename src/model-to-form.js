@@ -21,6 +21,7 @@
         delete this.unbind;
         _.extend(this, Backbone.form.mixin.related);
         _.extend(this, Backbone.form.mixin.relatedSilent);
+        this._related = [];
         this._auto = false;
         this._silent = false;
         this.model = data.model;

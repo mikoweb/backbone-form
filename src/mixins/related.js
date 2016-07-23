@@ -8,7 +8,7 @@
     Backbone.form = Backbone.form || {};
     Backbone.form.mixin = Backbone.form.mixin || {};
 
-    var related = {_related: []};
+    var related = {};
 
     /**
      * @param {Object} obj
