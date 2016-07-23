@@ -20,6 +20,7 @@
         delete this.bind;
         delete this.unbind;
         _.extend(this, Backbone.form.mixin.related);
+        _.extend(this, Backbone.form.mixin.relatedSilent);
         this._auto = false;
         this._silent = false;
         this.model = data.model;
@@ -146,7 +147,16 @@
         if (attr.length === i && ((!_.isUndefined(current) && !_.isObject(current)) || _.isArray(current))) {
             name = controlName.call(this, attr, current);
             this.trigger('bind:attr:before', attr, name, current);
-            this.formHelper.setControlValue(name, current);
+            this.silentRelated(true);
+
+            try {
+                this.formHelper.setControlValue(name, current);
+            } catch (e) {
+                this.silentRelated(false);
+                throw e;
+            }
+
+            this.silentRelated(false);
             this.trigger('bind:attr:after', attr, name, current);
         } else {
             this.trigger('bind:attr:fail', attr);
