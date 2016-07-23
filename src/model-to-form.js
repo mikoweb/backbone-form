@@ -16,6 +16,9 @@
     function ModelToForm (model, form, options) {
         var data = Backbone.form.validModelForm(model, form);
 
+        _.extend(this, Backbone.Events);
+        delete this.bind;
+        delete this.unbind;
         this._auto = false;
         this.model = data.model;
         this.form = data.form;
@@ -98,6 +101,8 @@
     ModelToForm.prototype.bind = function (diffPrevious) {
         diffPrevious = diffPrevious || false;
 
+        this.trigger('bind:before');
+
         if (diffPrevious) {
             var deepDiff = DeepDiff.noConflict(),
                 diff = deepDiff.diff(this.model.previousAttributes(), this.model.attributes), i;
@@ -110,13 +115,14 @@
         }
 
         bind.call(this, this.model.attributes, []);
+        this.trigger('bind:after');
     };
 
     /**
      * @param {Array|String[]} attr
      */
     ModelToForm.prototype.bindAttribute = function (attr) {
-        var i, current;
+        var i, current, name;
 
         if (!_.isArray(attr)) {
             throw new TypeError('Attribute must be Array');
@@ -134,7 +140,12 @@
         }
 
         if (attr.length === i && ((!_.isUndefined(current) && !_.isObject(current)) || _.isArray(current))) {
-            this.formHelper.setControlValue(controlName.call(this, attr, current), current);
+            name = controlName.call(this, attr, current);
+            this.trigger('bind:attr:before', attr, name, current);
+            this.formHelper.setControlValue(name, current);
+            this.trigger('bind:attr:after', attr, name, current);
+        } else {
+            this.trigger('bind:attr:fail', attr);
         }
     };
 
