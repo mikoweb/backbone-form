@@ -16,6 +16,7 @@
     function TwoWayBinding (model, form, options) {
         this.formToModel = new Backbone.form.FormToModel(model, form, options);
         this.modelToForm = new Backbone.form.ModelToForm(model, form, options);
+        this.formToModel.addRelated(this.modelToForm);
         this.auto(_.isObject(options) && _.isBoolean(options.auto) ? options.auto : false);
     }
 
