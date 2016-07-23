@@ -28,6 +28,7 @@
         _.extend(this, Backbone.Events);
         delete this.bind;
         delete this.unbind;
+        _.extend(this, Backbone.form.mixin.related);
         this._auto = false;
         this._silent = false;
         this._toSynchronize = {};
@@ -247,6 +248,13 @@
         }
 
         this.trigger('sync:after', this._toSynchronize);
+    };
+
+    /**
+     * @returns {Function} {@link Backbone.form.ModelToForm}.
+     */
+    FormToModel.prototype.getRelatedClass = function () {
+        return Backbone.form.ModelToForm;
     };
 
     Backbone.form.FormToModel = FormToModel;

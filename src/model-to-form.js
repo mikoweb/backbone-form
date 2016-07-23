@@ -19,6 +19,7 @@
         _.extend(this, Backbone.Events);
         delete this.bind;
         delete this.unbind;
+        _.extend(this, Backbone.form.mixin.related);
         this._auto = false;
         this._silent = false;
         this.model = data.model;
@@ -188,6 +189,13 @@
      */
     ModelToForm.prototype.isAuto = function () {
         return this._auto;
+    };
+
+    /**
+     * @returns {Function} {@link Backbone.form.FormToModel}.
+     */
+    ModelToForm.prototype.getRelatedClass = function () {
+        return Backbone.form.FormToModel;
     };
 
     Backbone.form.ModelToForm = ModelToForm;
