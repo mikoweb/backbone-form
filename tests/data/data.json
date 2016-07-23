@@ -1,0 +1,29 @@
+{
+    "order": {
+        "first_name": "Sebastien",
+        "last_name": "Loeb",
+        "email": "test@test.test",
+        "tel": "123456789",
+        "unknown": "lorem",
+        "customer_type": "person",
+        "post": "no exists value",
+        "agree1": true,
+        "agree2": false,
+        "comment": "Lorem Ipsum",
+        "address": {
+            "street": "Wall Street",
+            "house_number": 20,
+            "city": "gdynia"
+        },
+        "button": "test",
+        "item": ["item2", "item6"],
+        "sub_item": ["item1", "item2"],
+        "addition": ["addition2", "addition3"],
+        "rules":"yes"
+    },
+    "order.address.city": "test",
+    "order.first_name": "John",
+    "order.last_name": "Doe",
+    "order.email": "john@doe.com",
+    "order.item": ["item1", "item2"]
+}
