@@ -23,14 +23,22 @@ module.exports = function (grunt) {
                     'dist/backbone-form.min.js': ['dist/backbone-form.js']
                 }
             }
+        },
+        copy: {
+            dist: {
+                src: 'dist/backbone-form.min.js',
+                dest: 'demo/backbone-form.min.js'
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     grunt.registerTask('dist', [
         'concat:dist',
-        'uglify:dist'
+        'uglify:dist',
+        'copy:dist'
     ]);
 };
