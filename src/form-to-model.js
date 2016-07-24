@@ -242,7 +242,7 @@
         for (name in this._toSynchronize) {
             if (this._toSynchronize.hasOwnProperty(name)) {
                 control = this.$form.find('[name="' + name + '"]');
-                if (control.length === 0) {
+                if (control.length === 0 || control.is(':disabled')) {
                     if (clearAttr.call(this, this._toSynchronize[name].value)) {
                         toDelete.push(name);
                     }
