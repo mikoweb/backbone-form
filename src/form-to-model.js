@@ -134,7 +134,7 @@
     FormToModel.prototype.WildcardValueError.prototype = new Error();
 
     FormToModel.prototype.bind = function () {
-        var inputs = this.$form.find('[name]'), i;
+        var inputs = this.$form.find('[name]:enabled'), i;
 
         this.trigger('bind:before', inputs);
         this.sync();
