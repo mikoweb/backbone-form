@@ -81,11 +81,13 @@
 
         var controls = this.form.find('[name="' + name + '"]'),
             control = controls.eq(0),
-            type = null, tagName = null;
+            type = null, tagName = null,
+            disabled = false;
 
         if (control.length) {
             type = control.attr('type');
             tagName = control.prop('tagName').toLowerCase();
+            disabled = control.is(':disabled');
         }
 
         return {
@@ -112,6 +114,12 @@
              */
             getTagName: function () {
                 return tagName;
+            },
+            /**
+             * @returns {Boolean}
+             */
+            isDisabled: function () {
+                return disabled;
             }
         };
     }
@@ -150,35 +158,37 @@
     FormHelper.prototype.getControlValue = function (name) {
         var info = controlInfo.call(this, name), value = null, arr, type = info.getType();
 
-        switch (info.getTagName()) {
-            case 'input':
-                if (type === 'radio') {
-                    arr = this.getInputCheckedValue(info.getControls());
+        if (!info.isDisabled()) {
+            switch (info.getTagName()) {
+                case 'input':
+                    if (type === 'radio') {
+                        arr = this.getInputCheckedValue(info.getControls());
 
-                    if (arr.length) {
-                        value = arr[arr.length - 1];
-                    }
-                } else if (type === 'checkbox') {
-                    arr = this.getInputCheckedValue(info.getControls());
+                        if (arr.length) {
+                            value = arr[arr.length - 1];
+                        }
+                    } else if (type === 'checkbox') {
+                        arr = this.getInputCheckedValue(info.getControls());
 
-                    if (arr.length) {
-                        value = arr;
+                        if (arr.length) {
+                            value = arr;
+                        }
+                    } else if (type !== 'button' && type !== 'submit' && type !== 'image'
+                        && type !== 'file' && type !== 'reset'
+                    ) {
+                        value = info.getControl().val();
                     }
-                } else if (type !== 'button' && type !== 'submit' && type !== 'image' 
-                    && type !== 'file' && type !== 'reset'
-                ) {
+                    break;
+                case 'select':
+                    var selectVal = info.getControl().val();
+                    if (selectVal && selectVal.length) {
+                        value = selectVal;
+                    }
+                    break;
+                case 'textarea':
                     value = info.getControl().val();
-                }
-                break;
-            case 'select':
-                var selectVal = info.getControl().val();
-                if (selectVal && selectVal.length) {
-                    value = selectVal;
-                }
-                break;
-            case 'textarea':
-                value = info.getControl().val();
-                break;
+                    break;
+            }
         }
 
         return value;
