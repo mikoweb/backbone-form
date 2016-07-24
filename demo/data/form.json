@@ -1,0 +1,9 @@
+{
+    "email": "john@doe.com",
+    "password": "secret",
+    "select1": 3,
+    "select2": [2, 3],
+    "textarea": "lorem ipsum",
+    "optionsRadios": "option2",
+    "check_me": true
+}
