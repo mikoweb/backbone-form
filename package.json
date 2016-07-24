@@ -1,0 +1,10 @@
+{
+    "engines": {
+        "node": ">0.12.0"
+    },
+    "devDependencies": {
+        "grunt": "~1.0",
+        "grunt-contrib-uglify": "~1.0",
+        "grunt-contrib-concat": "~1.0"
+    }
+}
