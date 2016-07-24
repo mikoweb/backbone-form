@@ -361,7 +361,9 @@
                     } else if (type === 'checkbox') {
                         arr = this.getInputCheckedValue(info.getControls());
 
-                        if (arr.length) {
+                        if (arr.length === 1 && info.getControls().length === 1) {
+                            value = arr[0];
+                        } else if (arr.length) {
                             value = arr;
                         } else {
                             value = null;
