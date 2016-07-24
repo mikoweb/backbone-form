@@ -130,7 +130,7 @@
             it('Sprawdzanie czy obiekt zwracany przez model.get("order") jest budowany we właściwy sposób po każdym wywołaniu formToModel.bindControl', function () {
                 var value = {};
 
-                testOrder('order[attachment]', value);
+                testOrder('order[attachment]', undefined);
 
                 value.first_name = 'John';
                 testOrder('order[first_name]', value);

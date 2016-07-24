@@ -132,7 +132,7 @@
 
         describe('Porównywanie wartości pól formularza "order"', function () {
             testFormControl('order[not_found_control]', '[not_found_control]', undefined);
-            testFormControl('order[attachment]', '[attachment]', null);
+            expect(formOrderHelper.getControlValue('order[attachment]')).to.a(Array);
             testFormControl('order[first_name]', '[first_name]', 'John');
             testFormControl('order[last_name]', '[last_name]', 'Doe');
             testFormControl('order[email]', '[email]', 'john@doe.com');
