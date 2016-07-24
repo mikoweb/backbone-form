@@ -70,7 +70,6 @@
             --bindCounter.controlFails;
             test('simple_name', 'simple_name', 'lorem ipsum');
             test('order[attachment]', 'attachment', undefined);
-            --bindCounter.controlFails;
             test('order[first_name]', 'first_name', 'John');
             test('order[last_name]', 'last_name', 'Doe');
             test('order[email]', 'email', 'john@doe.com');
@@ -78,7 +77,6 @@
             test('order[unknown]', 'unknown', 'unknown_value');
             test('order[post]', 'post', '3');
             test('order[agree1]', 'agree1', undefined);
-            --bindCounter.controlFails;
             test('order[agree2]', 'agree2', ['yes']);
             test('order[comment]', 'comment', 'lorem ipsum');
             test('order[address][street]', 'address', {
@@ -94,22 +92,15 @@
                 city: 'gdynia'
             });
             test('order[button1]', 'button1', undefined);
-            --bindCounter.controlFails;
             test('order[button2]', 'button2', undefined);
-            --bindCounter.controlFails;
             test('order[button3]', 'button3', undefined);
-            --bindCounter.controlFails;
             test('order[button4]', 'button4', undefined);
-            --bindCounter.controlFails;
             test('order[button5]', 'button5', undefined);
-            --bindCounter.controlFails;
             test('order[image]', 'image', undefined);
-            --bindCounter.controlFails;
             test('order[item][]', 'item', ['item3', 'item5', 'item6']);
             test('order[sub_item][]', 'sub_item', 'item3');
             test('order[addition][]', 'addition', ['addition3', 'addition5']);
             test('order[rules]', 'rules', undefined);
-            --bindCounter.controlFails;
             test('order.first_name', 'order.first_name', 'Jan');
             test('order.last_name', 'order.last_name', 'Kowalski');
             test('order.email', 'order.email', 'jan@kowalski.pl');

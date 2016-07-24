@@ -131,7 +131,7 @@
         });
 
         describe('Porównywanie wartości pól formularza "order"', function () {
-            testFormControl('order[not_found_control]', '[not_found_control]', null);
+            testFormControl('order[not_found_control]', '[not_found_control]', undefined);
             testFormControl('order[attachment]', '[attachment]', null);
             testFormControl('order[first_name]', '[first_name]', 'John');
             testFormControl('order[last_name]', '[last_name]', 'Doe');

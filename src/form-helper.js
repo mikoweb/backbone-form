@@ -153,10 +153,10 @@
     /**
      * @param {String} name
      *
-     * @returns {null|String|Array}
+     * @returns {undefined|null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (name) {
-        var info = controlInfo.call(this, name), value = null, arr, type = info.getType();
+        var info = controlInfo.call(this, name), value, arr, type = info.getType();
 
         if (!info.isDisabled()) {
             switch (info.getTagName()) {
@@ -166,27 +166,38 @@
 
                         if (arr.length) {
                             value = arr[arr.length - 1];
+                        } else {
+                            value = null;
                         }
                     } else if (type === 'checkbox') {
                         arr = this.getInputCheckedValue(info.getControls());
 
                         if (arr.length) {
                             value = arr;
+                        } else {
+                            value = null;
                         }
                     } else if (type !== 'button' && type !== 'submit' && type !== 'image'
                         && type !== 'file' && type !== 'reset'
                     ) {
                         value = info.getControl().val();
+                    } else {
+                        value = null;
                     }
                     break;
                 case 'select':
                     var selectVal = info.getControl().val();
                     if (selectVal && selectVal.length) {
                         value = selectVal;
+                    } else {
+                        value = null;
                     }
                     break;
                 case 'textarea':
                     value = info.getControl().val();
+                    break;
+                case 'button':
+                    value = null;
                     break;
             }
         }

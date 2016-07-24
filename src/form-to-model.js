@@ -161,7 +161,7 @@
             key = keys[0];
             oldValue = this.model.get(key);
 
-            if (value[key] !== null) {
+            if (value[key] !== undefined) {
                 this.trigger('bind:control:before', name, value, oldValue);
                 this.silentRelated(true);
 
@@ -170,6 +170,8 @@
                         this.model.set(key, mergeObject($.extend(true, {}, oldValue), value[key]));
                     } else if (_.isUndefined(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
                         this.model.set(key, mergeObject({}, value[key]));
+                    } else if (_.isNull(value[key])) {
+                        this.model.unset(key);
                     } else {
                         this.model.set(key, value[key]);
                     }
