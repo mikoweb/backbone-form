@@ -322,7 +322,7 @@
         var arr = [], elements;
 
         if (typeof selector === 'string') {
-            elements = this.form.find('[name="' + selector + '"]');
+            elements = this.form.find('[name="' + selector + '"]:enabled');
         } else if (_.isFunction(selector.each)) {
             elements = selector;
         } else {
@@ -342,10 +342,10 @@
     /**
      * @param {String} name
      *
-     * @returns {null|String|Array}
+     * @returns {undefined|null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (name) {
-        var info = controlInfo.call(this, name), value = null, arr, type = info.getType();
+        var info = controlInfo.call(this, name), value, arr, type = info.getType();
 
         if (!info.isDisabled()) {
             switch (info.getTagName()) {
@@ -355,27 +355,38 @@
 
                         if (arr.length) {
                             value = arr[arr.length - 1];
+                        } else {
+                            value = null;
                         }
                     } else if (type === 'checkbox') {
                         arr = this.getInputCheckedValue(info.getControls());
 
                         if (arr.length) {
                             value = arr;
+                        } else {
+                            value = null;
                         }
                     } else if (type !== 'button' && type !== 'submit' && type !== 'image'
                         && type !== 'file' && type !== 'reset'
                     ) {
                         value = info.getControl().val();
+                    } else {
+                        value = null;
                     }
                     break;
                 case 'select':
                     var selectVal = info.getControl().val();
                     if (selectVal && selectVal.length) {
                         value = selectVal;
+                    } else {
+                        value = null;
                     }
                     break;
                 case 'textarea':
                     value = info.getControl().val();
+                    break;
+                case 'button':
+                    value = null;
                     break;
             }
         }
@@ -792,15 +803,17 @@
             key = keys[0];
             oldValue = this.model.get(key);
 
-            if (value[key] !== null) {
+            if (value[key] !== undefined) {
                 this.trigger('bind:control:before', name, value, oldValue);
                 this.silentRelated(true);
 
                 try {
-                    if (typeof oldValue === 'object' && typeof value[key] === 'object') {
+                    if (_.isObject(oldValue) && !_.isArray(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
                         this.model.set(key, mergeObject($.extend(true, {}, oldValue), value[key]));
-                    } else if (_.isUndefined(oldValue) && typeof value[key] === 'object') {
+                    } else if (_.isUndefined(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
                         this.model.set(key, mergeObject({}, value[key]));
+                    } else if (_.isNull(value[key])) {
+                        this.model.unset(key);
                     } else {
                         this.model.set(key, value[key]);
                     }
