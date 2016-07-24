@@ -166,9 +166,9 @@
                 this.silentRelated(true);
 
                 try {
-                    if (typeof oldValue === 'object' && typeof value[key] === 'object') {
+                    if (_.isObject(oldValue) && !_.isArray(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
                         this.model.set(key, mergeObject($.extend(true, {}, oldValue), value[key]));
-                    } else if (_.isUndefined(oldValue) && typeof value[key] === 'object') {
+                    } else if (_.isUndefined(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
                         this.model.set(key, mergeObject({}, value[key]));
                     } else {
                         this.model.set(key, value[key]);
