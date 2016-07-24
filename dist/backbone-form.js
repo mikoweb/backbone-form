@@ -368,9 +368,28 @@
                         } else {
                             value = null;
                         }
-                    } else if (type !== 'button' && type !== 'submit' && type !== 'image'
-                        && type !== 'file' && type !== 'reset'
-                    ) {
+                    } else if (type === 'file') {
+                        value = [];
+
+                        info.getControls().each(function () {
+                            var input = $(this), filename = [], i, files;
+
+                            if (typeof FileList === 'undefined') {
+                                filename.push(input.val());
+                            } else {
+                                files = input.get(0).files;
+                                for (i = 0; i < files.length; ++i) {
+                                    filename.push(files[i].name);
+                                }
+                            }
+
+                            value.push({
+                                element: input.get(0),
+                                filename: filename,
+                                files: files
+                            });
+                        });
+                    } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'reset') {
                         value = info.getControl().val();
                     } else {
                         value = null;
@@ -683,6 +702,7 @@
         this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
         this.$form = $(this.form);
+        this.fileModel = null;
         this.auto(this.options.auto);
     }
 
@@ -767,6 +787,24 @@
     }
 
     /**
+     * @param {Backbone.Model} model
+     * @param {String} key
+     * @param value
+     * @param oldValue
+     */
+    function setModelValue (model, key, value, oldValue) {
+        if (_.isNull(value)) {
+            model.unset(key);
+        } else if (_.isObject(oldValue) && !_.isArray(oldValue) && _.isObject(value) && !_.isArray(value)) {
+            model.set(key, mergeObject($.extend(true, {}, oldValue), value));
+        } else if (_.isUndefined(oldValue) && _.isObject(value) && !_.isArray(value)) {
+            model.set(key, mergeObject({}, value));
+        } else {
+            model.set(key, value);
+        }
+    }
+
+    /**
      * @param {String} message
      * @constructor
      */
@@ -795,7 +833,9 @@
      */
     FormToModel.prototype.bindControl = function (name) {
         var value = this.formHelper.getObjectFromName(name, this.options.keepPrefix),
-            keys = _.keys(value), key, oldValue, fail = true;
+            keys = _.keys(value), key, oldValue, fail = true,
+            controls = this.$form.find('[name="' + name + '"]'),
+            control = controls.eq(0);
 
         if (keys.length > 1) {
             throw new this.WildcardValueError('Control "' + name + '" has ' + keys.length + ' values');
@@ -803,21 +843,19 @@
 
         if (keys.length) {
             key = keys[0];
-            oldValue = this.model.get(key);
 
             if (value[key] !== undefined) {
-                this.trigger('bind:control:before', name, value, oldValue);
+                this.trigger('bind:control:before', name, value);
                 this.silentRelated(true);
 
                 try {
-                    if (_.isObject(oldValue) && !_.isArray(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
-                        this.model.set(key, mergeObject($.extend(true, {}, oldValue), value[key]));
-                    } else if (_.isUndefined(oldValue) && _.isObject(value[key]) && !_.isArray(value[key])) {
-                        this.model.set(key, mergeObject({}, value[key]));
-                    } else if (_.isNull(value[key])) {
-                        this.model.unset(key);
-                    } else {
-                        this.model.set(key, value[key]);
+                    if (control.attr('type') !== 'file') {
+                        oldValue = this.model.get(key);
+                        setModelValue(this.model, key, value[key], oldValue);
+                    } else if (this.fileModel instanceof Backbone.Model) {
+                        oldValue = this.fileModel.get(key);
+                        setModelValue(this.fileModel, key, value[key], oldValue);
+                        this.fileModel.trigger('change', this.fileModel, {});
                     }
                 } catch (e) {
                     this.silentRelated(false);
@@ -828,7 +866,7 @@
                 fail = false;
                 this._toSynchronize[name] = {
                     value: value,
-                    length: this.$form.find('[name="' + name + '"]').length
+                    length: controls.length
                 };
 
                 this.trigger('bind:control:after', name, value, oldValue);
@@ -864,9 +902,11 @@
 
         if (auto && !this._auto) {
             this.$form.on('change', formSelectors.selectable, $.proxy(controlBind, this));
+            this.$form.on('change', 'input[type="file"]', $.proxy(controlBind, this));
             this.$form.on('change keyup paste input', formSelectors.inputable, $.proxy(controlBind, this));
         } else if (!auto && this._auto) {
             this.$form.off('change', formSelectors.selectable, controlBind);
+            this.$form.off('change', 'input[type="file"]', controlBind);
             this.$form.off('change keyup paste input', formSelectors.inputable, controlBind);
         }
 
@@ -910,6 +950,24 @@
      */
     FormToModel.prototype.getRelatedClass = function () {
         return Backbone.form.ModelToForm;
+    };
+
+    /**
+     * @return {Backbone.Model|null}
+     */
+    FormToModel.prototype.getFileModel = function () {
+        return this.fileModel;
+    };
+
+    /**
+     * @param {Backbone.Model} fileModel
+     */
+    FormToModel.prototype.setFileModel = function (fileModel) {
+        if (!(fileModel instanceof Backbone.Model)) {
+            throw new TypeError('expected Backbone.Model');
+        }
+
+        this.fileModel = fileModel;
     };
 
     Backbone.form.FormToModel = FormToModel;
