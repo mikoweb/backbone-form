@@ -9,11 +9,15 @@
 
     View = Backbone.View.extend({
         initialize: function () {
-            this.model.on('change', this.render, this);
+            this.model.on('change', this.renderModel, this);
             this.form = this.$el.find('form.form-data');
             this.$formModel = this.$el.find('form.form-model');
             this.$elModel = this.$el.find('.model');
+            this.$elFileModel = this.$el.find('.file-model');
             this.twoWayBinding = new Backbone.form.TwoWayBinding(this.model, this.form);
+            this.formToModel = this.twoWayBinding.getFormToModel();
+            this.formToModel.setFileModel(new Backbone.Model());
+            this.formToModel.getFileModel().on('change', this.renderFileModel, this);
             this.twoWayBinding.auto(true);
             this.model.fetch();
         },
@@ -50,8 +54,11 @@
                 this.$formModel.find('[name]').val('');
             }
         },
-        render: function (model) {
-            this.$elModel.JSONView(model.attributes);
+        renderModel: function (model) {
+            this.$elModel.JSONView(JSON.stringify(model.attributes));
+        },
+        renderFileModel: function (model) {
+            this.$elFileModel.JSONView(JSON.stringify(model.attributes));
         }
     });
 
