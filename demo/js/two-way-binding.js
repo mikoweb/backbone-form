@@ -38,14 +38,14 @@
             e.preventDefault();
 
             if (_.isString(value)) {
-                if (value === 'null') {
-                    value = null;
+                if (value === 'null' || value === 'true' || value === 'false') {
+                    value = eval(value);
                 }
             } else {
                 value = undefined;
             }
 
-            if (key && (_.isString(value) || _.isNull(value))) {
+            if (key && (_.isString(value) || _.isNull(value) || _.isBoolean(value))) {
                 this.model.set(key, value);
                 this.$formModel.find('[name]').val('');
             }
