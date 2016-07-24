@@ -133,7 +133,7 @@
         var arr = [], elements;
 
         if (typeof selector === 'string') {
-            elements = this.form.find('[name="' + selector + '"]');
+            elements = this.form.find('[name="' + selector + '"]:enabled');
         } else if (_.isFunction(selector.each)) {
             elements = selector;
         } else {
