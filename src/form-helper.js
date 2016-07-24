@@ -179,9 +179,28 @@
                         } else {
                             value = null;
                         }
-                    } else if (type !== 'button' && type !== 'submit' && type !== 'image'
-                        && type !== 'file' && type !== 'reset'
-                    ) {
+                    } else if (type === 'file') {
+                        value = [];
+
+                        info.getControls().each(function () {
+                            var input = $(this), filename = [], i, files;
+
+                            if (typeof FileList === 'undefined') {
+                                filename.push(input.val());
+                            } else {
+                                files = input.get(0).files;
+                                for (i = 0; i < files.length; ++i) {
+                                    filename.push(files[i].name);
+                                }
+                            }
+
+                            value.push({
+                                element: input.get(0),
+                                filename: filename,
+                                files: files
+                            });
+                        });
+                    } else if (type !== 'button' && type !== 'submit' && type !== 'image' && type !== 'reset') {
                         value = info.getControl().val();
                     } else {
                         value = null;
