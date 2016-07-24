@@ -141,7 +141,7 @@
             testFormControl('order[customer_type]', '[customer_type]', 'company');
             testFormControl('order[post]', '[post]', '3');
             testFormControl('order[agree1]', '[agree1]', null);
-            testFormControl('order[agree2]', '[agree2]', ['yes']);
+            testFormControl('order[agree2]', '[agree2]', 'yes');
             testFormControl('order[comment]', '[comment]', 'lorem ipsum');
             testFormControl('order[address][street]', '[address][street]', 'Mickiewicza 45');
             testFormControl('order[address][house_number]', '[address][house_number]', '10');

@@ -110,10 +110,10 @@
             testOrderValue(modelToForm, order, 'unknown', 'test');
             testOrderValue(modelToForm, order, 'customer_type', 'person');
             testOrderValue(modelToForm, order, 'post', '2');
-            testOrderValue(modelToForm, order, 'agree1', ['yes']);
-            testOrderValue(modelToForm, order, 'agree2', ['yes']);
+            testOrderValue(modelToForm, order, 'agree1', 'yes');
+            testOrderValue(modelToForm, order, 'agree2', 'yes');
             testOrderValue(modelToForm, order, 'comment', 'test');
-            testOrderValue(modelToForm, order, 'rules', ['yes']);
+            testOrderValue(modelToForm, order, 'rules', 'yes');
             expect(formHelper.getControlValue('order[first_name]')).to.be('John');
             expect(formHelper.getControlValue('order[last_name]')).to.be('Doe');
             expect(formHelper.getControlValue('order[unknown]')).to.be('test');
@@ -130,7 +130,7 @@
             expect(formHelper.getControlValue('order[item][]')).to.eql(['item1', 'item2']);
             order.item = ['item1', 'item2'];
 
-            expect(formHelper.getControlValue('order[rules]')).to.eql(['yes']);
+            expect(formHelper.getControlValue('order[rules]')).to.eql('yes');
             model.set('order.item[]', ['item2', 'item1']);
             expect(formHelper.getControlValue('order.item[]')).to.eql(['item1', 'item2']);
             model.set('simple_name', 'lorem ipsum');

@@ -68,7 +68,7 @@
                     modelToForm.bindAttribute(['post']);
                     expect(modelToForm.formHelper.getControlValue('order[post]')).to.be(null);
                     modelToForm.bindAttribute(['agree1']);
-                    expect(modelToForm.formHelper.getControlValue('order[agree1]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[agree1]')).to.eql('yes');
                     modelToForm.bindAttribute(['agree2']);
                     expect(modelToForm.formHelper.getControlValue('order[agree2]')).to.be(null);
                     modelToForm.bindAttribute(['comment']);
@@ -90,7 +90,7 @@
                     modelToForm.bindAttribute(['addition']);
                     expect(modelToForm.formHelper.getControlValue('order[addition][]')).to.eql(['addition2', 'addition3']);
                     modelToForm.bindAttribute(['rules']);
-                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql('yes');
                     modelToForm.bindAttribute(['address.city']);
                     expect(modelToForm.formHelper.getControlValue('order.address.city')).to.be('');
                 });
@@ -145,7 +145,7 @@
                     modelToForm.bindAttribute(['order', 'post']);
                     expect(modelToForm.formHelper.getControlValue('order[post]')).to.be(null);
                     modelToForm.bindAttribute(['order', 'agree1']);
-                    expect(modelToForm.formHelper.getControlValue('order[agree1]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[agree1]')).to.eql('yes');
                     modelToForm.bindAttribute(['order', 'agree2']);
                     expect(modelToForm.formHelper.getControlValue('order[agree2]')).to.be(null);
                     modelToForm.bindAttribute(['order', 'comment']);
@@ -167,7 +167,7 @@
                     modelToForm.bindAttribute(['order', 'addition']);
                     expect(modelToForm.formHelper.getControlValue('order[addition][]')).to.eql(['addition2', 'addition3']);
                     modelToForm.bindAttribute(['order', 'rules']);
-                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql('yes');
                     modelToForm.bindAttribute(['order.address.city']);
                     expect(modelToForm.formHelper.getControlValue('order.address.city')).to.be('test');
                     modelToForm.bindAttribute(['order.first_name']);
@@ -292,7 +292,7 @@
                     expect(modelToForm.formHelper.getControlValue('order[customer_type]')).to.be('company');
                     expect(modelToForm.formHelper.getControlValue('order[post]')).to.be('2');
                     expect(modelToForm.formHelper.getControlValue('order[agree1]')).to.eql(null);
-                    expect(modelToForm.formHelper.getControlValue('order[agree2]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[agree2]')).to.eql('yes');
                     expect(modelToForm.formHelper.getControlValue('order[comment]')).to.be('bla bla bla');
                     expect(modelToForm.formHelper.getControlValue('order[address][street]')).to.be('Goździkowa');
                     expect(modelToForm.formHelper.getControlValue('order[address][house_number]')).to.be('13');
@@ -300,7 +300,7 @@
                     expect(modelToForm.formHelper.getControlValue('order[item][]')).to.eql(['item3', 'item4']);
                     expect(modelToForm.formHelper.getControlValue('order[sub_item][]')).to.be('item2');
                     expect(modelToForm.formHelper.getControlValue('order[addition][]')).to.eql(['addition4', 'addition5']);
-                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql('yes');
                     expect(modelToForm.formHelper.getControlValue('order.address.city')).to.be('');
                     expect(modelToForm.formHelper.getControlValue('order.first_name')).to.be('');
                     expect(modelToForm.formHelper.getControlValue('order.last_name')).to.be('');
@@ -352,7 +352,7 @@
                     expect(modelToForm.formHelper.getControlValue('order[customer_type]')).to.be('company');
                     expect(modelToForm.formHelper.getControlValue('order[post]')).to.be('2');
                     expect(modelToForm.formHelper.getControlValue('order[agree1]')).to.eql(null);
-                    expect(modelToForm.formHelper.getControlValue('order[agree2]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[agree2]')).to.eql('yes');
                     expect(modelToForm.formHelper.getControlValue('order[comment]')).to.be('bla bla bla');
                     expect(modelToForm.formHelper.getControlValue('order[address][street]')).to.be('e');
                     expect(modelToForm.formHelper.getControlValue('order[address][house_number]')).to.be('f');
@@ -360,7 +360,7 @@
                     expect(modelToForm.formHelper.getControlValue('order[item][]')).to.eql(['item3', 'item4']);
                     expect(modelToForm.formHelper.getControlValue('order[sub_item][]')).to.be('item2');
                     expect(modelToForm.formHelper.getControlValue('order[addition][]')).to.eql(['addition4', 'addition5']);
-                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql(['yes']);
+                    expect(modelToForm.formHelper.getControlValue('order[rules]')).to.eql('yes');
                     expect(modelToForm.formHelper.getControlValue('order.address.city')).to.be('test');
                     expect(modelToForm.formHelper.getControlValue('order.first_name')).to.be('John');
                     expect(modelToForm.formHelper.getControlValue('order.last_name')).to.be('Doe');

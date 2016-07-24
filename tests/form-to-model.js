@@ -77,7 +77,7 @@
             test('order[unknown]', 'unknown', 'unknown_value');
             test('order[post]', 'post', '3');
             test('order[agree1]', 'agree1', undefined);
-            test('order[agree2]', 'agree2', ['yes']);
+            test('order[agree2]', 'agree2', 'yes');
             test('order[comment]', 'comment', 'lorem ipsum');
             test('order[address][street]', 'address', {
                 street: 'Mickiewicza 45'
@@ -152,7 +152,7 @@
 
                 testOrder('order[agree1]', value);
 
-                value.agree2 = ['yes'];
+                value.agree2 = 'yes';
                 testOrder('order[agree2]', value);
 
                 value.comment = 'lorem ipsum';
@@ -295,7 +295,7 @@
                 expect(order.customer_type).to.be('company');
                 expect(order.post).to.be('3');
                 expect(order.agree1).to.be(undefined);
-                expect(order.agree2).to.eql(['yes']);
+                expect(order.agree2).to.eql('yes');
                 expect(order.comment).to.be('lorem ipsum');
                 expect(order.address).to.eql({
                     street: 'Mickiewicza 45',
@@ -339,7 +339,7 @@
                 expect(model.get('customer_type')).to.be('company');
                 expect(model.get('post')).to.be('3');
                 expect(model.get('agree1')).to.be(undefined);
-                expect(model.get('agree2')).to.eql(['yes']);
+                expect(model.get('agree2')).to.eql('yes');
                 expect(model.get('comment')).to.be('lorem ipsum');
                 expect(model.get('address')).to.eql({
                     street: 'Mickiewicza 45',

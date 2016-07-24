@@ -141,11 +141,11 @@
 
                 expect(helper.getControlValue('order[agree1]')).to.eql(null);
                 helper.setControlValue('order[agree1]', 'yes');
-                expect(helper.getControlValue('order[agree1]')).to.eql(['yes']);
+                expect(helper.getControlValue('order[agree1]')).to.eql('yes');
                 helper.setControlValue('order[agree1]', false);
                 expect(helper.getControlValue('order[agree1]')).to.eql(null);
                 helper.setControlValue('order[agree1]', true);
-                expect(helper.getControlValue('order[agree1]')).to.eql(['yes']);
+                expect(helper.getControlValue('order[agree1]')).to.eql('yes');
             });
 
             it('Sprawdzanie czy setControlValue ustawia porządaną wartość pola select', function () {
