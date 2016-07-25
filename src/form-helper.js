@@ -185,7 +185,7 @@
                         info.getControls().each(function () {
                             var input = $(this), filename = [], i, files;
 
-                            if (typeof FileList === 'undefined') {
+                            if (_.isUndefined(FileList)) {
                                 filename.push(input.val());
                             } else {
                                 files = input.get(0).files;
