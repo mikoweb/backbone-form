@@ -41,16 +41,13 @@
 
             e.preventDefault();
 
-            if (_.isString(value)) {
-                if (value === 'null' || value === 'true' || value === 'false') {
-                    value = eval(value);
+            if (key && !_.isUndefined(value)) {
+                try {
+                    this.model.set(key, JSON.parse(value));
+                } catch (e) {
+                    this.model.set(key, value);
                 }
-            } else {
-                value = undefined;
-            }
 
-            if (key && (_.isString(value) || _.isNull(value) || _.isBoolean(value))) {
-                this.model.set(key, value);
                 this.$formModel.find('[name]').val('');
             }
         },
