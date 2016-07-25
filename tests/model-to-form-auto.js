@@ -130,6 +130,24 @@
             expect(formHelper.getControlValue('order[item][]')).to.eql(['item1', 'item2']);
             order.item = ['item1', 'item2'];
 
+            obj = $.extend(true, {}, order);
+            obj.item = ['item2', 'item3'];
+            model.set('order', obj);
+            expect(formHelper.getControlValue('order[item][]')).to.eql(['item2', 'item3']);
+            order.item = ['item2', 'item3'];
+
+            obj = $.extend(true, {}, order);
+            obj.item = ['item1'];
+            model.set('order', obj);
+            expect(formHelper.getControlValue('order[item][]')).to.eql(['item1']);
+            order.item = ['item1'];
+
+            obj = $.extend(true, {}, order);
+            obj.item = [];
+            model.set('order', obj);
+            expect(formHelper.getControlValue('order[item][]')).to.eql(null);
+            order.item = [];
+
             expect(formHelper.getControlValue('order[rules]')).to.eql('yes');
             model.set('order.item[]', ['item2', 'item1']);
             expect(formHelper.getControlValue('order.item[]')).to.eql(['item1', 'item2']);
