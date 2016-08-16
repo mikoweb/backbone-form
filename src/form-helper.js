@@ -1,6 +1,6 @@
 /**
  * @author Rafał Mikołajun <rafal@mikoweb.pl>
- * @license GPLv3
+ * @license LGPLv3
  */
 (function () {
     "use strict";

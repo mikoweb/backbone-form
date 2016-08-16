@@ -9,7 +9,7 @@
         "bind form to model"
     ],
     "moduleType": "amd",
-    "license": "GPLv3",
+    "license": "LGPLv3",
     "dependencies": {
         "backbone": "~1.2",
         "deep-diff": "0.3.3"
