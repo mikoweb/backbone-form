@@ -1,9 +1,12 @@
 module.exports = function (grunt) {
+    "use strict";
+
     grunt.initConfig({
         concat: {
             dist: {
                 src: [
                     'bower_components/deep-diff/releases/deep-diff-0.3.3.min.js',
+                    'src/namespace.js',
                     'src/methods.js',
                     'src/mixins/related.js',
                     'src/mixins/related-silent.js',
@@ -11,6 +14,8 @@ module.exports = function (grunt) {
                     'src/form-to-model.js',
                     'src/model-to-form.js',
                     'src/two-way-binding.js',
+                    'src/collection/item-view.js',
+                    'src/collection/collection-view.js',
                     'src/defaults.js'
                 ],
                 dest: 'dist/backbone-form.js'
