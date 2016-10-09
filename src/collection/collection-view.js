@@ -44,9 +44,24 @@
             this._initFromElement();
 
             this.$el.on('click', '.form-collection__btn-add', $.proxy(this._onClickAdd, this));
+            this.$el.on('click', '.form-collection__btn-save-all', $.proxy(this._onClickSaveAll, this));
+            this.$el.on('click', '.form-collection__btn-remove-all', $.proxy(this._onClickRemoveAll, this));
             this.listenTo(this.formCollection, 'sync', this._onFormCollectionSync);
             this.listenTo(this.formCollection, 'error', this._onRuquestError);
             this._initBeforeUnload();
+            this.disabled(false);
+        },
+        /**
+         * Remove all items.
+         */
+        clear: function () {
+            this.items.forEach(function (item) {
+                item.destroyView(true);
+            });
+
+            this.items = [];
+            this.index = 0;
+            this.trigger('items:clear', this);
         },
         /**
          * @param {String} [modelKey]
@@ -80,6 +95,7 @@
             this._addViewListeners(view);
             this.items.push(view);
             ++this.index;
+            this.trigger('items:add', this, view);
         },
         /**
          * @param {Backbone.Model} model
@@ -103,6 +119,7 @@
             this._addViewListeners(view);
             this.items.push(view);
             ++this.index;
+            this.trigger('items:add', this, view);
         },
         /**
          * @param {String} template
@@ -134,6 +151,16 @@
          */
         getItems: function () {
             return this.items;
+        },
+        /**
+         * @param {Boolean} disabled
+         */
+        disabled: function (disabled) {
+            if (disabled) {
+                this.$el.find(':input').attr('disabled', 'disabled');
+            } else {
+                this.$el.find(':input').removeAttr('disabled');
+            }
         },
         /**
          * Initialize items from element content.
@@ -230,7 +257,7 @@
         _onClickAdd: function (e) {
             e.stopPropagation();
             this.addItem();
-            this.trigger('item:click:add', this);
+            this.trigger('items:click:add', this);
         },
         /**
          * @private
@@ -239,16 +266,51 @@
             var view = this;
 
             if (collection instanceof Backbone.Collection) {
-                this.items.forEach(function (item) {
-                    item.destroyView(true);
-                });
-
-                this.items = [];
-                this.index = 0;
-
+                this.clear();
                 this.formCollection.models.forEach(function (model) {
                     view.addItemWithModel(model);
                 });
+            }
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onClickSaveAll: function (e) {
+            var view = this;
+            e.stopPropagation();
+
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            if (_.isFunction(this.formCollection.save)) {
+                this.formCollection.save({
+                    success: reset,
+                    error: reset
+                });
+                this.trigger('items:click:save_all', this);
+            } else {
+                reset();
+                this.trigger('items:error:save_all', this);
+            }
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onClickRemoveAll: function (e) {
+            e.stopPropagation();
+            this.clear();
+
+            if (_.isFunction(this.formCollection.destroy)) {
+                this.formCollection.destroy();
+                this.trigger('items:click:remove_all', this);
+            } else {
+                this.formCollection.reset();
+                this.formCollection.trigger('update', this.formCollection, this.options);
+                this.trigger('items:error:remove_all', this);
             }
         },
         /**

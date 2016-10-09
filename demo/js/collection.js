@@ -51,6 +51,14 @@
         }
     });
 
+    view.on('items:error:save_all', function () {
+        sweetAlert('Oops...', 'Your collection not implement save method.', 'error');
+    });
+
+    view.on('items:error:remove_all', function () {
+        toastr.warning('You must implement destroy method to synchronize the collection with server.');
+    });
+
     view.on('model:change', function () {
         renderJson();
     });
