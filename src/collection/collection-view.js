@@ -27,6 +27,9 @@
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
             this.prototypeAttr = options.prototypeAttr || 'data-prototype';
+            this.autofocus = options.autofocus || true;
+            this.editClick = options.editClick || false;
+            this.editDblClick = options.editDblClick || false;
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -36,7 +39,6 @@
                 throw new Error('CollectionView: Please set itemTemplate.');
             }
 
-            this.autofocus = options.autofocus || true;
             this._initFormCollection(options.formCollection);
             this._initFromElement();
 
@@ -58,12 +60,7 @@
             this.formCollection.add(model);
             this._addModelListeners(model);
 
-            viewOptions = {
-                template: this.itemTemplate,
-                name: String(this.index),
-                formModel: model,
-                htmlAttr: this.htmlAttr
-            };
+            viewOptions = this._itemViewCommonOptions(model);
 
             if (el) {
                 viewOptions.el = el;
@@ -89,12 +86,8 @@
             var view;
 
             this._addModelListeners(model);
-            view = new this.itemView({
-                template: this.itemTemplate,
-                name: String(this.index),
-                formModel: model,
-                htmlAttr: this.htmlAttr
-            });
+
+            view = new this.itemView(this._itemViewCommonOptions(model));
 
             if (model.has(this.htmlAttr)) {
                 view.loadHtml();
@@ -194,6 +187,21 @@
             });
         },
         /**
+         * @param {Backbone.Model} formModel
+         * @returns {Object}
+         * @private
+         */
+        _itemViewCommonOptions: function (formModel) {
+            return {
+                template: this.itemTemplate,
+                name: String(this.index),
+                formModel: formModel,
+                htmlAttr: this.htmlAttr,
+                editClick: this.editClick,
+                editDblClick: this.editDblClick
+            };
+        },
+        /**
          * @param {Backbone.form.CollectionItemView} view
          * @private
          */
@@ -214,10 +222,13 @@
             }
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickAdd: function () {
+        _onClickAdd: function (e) {
+            e.stopPropagation();
             this.addItem();
+            this.trigger('item:click:add', this);
         },
         /**
          * @private

@@ -31,6 +31,14 @@
             this.setPlaceholder(options.placeholder || '__name__');
             this.setTemplate(options.template);
 
+            if (options.editClick === true) {
+                this.$el.on('click', '.form-collection__item_preview', $.proxy(this._onSwitchToForm, this));
+            }
+
+            if (options.editDblClick === true) {
+                this.$el.on('dblclick', '.form-collection__item_preview', $.proxy(this._onSwitchToForm, this));
+            }
+
             this.$el.on('click', '.form-collection__btn-remove', $.proxy(this._onClickRemove, this));
             this.$el.on('click', '.form-collection__btn-edit', $.proxy(this._onClickEdit, this));
             this.$el.on('click', '.form-collection__btn-cancel', $.proxy(this._onClickCancel, this));
@@ -224,9 +232,11 @@
             this.twoWayBinding.auto(true);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickRemove: function () {
+        _onClickRemove: function (e) {
+            e.stopPropagation();
             var view = this;
             this.disabled(true);
             function reset () {
@@ -237,11 +247,15 @@
                 success: reset,
                 error: reset
             });
+
+            this.trigger('item:click:remove', this);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickSave: function () {
+        _onClickSave: function (e) {
+            e.stopPropagation();
             var view = this;
             this.disabled(true);
             function reset () {
@@ -257,18 +271,26 @@
                 },
                 error: reset
             });
+
+            this.trigger('item:click:save', this);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickEdit: function () {
+        _onClickEdit: function (e) {
+            e.stopPropagation();
             this.changeState('form');
+            this.trigger('item:click:edit', this);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickCancel: function () {
+        _onClickCancel: function (e) {
+            e.stopPropagation();
             this.changeState('preview');
+            this.trigger('item:click:cancel', this);
         },
         /**
          * @param {Event} e
@@ -284,6 +306,13 @@
             if (this.formModel.has(this.htmlAttr)) {
                 this.loadHtml();
             }
+        },
+        /**
+         * @private
+         */
+        _onSwitchToForm: function () {
+            this.changeState('form');
+            this.trigger('item:swich_to_form', this);
         }
     });
 }());
