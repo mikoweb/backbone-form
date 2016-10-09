@@ -23,6 +23,7 @@
             this.items = [];
             this.index = 0;
             this.htmlAttr = options.htmlAttr || '_html';
+            this.closeAlert = options.closeAlert || null;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
@@ -45,6 +46,7 @@
             this.$el.on('click', '.form-collection__btn-add', $.proxy(this._onClickAdd, this));
             this.listenTo(this.formCollection, 'sync', this._onFormCollectionSync);
             this.listenTo(this.formCollection, 'error', this._onRuquestError);
+            this._initBeforeUnload();
         },
         /**
          * @param {String} [modelKey]
@@ -246,6 +248,30 @@
 
                 this.formCollection.models.forEach(function (model) {
                     view.addItemWithModel(model);
+                });
+            }
+        },
+        /**
+         * @private
+         */
+        _initBeforeUnload: function () {
+            var view = this,
+                closeAlert = this.closeAlert;
+
+            if (_.isFunction(closeAlert)) {
+                window.addEventListener('beforeunload', function (e) {
+                    var confirmationMessage, confirm;
+
+                    confirm = _.find(view.getItems(), function (item){
+                        return item.getCurrentState() === 'form';
+                    });
+
+                    if (!_.isUndefined(confirm)) {
+                        confirmationMessage = closeAlert();
+
+                        (e || window.event).returnValue = confirmationMessage;
+                        return confirmationMessage;
+                    }
                 });
             }
         }

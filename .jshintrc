@@ -9,7 +9,8 @@
     "describe",
     "module",
     "grunt",
-    "sweetAlert"
+    "sweetAlert",
+    "toastr"
   ],
   "boss": true,
   "browser": true,

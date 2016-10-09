@@ -42,6 +42,10 @@
         newElementPlace: 'first',
         formCollection: collection,
         editClick: true,
+        closeAlert: function () {
+            toastr.warning('Not everything has been saved.');
+            return 'Are you sure you want to quit?';
+        },
         onRuquestError: function () {
             sweetAlert('Oops...', 'There was a problem with the server.', 'error');
         }

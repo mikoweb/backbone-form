@@ -193,6 +193,12 @@
             this.btnUpdate();
         },
         /**
+         * @return {String|null}
+         */
+        getCurrentState: function () {
+            return this.currentState;
+        },
+        /**
          * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
         loadHtml: function () {
