@@ -3,14 +3,14 @@
  * Licensed under the MIT License.
  */
 (function(e,t){"use strict";if(typeof define==="function"&&define.amd){define([],t)}else if(typeof exports==="object"){module.exports=t()}else{e.DeepDiff=t()}})(this,function(e){"use strict";var t,n,a=[];if(typeof global==="object"&&global){t=global}else if(typeof window!=="undefined"){t=window}else{t={}}n=t.DeepDiff;if(n){a.push(function(){if("undefined"!==typeof n&&t.DeepDiff===p){t.DeepDiff=n;n=e}})}function r(e,t){e.super_=t;e.prototype=Object.create(t.prototype,{constructor:{value:e,enumerable:false,writable:true,configurable:true}})}function i(e,t){Object.defineProperty(this,"kind",{value:e,enumerable:true});if(t&&t.length){Object.defineProperty(this,"path",{value:t,enumerable:true})}}function f(e,t,n){f.super_.call(this,"E",e);Object.defineProperty(this,"lhs",{value:t,enumerable:true});Object.defineProperty(this,"rhs",{value:n,enumerable:true})}r(f,i);function u(e,t){u.super_.call(this,"N",e);Object.defineProperty(this,"rhs",{value:t,enumerable:true})}r(u,i);function l(e,t){l.super_.call(this,"D",e);Object.defineProperty(this,"lhs",{value:t,enumerable:true})}r(l,i);function s(e,t,n){s.super_.call(this,"A",e);Object.defineProperty(this,"index",{value:t,enumerable:true});Object.defineProperty(this,"item",{value:n,enumerable:true})}r(s,i);function h(e,t,n){var a=e.slice((n||t)+1||e.length);e.length=t<0?e.length+t:t;e.push.apply(e,a);return e}function c(e){var t=typeof e;if(t!=="object"){return t}if(e===Math){return"math"}else if(e===null){return"null"}else if(Array.isArray(e)){return"array"}else if(e instanceof Date){return"date"}else if(/^\/.*\//.test(e.toString())){return"regexp"}return"object"}function o(t,n,a,r,i,p,b){i=i||[];var d=i.slice(0);if(typeof p!=="undefined"){if(r&&r(d,p,{lhs:t,rhs:n})){return}d.push(p)}var v=typeof t;var y=typeof n;if(v==="undefined"){if(y!=="undefined"){a(new u(d,n))}}else if(y==="undefined"){a(new l(d,t))}else if(c(t)!==c(n)){a(new f(d,t,n))}else if(t instanceof Date&&n instanceof Date&&t-n!==0){a(new f(d,t,n))}else if(v==="object"&&t!==null&&n!==null){b=b||[];if(b.indexOf(t)<0){b.push(t);if(Array.isArray(t)){var k,m=t.length;for(k=0;k<t.length;k++){if(k>=n.length){a(new s(d,k,new l(e,t[k])))}else{o(t[k],n[k],a,r,d,k,b)}}while(k<n.length){a(new s(d,k,new u(e,n[k++])))}}else{var g=Object.keys(t);var w=Object.keys(n);g.forEach(function(i,f){var u=w.indexOf(i);if(u>=0){o(t[i],n[i],a,r,d,i,b);w=h(w,u)}else{o(t[i],e,a,r,d,i,b)}});w.forEach(function(t){o(e,n[t],a,r,d,t,b)})}b.length=b.length-1}}else if(t!==n){if(!(v==="number"&&isNaN(t)&&isNaN(n))){a(new f(d,t,n))}}}function p(t,n,a,r){r=r||[];o(t,n,function(e){if(e){r.push(e)}},a);return r.length?r:e}function b(e,t,n){if(n.path&&n.path.length){var a=e[t],r,i=n.path.length-1;for(r=0;r<i;r++){a=a[n.path[r]]}switch(n.kind){case"A":b(a[n.path[r]],n.index,n.item);break;case"D":delete a[n.path[r]];break;case"E":case"N":a[n.path[r]]=n.rhs;break}}else{switch(n.kind){case"A":b(e[t],n.index,n.item);break;case"D":e=h(e,t);break;case"E":case"N":e[t]=n.rhs;break}}return e}function d(e,t,n){if(e&&t&&n&&n.kind){var a=e,r=-1,i=n.path?n.path.length-1:0;while(++r<i){if(typeof a[n.path[r]]==="undefined"){a[n.path[r]]=typeof n.path[r]==="number"?[]:{}}a=a[n.path[r]]}switch(n.kind){case"A":b(n.path?a[n.path[r]]:a,n.index,n.item);break;case"D":delete a[n.path[r]];break;case"E":case"N":a[n.path[r]]=n.rhs;break}}}function v(e,t,n){if(n.path&&n.path.length){var a=e[t],r,i=n.path.length-1;for(r=0;r<i;r++){a=a[n.path[r]]}switch(n.kind){case"A":v(a[n.path[r]],n.index,n.item);break;case"D":a[n.path[r]]=n.lhs;break;case"E":a[n.path[r]]=n.lhs;break;case"N":delete a[n.path[r]];break}}else{switch(n.kind){case"A":v(e[t],n.index,n.item);break;case"D":e[t]=n.lhs;break;case"E":e[t]=n.lhs;break;case"N":e=h(e,t);break}}return e}function y(e,t,n){if(e&&t&&n&&n.kind){var a=e,r,i;i=n.path.length-1;for(r=0;r<i;r++){if(typeof a[n.path[r]]==="undefined"){a[n.path[r]]={}}a=a[n.path[r]]}switch(n.kind){case"A":v(a[n.path[r]],n.index,n.item);break;case"D":a[n.path[r]]=n.lhs;break;case"E":a[n.path[r]]=n.lhs;break;case"N":delete a[n.path[r]];break}}}function k(e,t,n){if(e&&t){var a=function(a){if(!n||n(e,t,a)){d(e,t,a)}};o(e,t,a)}}Object.defineProperties(p,{diff:{value:p,enumerable:true},observableDiff:{value:o,enumerable:true},applyDiff:{value:k,enumerable:true},applyChange:{value:d,enumerable:true},revertChange:{value:y,enumerable:true},isConflict:{value:function(){return"undefined"!==typeof n},enumerable:true},noConflict:{value:function(){if(a){a.forEach(function(e){e()});a=null}return p},enumerable:true}});return p});
+Backbone.form = {};
+Backbone.form.mixin = {};
 /**
  * @author Rafał Mikołajun <rafal@mikoweb.pl>
  * @license LGPLv3
  */
 (function () {
     "use strict";
-
-    Backbone.form = Backbone.form || {};
 
     var formToModelDefaults = {},
         modelToFormDefaults = {};
@@ -94,9 +94,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-    Backbone.form.mixin = Backbone.form.mixin || {};
-
     var related = {};
 
     /**
@@ -164,9 +161,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-    Backbone.form.mixin = Backbone.form.mixin || {};
-
     var relatedSilent = {};
 
     /**
@@ -193,8 +187,6 @@
  */
 (function () {
     "use strict";
-
-    Backbone.form = Backbone.form || {};
 
     /**
      * @param {HTMLElement} form
@@ -668,8 +660,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     var formSelectors = {
         selectable: 'select, input[type="checkbox"], input[type="radio"]',
         inputable: 'textarea, input:not([type="radio"],[type="checkbox"],[type="button"],[type="submit"],[type="image"],[type="reset"],[type="file"])'
@@ -980,8 +970,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     /**
      * @param {Backbone.Model} model
      * @param {HTMLElement|jQuery} form
@@ -1210,8 +1198,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     /**
      * @param {Backbone.Model} model
      * @param {HTMLElement|jQuery} form
@@ -1255,6 +1241,351 @@
     };
 
     Backbone.form.TwoWayBinding = TwoWayBinding;
+}());
+
+/**
+ * @author Rafał Mikołajun <rafal@mikoweb.pl>
+ * @license LGPLv3
+ */
+(function () {
+    "use strict";
+
+    Backbone.form.CollectionItemView = Backbone.View.extend({
+        events: {
+            'submit form': '_onFormSubmit'
+        },
+        /**
+         * @param {Object} options
+         */
+        initialize: function (options) {
+            if (!_.isObject(options)) {
+                throw new TypeError('CollectionItemView: Options is required.');
+            }
+
+            if (!_.isString(options.name)) {
+                throw new TypeError('CollectionItemView: option name is not string.');
+            }
+
+            this.$el.addClass('form-collection__item');
+            this._initFormModel(options.formModel);
+            this._templateRequest = true;
+            this._compiledTemplate = null;
+            this.name = options.name;
+            this.setPlaceholder(options.placeholder || '__name__');
+            this.setTemplate(options.template);
+
+            this.btnRemoveSelector = options.btnRemoveSelector || '.form-collection__btn-remove';
+            this.$el.on('click', this.btnRemoveSelector, $.proxy(this._onClickRemove, this));
+            this.listenTo(this.formModel, 'destroy', this.destroyView);
+            this.listenTo(this.formModel, 'change', this.renderPreview);
+        },
+        /**
+         * @returns {Object}
+         */
+        renderParams: function () {
+            return {
+                name: this.name,
+                form: this.formModel
+            };
+        },
+        render: function () {
+            this.$el.html(this.getTemplate()(this.renderParams()));
+            this.changeState(this.formModel.isNew() ? 'form' : 'preview');
+        },
+        renderPreview: function () {
+            var preview = this.getPreviewElement(), template, fresh;
+
+            if (preview.length) {
+                template = $('<div />').html(this.getTemplate()(this.renderParams()));
+                fresh = template.find('.' + this.getPreviewElementClass());
+                fresh.attr('class', preview.attr('class'));
+                preview.replaceWith(fresh);
+            }
+        },
+        /**
+         * @returns {Function}
+         */
+        getTemplate: function () {
+            if (this._compiledTemplate === null || this._templateRequest) {
+                this._compiledTemplate = this._createTemplate();
+                this._templateRequest = false;
+            }
+
+            return this._compiledTemplate;
+        },
+        /**
+         * Set "placeholder", which you'll replace with a unique, incrementing number.
+         *
+         * @param {String|null} placeholder
+         */
+        setPlaceholder: function (placeholder) {
+            this._templateRequest = true;
+            this.placeholder = String(placeholder);
+        },
+        /**
+         * @param {String} template
+         */
+        setTemplate: function (template) {
+            if (!_.isString(template)) {
+                throw new TypeError('CollectionItemView: Template is not string');
+            }
+
+            this._templateRequest = true;
+            this.template = template;
+        },
+        /**
+         * @returns {jQuery}
+         */
+        getElement: function () {
+            return this.$el;
+        },
+        /**
+         * Bind data from from to model.
+         */
+        bind: function () {
+            if (this.formToModel) {
+                this.formToModel.bind();
+            }
+        },
+        /**
+         * Destroy only view without model.
+         */
+        destroyView: function () {
+            this.trigger('item:destroy', this);
+            this.undelegateEvents();
+            this.remove();
+        },
+        /**
+         * @returns {jQuery}
+         */
+        getFormElement: function () {
+            return this.$el.find('.form-collection__item_form');
+        },
+        /**
+         * @returns {jQuery}
+         */
+        getPreviewElement: function () {
+            return this.$el.find('.' + this.getPreviewElementClass());
+        },
+        /**
+         * @returns {string}
+         */
+        getPreviewElementClass: function () {
+            return 'form-collection__item_preview';
+        },
+        /**
+         * @param {String} state
+         */
+        changeState: function (state) {
+            var form = this.getFormElement(),
+                preview = this.getPreviewElement(),
+                formDisabled = 'form-collection__item_form--disabled',
+                previewDisabled = 'form-collection__item_preview--disabled';
+
+            switch (state) {
+                case 'form':
+                    form.removeClass(formDisabled);
+                    preview.addClass(previewDisabled);
+                    break;
+                case 'preview':
+                    form.addClass(formDisabled);
+                    preview.removeClass(previewDisabled);
+            }
+        },
+        /**
+         * @private
+         */
+        _onClickRemove: function () {
+            this.formModel.destroy();
+        },
+        /**
+         * @returns {Function}
+         * @private
+         */
+        _createTemplate: function () {
+            var template;
+
+            if (this.placeholder.length && !_.isNull(this.name)) {
+                template = this.template.replace(new RegExp(this.placeholder, 'g'), this.name);
+            } else {
+                template = this.template;
+            }
+
+            return _.template(template);
+        },
+        /**
+         * @param {Backbone.Model} model
+         * @private
+         */
+        _initFormModel: function (model) {
+            if (!(model instanceof Backbone.Model)) {
+                throw new TypeError('Form model is not Backbone.Model.');
+            }
+
+            this.formModel = model;
+            this.twoWayBinding = new Backbone.form.TwoWayBinding(this.formModel, this.$el);
+            this.formToModel = this.twoWayBinding.getFormToModel();
+            this.formToModel.setFileModel(new Backbone.Model());
+            this.twoWayBinding.auto(true);
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onFormSubmit: function (e) {
+            e.preventDefault();
+        }
+    });
+}());
+
+/**
+ * @author Rafał Mikołajun <rafal@mikoweb.pl>
+ * @license LGPLv3
+ */
+(function () {
+    "use strict";
+
+    Backbone.form.CollectionView = Backbone.View.extend({
+        /**
+         * @param {Object} options
+         */
+        initialize: function (options) {
+            if (!_.isObject(options)) {
+                throw new TypeError('CollectionView: Options is required.');
+            }
+
+            if (options.itemView && options.itemView instanceof Backbone.form.CollectionItemView) {
+                this.itemView = options.itemView;
+            } else {
+                this.itemView = Backbone.form.CollectionItemView;
+            }
+
+            this.index = 0;
+            this.setElContainer(options.elContainer);
+            this.newElementPlace = options.newElementPlace || 'last';
+            this.prototypeAttr = options.prototypeAttr || 'data-prototype';
+
+            if (options.itemTemplate) {
+                this.setItemTemplate(options.itemTemplate);
+            } else if (this.$el.get(0).hasAttribute(this.prototypeAttr)) {
+                this.setItemTemplate(this.$el.attr(this.prototypeAttr));
+            } else {
+                throw new Error('CollectionView: Please set itemTemplate.');
+            }
+
+            this.autofocus = options.autofocus || true;
+            this._initFormCollection(options.formCollection);
+            this._initFromElement();
+
+            this.btnAddSelector = options.btnAddSelector || '.form-collection__btn-add';
+            this.$el.on('click', this.btnAddSelector, $.proxy(this._onClickAdd, this));
+        },
+        /**
+         * @param {String} [modelKey]
+         * @param {jQuery} [el]
+         */
+        addItem: function (modelKey, el) {
+            var that = this, view, viewOptions, model = new this.formCollection.model();
+
+            if (modelKey) {
+                model.set(model.idAttribute, modelKey);
+            }
+
+            this.formCollection.add(model);
+            model.on('change', function () {
+                that.trigger('model:change', model, view);
+            });
+
+            viewOptions = {
+                template: this.itemTemplate,
+                name: String(this.index),
+                formModel: model
+            };
+
+            if (el) {
+                viewOptions.el = el;
+                view = new this.itemView(viewOptions);
+                view.bind();
+            } else {
+                view = new this.itemView(viewOptions);
+                view.render();
+                view.bind();
+
+                switch (this.newElementPlace) {
+                    case 'last':
+                        view.getElement().appendTo(this.elContainer);
+                        break;
+                    case 'first':
+                        view.getElement().prependTo(this.elContainer);
+                        break;
+                    default:
+                        view.getElement().appendTo(this.elContainer);
+                }
+
+                if (this.autofocus) {
+                    view.getElement().find(':input').eq(0).focus();
+                }
+            }
+
+            ++this.index;
+        },
+        /**
+         * @param {String} template
+         */
+        setItemTemplate: function (template) {
+            if (!_.isString(template)) {
+                throw new TypeError('CollectionView: Item template is not string.');
+            }
+
+            this.itemTemplate = template;
+        },
+        /**
+         * @param {jQuery|String} [container]
+         */
+        setElContainer: function (container) {
+            var elContainer;
+
+            if (_.isString(container)) {
+                this.elContainer = this.$el.find(container);
+            } else if (_.isObject(container)) {
+                this.elContainer = container;
+            } else {
+                elContainer = this.$el.find('.form_collection__container');
+                this.elContainer = elContainer.length ? elContainer : this.$el;
+            }
+        },
+        /**
+         * Initialize items from element content.
+         *
+         * @private
+         */
+        _initFromElement: function () {
+            var view = this;
+            this.$el.find('[data-is-item]').each(function () {
+                var el = $(this),
+                    key = el.attr('data-key');
+
+                view.addItem(key, el);
+            });
+        },
+        /**
+         * @param {Backbone.Collection} collection
+         * @private
+         */
+        _initFormCollection: function (collection) {
+            if (!(collection instanceof Backbone.Collection)) {
+                throw new TypeError('Form collection is not Backbone.Collection.');
+            }
+
+            this.formCollection = collection;
+        },
+        /**
+         * @private
+         */
+        _onClickAdd: function () {
+            this.addItem();
+        }
+    });
 }());
 
 Backbone.form.setFormToModelDefaults();
