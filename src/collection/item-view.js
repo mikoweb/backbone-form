@@ -21,6 +21,7 @@
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
+            this.backup = null;
             this.htmlAttr = options.htmlAttr || '_html';
             this.currentState = null;
             this.$el.addClass('form-collection__item');
@@ -268,6 +269,7 @@
                 view.disabled(false);
             }
 
+            this.backup = null;
             this.formModel.save({}, {
                 success: function (model, response) {
                     if (!response[view.htmlAttr]) {
@@ -286,6 +288,7 @@
          */
         _onClickEdit: function (e) {
             e.stopPropagation();
+            this.backup = this.formModel.toJSON();
             this.changeState('form');
             this.trigger('item:click:edit', this);
         },
@@ -295,6 +298,9 @@
          */
         _onClickCancel: function (e) {
             e.stopPropagation();
+            if (!_.isNull(this.backup)) {
+                this.formModel.set(this.backup);
+            }
             this.changeState('preview');
             this.trigger('item:click:cancel', this);
         },
