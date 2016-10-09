@@ -41,6 +41,7 @@
         itemTemplate: $('#formItemTemplate').text(),
         newElementPlace: 'first',
         formCollection: collection,
+        editClick: true,
         onRuquestError: function () {
             sweetAlert('Oops...', 'There was a problem with the server.', 'error');
         }
