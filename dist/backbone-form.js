@@ -1055,25 +1055,27 @@ Backbone.form.mixin = {};
                 diff = deepDiff.diff(model.previousAttributes(), model.attributes),
                 i, j, current;
 
-            for (i = 0; i < diff.length; ++i) {
-                if (diff[i].kind === 'D') {
-                    bind.call(this, diff[i].lhs, diff[i].path, true);
-                } else if (diff[i].kind === 'A') {
-                    bind.call(this, [], diff[i].path);
-                } else {
-                    if (diff[i].path.length > 1) {
-                        j = 1;
-                        current = model.attributes[diff[i].path[0]];
-                        while (!_.isUndefined(current) && j < diff[i].path.length - 1) {
-                            current = current[diff[i].path[j]];
-                            ++j;
-                        }
-                    }
-
-                    if (_.isArray(current)) {
-                        bind.call(this, current, diff[i].path.slice(0, diff[i].path.length - 1));
+            if (diff) {
+                for (i = 0; i < diff.length; ++i) {
+                    if (diff[i].kind === 'D') {
+                        bind.call(this, diff[i].lhs, diff[i].path, true);
+                    } else if (diff[i].kind === 'A') {
+                        bind.call(this, [], diff[i].path);
                     } else {
-                        bind.call(this, diff[i].rhs, diff[i].path);
+                        if (diff[i].path.length > 1) {
+                            j = 1;
+                            current = model.attributes[diff[i].path[0]];
+                            while (!_.isUndefined(current) && j < diff[i].path.length - 1) {
+                                current = current[diff[i].path[j]];
+                                ++j;
+                            }
+                        }
+
+                        if (_.isArray(current)) {
+                            bind.call(this, current, diff[i].path.slice(0, diff[i].path.length - 1));
+                        } else {
+                            bind.call(this, diff[i].rhs, diff[i].path);
+                        }
                     }
                 }
             }
@@ -1266,6 +1268,8 @@ Backbone.form.mixin = {};
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
+            this.htmlAttr = options.htmlAttr || '_html';
+            this.currentState = null;
             this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
             this._templateRequest = true;
@@ -1274,10 +1278,13 @@ Backbone.form.mixin = {};
             this.setPlaceholder(options.placeholder || '__name__');
             this.setTemplate(options.template);
 
-            this.btnRemoveSelector = options.btnRemoveSelector || '.form-collection__btn-remove';
-            this.$el.on('click', this.btnRemoveSelector, $.proxy(this._onClickRemove, this));
+            this.$el.on('click', '.form-collection__btn-remove', $.proxy(this._onClickRemove, this));
+            this.$el.on('click', '.form-collection__btn-edit', $.proxy(this._onClickEdit, this));
+            this.$el.on('click', '.form-collection__btn-cancel', $.proxy(this._onClickCancel, this));
+            this.$el.on('click', '.form-collection__btn-save', $.proxy(this._onClickSave, this));
             this.listenTo(this.formModel, 'destroy', this.destroyView);
             this.listenTo(this.formModel, 'change', this.renderPreview);
+            this.listenTo(this.formModel, 'change', this._onFormModelChange);
         },
         /**
          * @returns {Object}
@@ -1288,7 +1295,7 @@ Backbone.form.mixin = {};
                 form: this.formModel
             };
         },
-        render: function () {
+        renderAll: function () {
             this.$el.html(this.getTemplate()(this.renderParams()));
             this.changeState(this.formModel.isNew() ? 'form' : 'preview');
         },
@@ -1300,6 +1307,33 @@ Backbone.form.mixin = {};
                 fresh = template.find('.' + this.getPreviewElementClass());
                 fresh.attr('class', preview.attr('class'));
                 preview.replaceWith(fresh);
+            }
+        },
+        btnUpdate: function () {
+            var btnRemove = this.$el.find('.form-collection__btn-remove'),
+                btnCancel = this.$el.find('.form-collection__btn-cancel');
+
+            if (this.formModel.isNew()) {
+                btnCancel.hide();
+                btnRemove.show();
+            } else {
+                btnCancel.show();
+
+                if (this.currentState === 'form') {
+                    btnRemove.hide();
+                } else {
+                    btnRemove.show();
+                }
+            }
+        },
+        /**
+         * @param {Boolean} disabled
+         */
+        disabled: function (disabled) {
+            if (disabled) {
+                this.$el.find(':input').attr('disabled', 'disabled');
+            } else {
+                this.$el.find(':input').removeAttr('disabled');
             }
         },
         /**
@@ -1340,18 +1374,20 @@ Backbone.form.mixin = {};
             return this.$el;
         },
         /**
-         * Bind data from from to model.
+         * @returns {Backbone.form.TwoWayBinding}
          */
-        bind: function () {
-            if (this.formToModel) {
-                this.formToModel.bind();
-            }
+        getBinding: function () {
+            return this.twoWayBinding;
         },
         /**
          * Destroy only view without model.
+         *
+         * @param {Boolean} [silent]
          */
-        destroyView: function () {
-            this.trigger('item:destroy', this);
+        destroyView: function (silent) {
+            if (silent !== true) {
+                this.trigger('item:destroy', this);
+            }
             this.undelegateEvents();
             this.remove();
         },
@@ -1391,12 +1427,18 @@ Backbone.form.mixin = {};
                     form.addClass(formDisabled);
                     preview.removeClass(previewDisabled);
             }
+
+            this.currentState = state;
+            this.btnUpdate();
         },
         /**
-         * @private
+         * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
-        _onClickRemove: function () {
-            this.formModel.destroy();
+        loadHtml: function () {
+            if (this.formModel.has(this.htmlAttr)) {
+                this.$el.html(this.formModel.get(this.htmlAttr));
+                this.formModel.unset(this.htmlAttr);
+            }
         },
         /**
          * @returns {Function}
@@ -1429,11 +1471,66 @@ Backbone.form.mixin = {};
             this.twoWayBinding.auto(true);
         },
         /**
+         * @private
+         */
+        _onClickRemove: function () {
+            var view = this;
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.destroy({
+                success: reset,
+                error: reset
+            });
+        },
+        /**
+         * @private
+         */
+        _onClickSave: function () {
+            var view = this;
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.save({}, {
+                success: function (model, response) {
+                    if (!response[view.htmlAttr]) {
+                        reset();
+                        view.changeState('preview');
+                    }
+                },
+                error: reset
+            });
+        },
+        /**
+         * @private
+         */
+        _onClickEdit: function () {
+            this.changeState('form');
+        },
+        /**
+         * @private
+         */
+        _onClickCancel: function () {
+            this.changeState('preview');
+        },
+        /**
          * @param {Event} e
          * @private
          */
         _onFormSubmit: function (e) {
             e.preventDefault();
+        },
+        /**
+         * @private
+         */
+        _onFormModelChange: function () {
+            if (this.formModel.has(this.htmlAttr)) {
+                this.loadHtml();
+            }
         }
     });
 }());
@@ -1460,7 +1557,10 @@ Backbone.form.mixin = {};
                 this.itemView = Backbone.form.CollectionItemView;
             }
 
+            this.items = [];
             this.index = 0;
+            this.htmlAttr = options.htmlAttr || '_html';
+            this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
             this.prototypeAttr = options.prototypeAttr || 'data-prototype';
@@ -1477,56 +1577,73 @@ Backbone.form.mixin = {};
             this._initFormCollection(options.formCollection);
             this._initFromElement();
 
-            this.btnAddSelector = options.btnAddSelector || '.form-collection__btn-add';
-            this.$el.on('click', this.btnAddSelector, $.proxy(this._onClickAdd, this));
+            this.$el.on('click', '.form-collection__btn-add', $.proxy(this._onClickAdd, this));
+            this.listenTo(this.formCollection, 'sync', this._onFormCollectionSync);
+            this.listenTo(this.formCollection, 'error', this._onRuquestError);
         },
         /**
          * @param {String} [modelKey]
          * @param {jQuery} [el]
          */
         addItem: function (modelKey, el) {
-            var that = this, view, viewOptions, model = new this.formCollection.model();
+            var view, viewOptions, model = new this.formCollection.model();
 
             if (modelKey) {
                 model.set(model.idAttribute, modelKey);
             }
 
             this.formCollection.add(model);
-            model.on('change', function () {
-                that.trigger('model:change', model, view);
-            });
+            this._addModelListeners(model);
 
             viewOptions = {
                 template: this.itemTemplate,
                 name: String(this.index),
-                formModel: model
+                formModel: model,
+                htmlAttr: this.htmlAttr
             };
 
             if (el) {
                 viewOptions.el = el;
                 view = new this.itemView(viewOptions);
-                view.bind();
+                view.disabled(false);
+                view.getBinding().getFormToModel().bind();
             } else {
                 view = new this.itemView(viewOptions);
-                view.render();
-                view.bind();
-
-                switch (this.newElementPlace) {
-                    case 'last':
-                        view.getElement().appendTo(this.elContainer);
-                        break;
-                    case 'first':
-                        view.getElement().prependTo(this.elContainer);
-                        break;
-                    default:
-                        view.getElement().appendTo(this.elContainer);
-                }
-
-                if (this.autofocus) {
-                    view.getElement().find(':input').eq(0).focus();
-                }
+                view.renderAll();
+                view.disabled(false);
+                view.getBinding().getFormToModel().bind();
+                this._attachView(view);
             }
 
+            this._addViewListeners(view);
+            this.items.push(view);
+            ++this.index;
+        },
+        /**
+         * @param {Backbone.Model} model
+         */
+        addItemWithModel: function (model) {
+            var view;
+
+            this._addModelListeners(model);
+            view = new this.itemView({
+                template: this.itemTemplate,
+                name: String(this.index),
+                formModel: model,
+                htmlAttr: this.htmlAttr
+            });
+
+            if (model.has(this.htmlAttr)) {
+                view.loadHtml();
+            } else {
+                view.renderAll();
+                view.disabled(false);
+                view.getBinding().getModelToForm().bind();
+            }
+
+            this._attachView(view);
+            this._addViewListeners(view);
+            this.items.push(view);
             ++this.index;
         },
         /**
@@ -1555,6 +1672,12 @@ Backbone.form.mixin = {};
             }
         },
         /**
+         * @return {Array}
+         */
+        getItems: function () {
+            return this.items;
+        },
+        /**
          * Initialize items from element content.
          *
          * @private
@@ -1580,10 +1703,77 @@ Backbone.form.mixin = {};
             this.formCollection = collection;
         },
         /**
+         * @param {Backbone.Model} model
+         * @private
+         */
+        _addModelListeners: function (model) {
+            var that = this;
+
+            if (!model.__addedItemListeners) {
+                model.on('error', this._onRuquestError);
+                model.on('change', function () {
+                    that.trigger('model:change', model);
+                });
+
+                model.__addedItemListeners = true;
+            }
+        },
+        /**
+         * @param {Backbone.form.CollectionItemView} view
+         * @private
+         */
+        _addViewListeners: function (view) {
+            var that = this;
+            view.on('item:destroy', function () {
+                that.items = _.reject(that.items, function (item) {
+                    return item === view;
+                });
+            });
+        },
+        /**
+         * @param {Backbone.form.CollectionItemView} view
+         * @private
+         */
+        _attachView: function (view) {
+            switch (this.newElementPlace) {
+                case 'last':
+                    view.getElement().appendTo(this.elContainer);
+                    break;
+                case 'first':
+                    view.getElement().prependTo(this.elContainer);
+                    break;
+                default:
+                    view.getElement().appendTo(this.elContainer);
+            }
+
+            if (this.autofocus) {
+                view.getElement().find(':input:not(button)').eq(0).focus();
+            }
+        },
+        /**
          * @private
          */
         _onClickAdd: function () {
             this.addItem();
+        },
+        /**
+         * @private
+         */
+        _onFormCollectionSync: function (collection) {
+            var view = this;
+
+            if (collection instanceof Backbone.Collection) {
+                this.items.forEach(function (item) {
+                    item.destroyView(true);
+                });
+
+                this.items = [];
+                this.index = 0;
+
+                this.formCollection.models.forEach(function (model) {
+                    view.addItemWithModel(model);
+                });
+            }
         }
     });
 }());

@@ -5,9 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
 </head>
 <body>
     <header class="header">
@@ -18,14 +19,16 @@
             <div class="col-md-7" id="formCollection">
                 <div class="form-group">
                     <button class="btn btn-success form-collection__btn-add" type="button">Add</button>
+                    <button class="btn btn-default" id="loadFromJson">Load from JSON</button>
                 </div>
                 <div class="form_collection__container">
-                    <div class="form-collection__item" data-is-item data-key="1">
+                    <div class="form-collection__item" data-is-item data-key="111">
                         <div class="form-inline form-group form-collection__item_preview">
                             <span>Name</span>
                             <span class="form-group form-control">Jan Kowalski</span>
                             <span>Email</span>
                             <span class="form-group form-control">jan@kowalski.pl</span>
+                            <button type="button" class="btn btn-success form-collection__btn-edit">Edit</button>
                             <button type="button" class="btn btn-danger form-collection__btn-remove">Remove</button>
                         </div>
                         <div class="form-inline form-group form-collection__item_form form-collection__item_form--disabled">
@@ -37,6 +40,8 @@
                                 <label for="exampleInputEmail_0">Email</label>
                                 <input name="email" value="jan@kowalski.pl" type="email" class="form-control" id="exampleInputEmail_0" placeholder="jane.doe@example.com">
                             </div>
+                            <button type="button" class="btn btn-success form-collection__btn-save">Save</button>
+                            <button type="button" class="btn btn-danger form-collection__btn-cancel">Cancel</button>
                             <button type="button" class="btn btn-danger form-collection__btn-remove">Remove</button>
                         </div>
                     </div>
@@ -62,6 +67,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
     <script src="../bower_components/deep-diff/releases/deep-diff-0.3.3.min.js"></script>
     <script src="../src/namespace.js"></script>
@@ -82,6 +88,7 @@
             <span class="form-group form-control"><%= form.get('name') ? form.get('name') : '-' %></span>
             <span>Email</span>
             <span class="form-group form-control"><%= form.get('email') ? form.get('email') : '-' %></span>
+            <button type="button" class="btn btn-success form-collection__btn-edit">Edit</button>
             <button type="button" class="btn btn-danger form-collection__btn-remove">Remove</button>
         </div>
         <div class="form-inline form-group form-collection__item_form">
@@ -93,6 +100,8 @@
                 <label for="exampleInputEmail___name__">Email</label>
                 <input name="email" type="email" class="form-control" id="exampleInputEmail___name__" placeholder="jane.doe@example.com">
             </div>
+            <button type="button" class="btn btn-success form-collection__btn-save">Save</button>
+            <button type="button" class="btn btn-danger form-collection__btn-cancel">Cancel</button>
             <button type="button" class="btn btn-danger form-collection__btn-remove">Remove</button>
         </div>
     </script>

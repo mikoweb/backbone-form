@@ -20,7 +20,10 @@
                 this.itemView = Backbone.form.CollectionItemView;
             }
 
+            this.items = [];
             this.index = 0;
+            this.htmlAttr = options.htmlAttr || '_html';
+            this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
             this.prototypeAttr = options.prototypeAttr || 'data-prototype';
@@ -37,56 +40,73 @@
             this._initFormCollection(options.formCollection);
             this._initFromElement();
 
-            this.btnAddSelector = options.btnAddSelector || '.form-collection__btn-add';
-            this.$el.on('click', this.btnAddSelector, $.proxy(this._onClickAdd, this));
+            this.$el.on('click', '.form-collection__btn-add', $.proxy(this._onClickAdd, this));
+            this.listenTo(this.formCollection, 'sync', this._onFormCollectionSync);
+            this.listenTo(this.formCollection, 'error', this._onRuquestError);
         },
         /**
          * @param {String} [modelKey]
          * @param {jQuery} [el]
          */
         addItem: function (modelKey, el) {
-            var that = this, view, viewOptions, model = new this.formCollection.model();
+            var view, viewOptions, model = new this.formCollection.model();
 
             if (modelKey) {
                 model.set(model.idAttribute, modelKey);
             }
 
             this.formCollection.add(model);
-            model.on('change', function () {
-                that.trigger('model:change', model, view);
-            });
+            this._addModelListeners(model);
 
             viewOptions = {
                 template: this.itemTemplate,
                 name: String(this.index),
-                formModel: model
+                formModel: model,
+                htmlAttr: this.htmlAttr
             };
 
             if (el) {
                 viewOptions.el = el;
                 view = new this.itemView(viewOptions);
-                view.bind();
+                view.disabled(false);
+                view.getBinding().getFormToModel().bind();
             } else {
                 view = new this.itemView(viewOptions);
-                view.render();
-                view.bind();
-
-                switch (this.newElementPlace) {
-                    case 'last':
-                        view.getElement().appendTo(this.elContainer);
-                        break;
-                    case 'first':
-                        view.getElement().prependTo(this.elContainer);
-                        break;
-                    default:
-                        view.getElement().appendTo(this.elContainer);
-                }
-
-                if (this.autofocus) {
-                    view.getElement().find(':input').eq(0).focus();
-                }
+                view.renderAll();
+                view.disabled(false);
+                view.getBinding().getFormToModel().bind();
+                this._attachView(view);
             }
 
+            this._addViewListeners(view);
+            this.items.push(view);
+            ++this.index;
+        },
+        /**
+         * @param {Backbone.Model} model
+         */
+        addItemWithModel: function (model) {
+            var view;
+
+            this._addModelListeners(model);
+            view = new this.itemView({
+                template: this.itemTemplate,
+                name: String(this.index),
+                formModel: model,
+                htmlAttr: this.htmlAttr
+            });
+
+            if (model.has(this.htmlAttr)) {
+                view.loadHtml();
+            } else {
+                view.renderAll();
+                view.disabled(false);
+                view.getBinding().getModelToForm().bind();
+            }
+
+            this._attachView(view);
+            this._addViewListeners(view);
+            this.items.push(view);
             ++this.index;
         },
         /**
@@ -115,6 +135,12 @@
             }
         },
         /**
+         * @return {Array}
+         */
+        getItems: function () {
+            return this.items;
+        },
+        /**
          * Initialize items from element content.
          *
          * @private
@@ -140,10 +166,77 @@
             this.formCollection = collection;
         },
         /**
+         * @param {Backbone.Model} model
+         * @private
+         */
+        _addModelListeners: function (model) {
+            var that = this;
+
+            if (!model.__addedItemListeners) {
+                model.on('error', this._onRuquestError);
+                model.on('change', function () {
+                    that.trigger('model:change', model);
+                });
+
+                model.__addedItemListeners = true;
+            }
+        },
+        /**
+         * @param {Backbone.form.CollectionItemView} view
+         * @private
+         */
+        _addViewListeners: function (view) {
+            var that = this;
+            view.on('item:destroy', function () {
+                that.items = _.reject(that.items, function (item) {
+                    return item === view;
+                });
+            });
+        },
+        /**
+         * @param {Backbone.form.CollectionItemView} view
+         * @private
+         */
+        _attachView: function (view) {
+            switch (this.newElementPlace) {
+                case 'last':
+                    view.getElement().appendTo(this.elContainer);
+                    break;
+                case 'first':
+                    view.getElement().prependTo(this.elContainer);
+                    break;
+                default:
+                    view.getElement().appendTo(this.elContainer);
+            }
+
+            if (this.autofocus) {
+                view.getElement().find(':input:not(button)').eq(0).focus();
+            }
+        },
+        /**
          * @private
          */
         _onClickAdd: function () {
             this.addItem();
+        },
+        /**
+         * @private
+         */
+        _onFormCollectionSync: function (collection) {
+            var view = this;
+
+            if (collection instanceof Backbone.Collection) {
+                this.items.forEach(function (item) {
+                    item.destroyView(true);
+                });
+
+                this.items = [];
+                this.index = 0;
+
+                this.formCollection.models.forEach(function (model) {
+                    view.addItemWithModel(model);
+                });
+            }
         }
     });
 }());

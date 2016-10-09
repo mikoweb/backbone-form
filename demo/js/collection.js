@@ -11,6 +11,10 @@
     Model = Backbone.Model.extend({
         sync: function(method, model, options) {
             switch (method) {
+                case 'update':
+                case 'create':
+                    options.url = 'data/collection/save-error.json';
+                    break;
                 case 'delete':
                     options.url = 'data/collection/remove.json';
                     break;
@@ -22,7 +26,8 @@
     });
 
     Collection = Backbone.Collection.extend({
-        model: Model
+        model: Model,
+        url: 'data/collection/items.json'
     });
 
     collection = new Collection();
@@ -35,7 +40,10 @@
         el: container,
         itemTemplate: $('#formItemTemplate').text(),
         newElementPlace: 'first',
-        formCollection: collection
+        formCollection: collection,
+        onRuquestError: function () {
+            sweetAlert('Oops...', 'There was a problem with the server.', 'error');
+        }
     });
 
     view.on('model:change', function () {
@@ -47,4 +55,17 @@
     });
 
     renderJson();
+
+    $('#loadFromJson').on('click', function (e) {
+        var btn = $(e.target).attr('disabled', 'disabled');
+
+        collection.fetch({
+            success: function () {
+                btn.removeAttr('disabled');
+            },
+            error: function () {
+                btn.removeAttr('disabled');
+            }
+        });
+    });
 }());

@@ -21,6 +21,8 @@
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
+            this.htmlAttr = options.htmlAttr || '_html';
+            this.currentState = null;
             this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
             this._templateRequest = true;
@@ -29,10 +31,13 @@
             this.setPlaceholder(options.placeholder || '__name__');
             this.setTemplate(options.template);
 
-            this.btnRemoveSelector = options.btnRemoveSelector || '.form-collection__btn-remove';
-            this.$el.on('click', this.btnRemoveSelector, $.proxy(this._onClickRemove, this));
+            this.$el.on('click', '.form-collection__btn-remove', $.proxy(this._onClickRemove, this));
+            this.$el.on('click', '.form-collection__btn-edit', $.proxy(this._onClickEdit, this));
+            this.$el.on('click', '.form-collection__btn-cancel', $.proxy(this._onClickCancel, this));
+            this.$el.on('click', '.form-collection__btn-save', $.proxy(this._onClickSave, this));
             this.listenTo(this.formModel, 'destroy', this.destroyView);
             this.listenTo(this.formModel, 'change', this.renderPreview);
+            this.listenTo(this.formModel, 'change', this._onFormModelChange);
         },
         /**
          * @returns {Object}
@@ -43,7 +48,7 @@
                 form: this.formModel
             };
         },
-        render: function () {
+        renderAll: function () {
             this.$el.html(this.getTemplate()(this.renderParams()));
             this.changeState(this.formModel.isNew() ? 'form' : 'preview');
         },
@@ -55,6 +60,33 @@
                 fresh = template.find('.' + this.getPreviewElementClass());
                 fresh.attr('class', preview.attr('class'));
                 preview.replaceWith(fresh);
+            }
+        },
+        btnUpdate: function () {
+            var btnRemove = this.$el.find('.form-collection__btn-remove'),
+                btnCancel = this.$el.find('.form-collection__btn-cancel');
+
+            if (this.formModel.isNew()) {
+                btnCancel.hide();
+                btnRemove.show();
+            } else {
+                btnCancel.show();
+
+                if (this.currentState === 'form') {
+                    btnRemove.hide();
+                } else {
+                    btnRemove.show();
+                }
+            }
+        },
+        /**
+         * @param {Boolean} disabled
+         */
+        disabled: function (disabled) {
+            if (disabled) {
+                this.$el.find(':input').attr('disabled', 'disabled');
+            } else {
+                this.$el.find(':input').removeAttr('disabled');
             }
         },
         /**
@@ -95,18 +127,20 @@
             return this.$el;
         },
         /**
-         * Bind data from from to model.
+         * @returns {Backbone.form.TwoWayBinding}
          */
-        bind: function () {
-            if (this.formToModel) {
-                this.formToModel.bind();
-            }
+        getBinding: function () {
+            return this.twoWayBinding;
         },
         /**
          * Destroy only view without model.
+         *
+         * @param {Boolean} [silent]
          */
-        destroyView: function () {
-            this.trigger('item:destroy', this);
+        destroyView: function (silent) {
+            if (silent !== true) {
+                this.trigger('item:destroy', this);
+            }
             this.undelegateEvents();
             this.remove();
         },
@@ -146,12 +180,18 @@
                     form.addClass(formDisabled);
                     preview.removeClass(previewDisabled);
             }
+
+            this.currentState = state;
+            this.btnUpdate();
         },
         /**
-         * @private
+         * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
-        _onClickRemove: function () {
-            this.formModel.destroy();
+        loadHtml: function () {
+            if (this.formModel.has(this.htmlAttr)) {
+                this.$el.html(this.formModel.get(this.htmlAttr));
+                this.formModel.unset(this.htmlAttr);
+            }
         },
         /**
          * @returns {Function}
@@ -184,11 +224,66 @@
             this.twoWayBinding.auto(true);
         },
         /**
+         * @private
+         */
+        _onClickRemove: function () {
+            var view = this;
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.destroy({
+                success: reset,
+                error: reset
+            });
+        },
+        /**
+         * @private
+         */
+        _onClickSave: function () {
+            var view = this;
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.save({}, {
+                success: function (model, response) {
+                    if (!response[view.htmlAttr]) {
+                        reset();
+                        view.changeState('preview');
+                    }
+                },
+                error: reset
+            });
+        },
+        /**
+         * @private
+         */
+        _onClickEdit: function () {
+            this.changeState('form');
+        },
+        /**
+         * @private
+         */
+        _onClickCancel: function () {
+            this.changeState('preview');
+        },
+        /**
          * @param {Event} e
          * @private
          */
         _onFormSubmit: function (e) {
             e.preventDefault();
+        },
+        /**
+         * @private
+         */
+        _onFormModelChange: function () {
+            if (this.formModel.has(this.htmlAttr)) {
+                this.loadHtml();
+            }
         }
     });
 }());

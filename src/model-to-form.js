@@ -90,25 +90,27 @@
                 diff = deepDiff.diff(model.previousAttributes(), model.attributes),
                 i, j, current;
 
-            for (i = 0; i < diff.length; ++i) {
-                if (diff[i].kind === 'D') {
-                    bind.call(this, diff[i].lhs, diff[i].path, true);
-                } else if (diff[i].kind === 'A') {
-                    bind.call(this, [], diff[i].path);
-                } else {
-                    if (diff[i].path.length > 1) {
-                        j = 1;
-                        current = model.attributes[diff[i].path[0]];
-                        while (!_.isUndefined(current) && j < diff[i].path.length - 1) {
-                            current = current[diff[i].path[j]];
-                            ++j;
-                        }
-                    }
-
-                    if (_.isArray(current)) {
-                        bind.call(this, current, diff[i].path.slice(0, diff[i].path.length - 1));
+            if (diff) {
+                for (i = 0; i < diff.length; ++i) {
+                    if (diff[i].kind === 'D') {
+                        bind.call(this, diff[i].lhs, diff[i].path, true);
+                    } else if (diff[i].kind === 'A') {
+                        bind.call(this, [], diff[i].path);
                     } else {
-                        bind.call(this, diff[i].rhs, diff[i].path);
+                        if (diff[i].path.length > 1) {
+                            j = 1;
+                            current = model.attributes[diff[i].path[0]];
+                            while (!_.isUndefined(current) && j < diff[i].path.length - 1) {
+                                current = current[diff[i].path[j]];
+                                ++j;
+                            }
+                        }
+
+                        if (_.isArray(current)) {
+                            bind.call(this, current, diff[i].path.slice(0, diff[i].path.length - 1));
+                        } else {
+                            bind.call(this, diff[i].rhs, diff[i].path);
+                        }
                     }
                 }
             }

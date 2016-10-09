@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "name": "Load from data/collection/items.json",
+    "email": "john@doe.com"
+  },
+  {
+    "id": 2,
+    "name": "test",
+    "email": "test"
+  },
+  {
+    "id": 3,
+    "name": "Marian Janusz Paździoch",
+    "email": "marian@kiepscy.pl",
+    "_html": "\u003Cdiv class=\u0022form-inline form-group form-collection__item_preview form-collection__item_preview--disabled\u0022\u003E\n\u003Cspan\u003EName\u003C\/span\u003E\n\u003Cspan class=\u0022form-group form-control\u0022\u003EMarian Janusz Paździoch\u003C\/span\u003E\n\u003Cspan\u003EEmail\u003C\/span\u003E\n\u003Cspan class=\u0022form-group form-control\u0022\u003Einvalid_email\u003C\/span\u003E\n\u003Cbutton type=\u0022button\u0022 class=\u0022btn btn-success form-collection__btn-edit\u0022\u003EEdit\u003C\/button\u003E\n\u003Cbutton type=\u0022button\u0022 class=\u0022btn btn-danger form-collection__btn-remove\u0022 style=\u0022display: none;\u0022\u003ERemove\u003C\/button\u003E\n\u003C\/div\u003E\n\u003Cdiv class=\u0022form-inline form-group form-collection__item_form\u0022\u003E\n\u003Cdiv class=\u0022form-group has-danger\u0022\u003E\n\u003Clabel for=\u0022exampleInputName_0\u0022\u003EName\u003C\/label\u003E\n\u003Cinput name=\u0022name\u0022 value=\u0022Marian Janusz Paździoch\u0022 id=\u0022exampleInputName_0\u0022 placeholder=\u0022Jane Doe\u0022 class=\u0022form-control form-control-danger\u0022 type=\u0022text\u0022\u003E\n\u003Cdiv class=\u0022form-control-feedback text-xs-right\u0022\u003EPersona non grata\u003C\/div\u003E\n\u003C\/div\u003E\n\u003Cdiv class=\u0022form-group has-danger\u0022\u003E\n\u003Clabel for=\u0022exampleInputEmail_0\u0022\u003EEmail\u003C\/label\u003E\n\u003Cinput name=\u0022email\u0022 id=\u0022exampleInputEmail_0\u0022 placeholder=\u0022jane.doe@example.com\u0022 class=\u0022form-control form-control-danger\u0022 value=\u0022invalid_email\u0022 type=\u0022email\u0022\u003E\n\u003Cdiv class=\u0022form-control-feedback text-xs-right\u0022\u003EInvalid email\u003C\/div\u003E\n\u003C\/div\u003E\n\u003Cbutton type=\u0022button\u0022 class=\u0022btn btn-success form-collection__btn-save\u0022\u003ESave\u003C\/button\u003E\n\u003Cbutton type=\u0022button\u0022 class=\u0022btn btn-danger form-collection__btn-cancel\u0022\u003ECancel\u003C\/button\u003E\n\u003Cbutton type=\u0022button\u0022 class=\u0022btn btn-danger form-collection__btn-remove\u0022 style=\u0022display: none;\u0022\u003ERemove\u003C\/button\u003E\n\u003C\/div\u003E"
+  },
+  {
+    "id": 4,
+    "name": "Nie ma",
+    "email": "ok"
+  },
+  {
+    "id": 5,
+    "name": "John Doe",
+    "email": "john@doe.com"
+  }
+]
