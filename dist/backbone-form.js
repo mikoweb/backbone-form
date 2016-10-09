@@ -1268,6 +1268,7 @@ Backbone.form.mixin = {};
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
+            this.backup = null;
             this.htmlAttr = options.htmlAttr || '_html';
             this.currentState = null;
             this.$el.addClass('form-collection__item');
@@ -1277,6 +1278,14 @@ Backbone.form.mixin = {};
             this.name = options.name;
             this.setPlaceholder(options.placeholder || '__name__');
             this.setTemplate(options.template);
+
+            if (options.editClick === true) {
+                this.$el.on('click', '.form-collection__item_preview', $.proxy(this._onSwitchToForm, this));
+            }
+
+            if (options.editDblClick === true) {
+                this.$el.on('dblclick', '.form-collection__item_preview', $.proxy(this._onSwitchToForm, this));
+            }
 
             this.$el.on('click', '.form-collection__btn-remove', $.proxy(this._onClickRemove, this));
             this.$el.on('click', '.form-collection__btn-edit', $.proxy(this._onClickEdit, this));
@@ -1432,6 +1441,12 @@ Backbone.form.mixin = {};
             this.btnUpdate();
         },
         /**
+         * @return {String|null}
+         */
+        getCurrentState: function () {
+            return this.currentState;
+        },
+        /**
          * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
         loadHtml: function () {
@@ -1471,9 +1486,11 @@ Backbone.form.mixin = {};
             this.twoWayBinding.auto(true);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickRemove: function () {
+        _onClickRemove: function (e) {
+            e.stopPropagation();
             var view = this;
             this.disabled(true);
             function reset () {
@@ -1484,17 +1501,22 @@ Backbone.form.mixin = {};
                 success: reset,
                 error: reset
             });
+
+            this.trigger('item:click:remove', this);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickSave: function () {
+        _onClickSave: function (e) {
+            e.stopPropagation();
             var view = this;
             this.disabled(true);
             function reset () {
                 view.disabled(false);
             }
 
+            this.backup = null;
             this.formModel.save({}, {
                 success: function (model, response) {
                     if (!response[view.htmlAttr]) {
@@ -1504,18 +1526,30 @@ Backbone.form.mixin = {};
                 },
                 error: reset
             });
+
+            this.trigger('item:click:save', this);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickEdit: function () {
+        _onClickEdit: function (e) {
+            e.stopPropagation();
+            this.backup = this.formModel.toJSON();
             this.changeState('form');
+            this.trigger('item:click:edit', this);
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickCancel: function () {
+        _onClickCancel: function (e) {
+            e.stopPropagation();
+            if (!_.isNull(this.backup)) {
+                this.formModel.set(this.backup);
+            }
             this.changeState('preview');
+            this.trigger('item:click:cancel', this);
         },
         /**
          * @param {Event} e
@@ -1531,6 +1565,13 @@ Backbone.form.mixin = {};
             if (this.formModel.has(this.htmlAttr)) {
                 this.loadHtml();
             }
+        },
+        /**
+         * @private
+         */
+        _onSwitchToForm: function () {
+            this.changeState('form');
+            this.trigger('item:swich_to_form', this);
         }
     });
 }());
@@ -1560,10 +1601,14 @@ Backbone.form.mixin = {};
             this.items = [];
             this.index = 0;
             this.htmlAttr = options.htmlAttr || '_html';
+            this.closeAlert = options.closeAlert || null;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
             this.prototypeAttr = options.prototypeAttr || 'data-prototype';
+            this.autofocus = options.autofocus || true;
+            this.editClick = options.editClick || false;
+            this.editDblClick = options.editDblClick || false;
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -1573,13 +1618,28 @@ Backbone.form.mixin = {};
                 throw new Error('CollectionView: Please set itemTemplate.');
             }
 
-            this.autofocus = options.autofocus || true;
             this._initFormCollection(options.formCollection);
             this._initFromElement();
 
             this.$el.on('click', '.form-collection__btn-add', $.proxy(this._onClickAdd, this));
+            this.$el.on('click', '.form-collection__btn-save-all', $.proxy(this._onClickSaveAll, this));
+            this.$el.on('click', '.form-collection__btn-remove-all', $.proxy(this._onClickRemoveAll, this));
             this.listenTo(this.formCollection, 'sync', this._onFormCollectionSync);
             this.listenTo(this.formCollection, 'error', this._onRuquestError);
+            this._initBeforeUnload();
+            this.disabled(false);
+        },
+        /**
+         * Remove all items.
+         */
+        clear: function () {
+            this.items.forEach(function (item) {
+                item.destroyView(true);
+            });
+
+            this.items = [];
+            this.index = 0;
+            this.trigger('items:clear', this);
         },
         /**
          * @param {String} [modelKey]
@@ -1595,12 +1655,7 @@ Backbone.form.mixin = {};
             this.formCollection.add(model);
             this._addModelListeners(model);
 
-            viewOptions = {
-                template: this.itemTemplate,
-                name: String(this.index),
-                formModel: model,
-                htmlAttr: this.htmlAttr
-            };
+            viewOptions = this._itemViewCommonOptions(model);
 
             if (el) {
                 viewOptions.el = el;
@@ -1618,6 +1673,7 @@ Backbone.form.mixin = {};
             this._addViewListeners(view);
             this.items.push(view);
             ++this.index;
+            this.trigger('items:add', this, view);
         },
         /**
          * @param {Backbone.Model} model
@@ -1626,12 +1682,8 @@ Backbone.form.mixin = {};
             var view;
 
             this._addModelListeners(model);
-            view = new this.itemView({
-                template: this.itemTemplate,
-                name: String(this.index),
-                formModel: model,
-                htmlAttr: this.htmlAttr
-            });
+
+            view = new this.itemView(this._itemViewCommonOptions(model));
 
             if (model.has(this.htmlAttr)) {
                 view.loadHtml();
@@ -1645,6 +1697,7 @@ Backbone.form.mixin = {};
             this._addViewListeners(view);
             this.items.push(view);
             ++this.index;
+            this.trigger('items:add', this, view);
         },
         /**
          * @param {String} template
@@ -1676,6 +1729,16 @@ Backbone.form.mixin = {};
          */
         getItems: function () {
             return this.items;
+        },
+        /**
+         * @param {Boolean} disabled
+         */
+        disabled: function (disabled) {
+            if (disabled) {
+                this.$el.find(':input').attr('disabled', 'disabled');
+            } else {
+                this.$el.find(':input').removeAttr('disabled');
+            }
         },
         /**
          * Initialize items from element content.
@@ -1731,6 +1794,21 @@ Backbone.form.mixin = {};
             });
         },
         /**
+         * @param {Backbone.Model} formModel
+         * @returns {Object}
+         * @private
+         */
+        _itemViewCommonOptions: function (formModel) {
+            return {
+                template: this.itemTemplate,
+                name: String(this.index),
+                formModel: formModel,
+                htmlAttr: this.htmlAttr,
+                editClick: this.editClick,
+                editDblClick: this.editDblClick
+            };
+        },
+        /**
          * @param {Backbone.form.CollectionItemView} view
          * @private
          */
@@ -1751,10 +1829,13 @@ Backbone.form.mixin = {};
             }
         },
         /**
+         * @param {Event} e
          * @private
          */
-        _onClickAdd: function () {
+        _onClickAdd: function (e) {
+            e.stopPropagation();
             this.addItem();
+            this.trigger('items:click:add', this);
         },
         /**
          * @private
@@ -1763,15 +1844,74 @@ Backbone.form.mixin = {};
             var view = this;
 
             if (collection instanceof Backbone.Collection) {
-                this.items.forEach(function (item) {
-                    item.destroyView(true);
-                });
-
-                this.items = [];
-                this.index = 0;
-
+                this.clear();
                 this.formCollection.models.forEach(function (model) {
                     view.addItemWithModel(model);
+                });
+            }
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onClickSaveAll: function (e) {
+            var view = this;
+            e.stopPropagation();
+
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            if (_.isFunction(this.formCollection.save)) {
+                this.formCollection.save({
+                    success: reset,
+                    error: reset
+                });
+                this.trigger('items:click:save_all', this);
+            } else {
+                reset();
+                this.trigger('items:error:save_all', this);
+            }
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onClickRemoveAll: function (e) {
+            e.stopPropagation();
+            this.clear();
+
+            if (_.isFunction(this.formCollection.destroy)) {
+                this.formCollection.destroy();
+                this.trigger('items:click:remove_all', this);
+            } else {
+                this.formCollection.reset();
+                this.formCollection.trigger('update', this.formCollection, this.options);
+                this.trigger('items:error:remove_all', this);
+            }
+        },
+        /**
+         * @private
+         */
+        _initBeforeUnload: function () {
+            var view = this,
+                closeAlert = this.closeAlert;
+
+            if (_.isFunction(closeAlert)) {
+                window.addEventListener('beforeunload', function (e) {
+                    var confirmationMessage, confirm;
+
+                    confirm = _.find(view.getItems(), function (item){
+                        return item.getCurrentState() === 'form';
+                    });
+
+                    if (!_.isUndefined(confirm)) {
+                        confirmationMessage = closeAlert();
+
+                        (e || window.event).returnValue = confirmationMessage;
+                        return confirmationMessage;
+                    }
                 });
             }
         }
