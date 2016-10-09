@@ -13,7 +13,7 @@
             switch (method) {
                 case 'update':
                 case 'create':
-                    options.url = 'data/collection/save-error.json';
+                    options.url = Math.random() > 0.5 ? 'data/collection/save-error.json' : 'data/collection/save.json';
                     break;
                 case 'delete':
                     options.url = 'data/collection/remove.json';
