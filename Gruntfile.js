@@ -6,6 +6,7 @@ module.exports = function (grunt) {
             dist: {
                 src: [
                     'bower_components/deep-diff/releases/deep-diff-0.3.3.min.js',
+                    'bower_components/backbone-validation/dist/backbone-validation.js',
                     'src/namespace.js',
                     'src/methods.js',
                     'src/mixins/related.js',
@@ -16,6 +17,7 @@ module.exports = function (grunt) {
                     'src/two-way-binding.js',
                     'src/collection/item-view.js',
                     'src/collection/collection-view.js',
+                    'src/validation/validation-view.js',
                     'src/defaults.js'
                 ],
                 dest: 'dist/backbone-form.js'
@@ -31,8 +33,12 @@ module.exports = function (grunt) {
         },
         copy: {
             dist: {
-                src: 'dist/backbone-form.min.js',
-                dest: 'demo/backbone-form.min.js'
+                files: [
+                    {
+                        src: 'dist/backbone-form.min.js',
+                        dest: 'demo/backbone-form.min.js'
+                    }
+                ]
             }
         }
     });

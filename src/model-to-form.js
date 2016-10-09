@@ -34,6 +34,8 @@
     /**
      * @param {Array|String[]} attr
      * @param value
+     *
+     * @return {String}
      */
     function controlName (attr, value) {
         var name;
@@ -192,6 +194,16 @@
      */
     ModelToForm.prototype.getForm = function () {
         return this.form;
+    };
+
+    /**
+     * @param {Array|String[]} attr
+     * @param value
+     *
+     * @return {String}
+     */
+    ModelToForm.prototype.getControleName = function (attr, value) {
+        return controlName.call(this, attr, value);
     };
 
     /**
