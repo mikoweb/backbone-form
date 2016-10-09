@@ -5,8 +5,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     var formSelectors = {
         selectable: 'select, input[type="checkbox"], input[type="radio"]',
         inputable: 'textarea, input:not([type="radio"],[type="checkbox"],[type="button"],[type="submit"],[type="image"],[type="reset"],[type="file"])'

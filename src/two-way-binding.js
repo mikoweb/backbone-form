@@ -5,8 +5,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     /**
      * @param {Backbone.Model} model
      * @param {HTMLElement|jQuery} form

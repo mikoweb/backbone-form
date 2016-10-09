@@ -5,9 +5,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-    Backbone.form.mixin = Backbone.form.mixin || {};
-
     var relatedSilent = {};
 
     /**

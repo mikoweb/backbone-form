@@ -5,8 +5,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     /**
      * @param {HTMLElement} form
      * @param {String} mode

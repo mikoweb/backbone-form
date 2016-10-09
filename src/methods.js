@@ -5,8 +5,6 @@
 (function () {
     "use strict";
 
-    Backbone.form = Backbone.form || {};
-
     var formToModelDefaults = {},
         modelToFormDefaults = {};
 
