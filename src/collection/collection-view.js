@@ -26,6 +26,7 @@
             this.isValidAttr = options.isValidAttr || '_isValid';
             this.messageAttr = options.messageAttr || '_message';
             this.closeAlert = options.closeAlert || null;
+            this.removeConfirmation = options.removeConfirmation || null;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
@@ -236,7 +237,8 @@
                 messageAttr: this.messageAttr,
                 editClick: this.editClick,
                 editDblClick: this.editDblClick,
-                bindingOptions: this.bindingOptions
+                bindingOptions: this.bindingOptions,
+                removeConfirmation: this.removeConfirmation
             };
         },
         /**

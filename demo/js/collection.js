@@ -52,6 +52,16 @@
         newElementPlace: 'first',
         formCollection: collection,
         editClick: true,
+        removeConfirmation: function (view) {
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this!",
+                type: "warning",
+                showCancelButton: true
+            }, function () {
+                view.triggerRemove.apply(view);
+            });
+        },
         closeAlert: function () {
             toastr.warning('Not everything has been saved.');
             return 'Are you sure you want to quit?';

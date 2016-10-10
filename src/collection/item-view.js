@@ -30,7 +30,6 @@
             this.removeConfirmation = options.removeConfirmation || null;
             this._templateRequest = true;
             this._compiledTemplate = null;
-            this._removeConfirm = false;
             this._backup = null;
             this._serverIsValid = true;
             this._serverMessage = null;
@@ -233,6 +232,23 @@
             this._backup = this.formModel.toJSON();
         },
         /**
+         * Absolutely destroy model.
+         */
+        triggerRemove: function () {
+            var view = this;
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.destroy({
+                success: reset,
+                error: reset
+            });
+
+            this.trigger('item:remove', this);
+        },
+        /**
          * @returns {Function}
          * @private
          */
@@ -274,18 +290,12 @@
          */
         _onClickRemove: function (e) {
             e.stopPropagation();
-            var view = this;
-            this.disabled(true);
-            function reset () {
-                view.disabled(false);
+
+            if (_.isFunction(this.removeConfirmation)) {
+                this.removeConfirmation(this, this.formModel);
+            } else {
+                this.triggerRemove();
             }
-
-            this.formModel.destroy({
-                success: reset,
-                error: reset
-            });
-
-            this.trigger('item:click:remove', this);
         },
         /**
          * @param {Event} e
