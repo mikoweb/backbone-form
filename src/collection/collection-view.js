@@ -31,6 +31,7 @@
             this.autofocus = options.autofocus || true;
             this.editClick = options.editClick || false;
             this.editDblClick = options.editDblClick || false;
+            this.bindingOptions = options.bindingOptions || {};
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -227,7 +228,8 @@
                 formModel: formModel,
                 htmlAttr: this.htmlAttr,
                 editClick: this.editClick,
-                editDblClick: this.editDblClick
+                editDblClick: this.editDblClick,
+                bindingOptions: this.bindingOptions
             };
         },
         /**

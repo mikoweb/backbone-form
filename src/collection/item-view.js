@@ -21,6 +21,7 @@
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
+            this.bindingOptions = options.bindingOptions || {};
             this.backup = null;
             this.htmlAttr = options.htmlAttr || '_html';
             this.currentState = null;
@@ -242,7 +243,8 @@
             this.validation = new Backbone.form.ValidationView({
                 el: this.$el,
                 model: this.formModel,
-                autoBinding: false
+                autoBinding: false,
+                bindingOptions: this.bindingOptions
             });
             this.twoWayBinding = this.validation.getBinding();
             this.formToModel = this.twoWayBinding.getFormToModel();
