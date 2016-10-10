@@ -1997,14 +1997,21 @@ if (typeof exports === 'object') {
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
-            this.backup = null;
+            this.bindingOptions = options.bindingOptions || {};
             this.htmlAttr = options.htmlAttr || '_html';
+            this.isValidAttr = options.isValidAttr || '_isValid';
+            this.messageAttr = options.messageAttr || '_message';
             this.currentState = null;
-            this.$el.addClass('form-collection__item');
-            this._initFormModel(options.formModel);
+            this.name = options.name;
+            this.removeConfirmation = options.removeConfirmation || null;
             this._templateRequest = true;
             this._compiledTemplate = null;
-            this.name = options.name;
+            this._backup = null;
+            this._serverIsValid = true;
+            this._serverMessage = null;
+
+            this.$el.addClass('form-collection__item');
+            this._initFormModel(options.formModel);
             this.setPlaceholder(options.placeholder || '__name__');
             this.setTemplate(options.template);
 
@@ -2185,10 +2192,114 @@ if (typeof exports === 'object') {
          * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
         loadHtml: function () {
+            var html;
             if (this.formModel.has(this.htmlAttr)) {
-                this.$el.html(this.formModel.get(this.htmlAttr));
+                html = this.formModel.get(this.htmlAttr);
+
+                if (!_.isString(html)) {
+                    throw new TypeError('Html data is not string!');
+                }
+
+                this.$el.html(html);
                 this.formModel.unset(this.htmlAttr);
             }
+        },
+        doBackup: function () {
+            this._backup = this.formModel.toJSON();
+        },
+        restoreBackup: function () {
+            if (!_.isNull(this._backup)) {
+                this.formModel.clear();
+                this.formModel.set(this._backup);
+            }
+        },
+        /**
+         * Absolutely destroy model.
+         */
+        triggerRemove: function () {
+            var view = this;
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.destroy({
+                success: function () {
+                    reset();
+                    view.trigger('item:remove', view);
+                },
+                error: reset
+            });
+        },
+        /**
+         * Save model.
+         */
+        triggerSave: function () {
+            var view = this;
+
+            this.disabled(true);
+            this._serverIsValid = false;
+            this._serverMessage = null;
+
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.$el.find(':input').data('ready-to-validation', true);
+
+            if (this.formModel.isValid(true)) {
+                this.formModel.save({}, {
+                    success: function (model, response) {
+                        if (_.isBoolean(response[view.isValidAttr])) {
+                            view._serverIsValid = response[view.isValidAttr];
+                            if (!_.isUndefined(response[view.messageAttr])) {
+                                view._serverMessage = response[view.messageAttr];
+                            }
+                        } else {
+                            view._serverIsValid = true;
+                        }
+
+                        if (view._serverIsValid) {
+                            view.doBackup();
+                        }
+
+                        reset();
+                        view.changeState(view._serverIsValid ? 'preview' : 'form');
+
+                        view.trigger('server:validation', view._serverIsValid, response, view);
+
+                        if (!view._serverIsValid && view._serverMessage) {
+                            view.trigger('server:invalid:message', view._serverMessage, response, view);
+                        }
+
+                        view.trigger('item:save', view);
+                    },
+                    error: reset
+                });
+            } else {
+                reset();
+                setTimeout(function () {
+                    view.validation.getFirstErrorInput().focus();
+                }, 50);
+            }
+        },
+        /**
+         * Open edit view.
+         */
+        triggerEdit: function () {
+            this.doBackup();
+            this.changeState('form');
+            this.trigger('item:edit', this);
+        },
+        /**
+         * Cancel edit.
+         */
+        triggerCancel: function () {
+            this.restoreBackup();
+            this.renderAll();
+            this.getBinding().getModelToForm().bind();
+            this.changeState('preview');
+            this.trigger('item:cancel', this);
         },
         /**
          * @returns {Function}
@@ -2218,7 +2329,8 @@ if (typeof exports === 'object') {
             this.validation = new Backbone.form.ValidationView({
                 el: this.$el,
                 model: this.formModel,
-                autoBinding: false
+                autoBinding: false,
+                bindingOptions: this.bindingOptions
             });
             this.twoWayBinding = this.validation.getBinding();
             this.formToModel = this.twoWayBinding.getFormToModel();
@@ -2231,18 +2343,12 @@ if (typeof exports === 'object') {
          */
         _onClickRemove: function (e) {
             e.stopPropagation();
-            var view = this;
-            this.disabled(true);
-            function reset () {
-                view.disabled(false);
+
+            if (_.isFunction(this.removeConfirmation)) {
+                this.removeConfirmation(this, this.formModel);
+            } else {
+                this.triggerRemove();
             }
-
-            this.formModel.destroy({
-                success: reset,
-                error: reset
-            });
-
-            this.trigger('item:click:remove', this);
         },
         /**
          * @param {Event} e
@@ -2250,24 +2356,7 @@ if (typeof exports === 'object') {
          */
         _onClickSave: function (e) {
             e.stopPropagation();
-            var view = this;
-            this.disabled(true);
-            function reset () {
-                view.disabled(false);
-            }
-
-            this.backup = null;
-            this.formModel.save({}, {
-                success: function (model, response) {
-                    if (!response[view.htmlAttr]) {
-                        reset();
-                        view.changeState('preview');
-                    }
-                },
-                error: reset
-            });
-
-            this.trigger('item:click:save', this);
+            this.triggerSave();
         },
         /**
          * @param {Event} e
@@ -2275,9 +2364,7 @@ if (typeof exports === 'object') {
          */
         _onClickEdit: function (e) {
             e.stopPropagation();
-            this.backup = this.formModel.toJSON();
-            this.changeState('form');
-            this.trigger('item:click:edit', this);
+            this.triggerEdit();
         },
         /**
          * @param {Event} e
@@ -2285,11 +2372,7 @@ if (typeof exports === 'object') {
          */
         _onClickCancel: function (e) {
             e.stopPropagation();
-            if (!_.isNull(this.backup)) {
-                this.formModel.set(this.backup);
-            }
-            this.changeState('preview');
-            this.trigger('item:click:cancel', this);
+            this.triggerCancel();
         },
         /**
          * @param {Event} e
@@ -2305,6 +2388,9 @@ if (typeof exports === 'object') {
             if (this.formModel.has(this.htmlAttr)) {
                 this.loadHtml();
             }
+
+            this.formModel.unset(this.isValidAttr);
+            this.formModel.unset(this.messageAttr);
         },
         /**
          * @private
@@ -2341,7 +2427,10 @@ if (typeof exports === 'object') {
             this.items = [];
             this.index = 0;
             this.htmlAttr = options.htmlAttr || '_html';
+            this.isValidAttr = options.isValidAttr || '_isValid';
+            this.messageAttr = options.messageAttr || '_message';
             this.closeAlert = options.closeAlert || null;
+            this.removeConfirmation = options.removeConfirmation || null;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
             this.newElementPlace = options.newElementPlace || 'last';
@@ -2349,6 +2438,7 @@ if (typeof exports === 'object') {
             this.autofocus = options.autofocus || true;
             this.editClick = options.editClick || false;
             this.editDblClick = options.editDblClick || false;
+            this.bindingOptions = options.bindingOptions || {};
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -2410,10 +2500,7 @@ if (typeof exports === 'object') {
                 this._attachView(view);
             }
 
-            this._addViewListeners(view);
-            this.items.push(view);
-            ++this.index;
-            this.trigger('items:add', this, view);
+            this._initItemView(view);
         },
         /**
          * @param {Backbone.Model} model
@@ -2434,10 +2521,7 @@ if (typeof exports === 'object') {
             }
 
             this._attachView(view);
-            this._addViewListeners(view);
-            this.items.push(view);
-            ++this.index;
-            this.trigger('items:add', this, view);
+            this._initItemView(view);
         },
         /**
          * @param {String} template
@@ -2478,6 +2562,61 @@ if (typeof exports === 'object') {
                 this.$el.find(':input').attr('disabled', 'disabled');
             } else {
                 this.$el.find(':input').removeAttr('disabled');
+            }
+        },
+        /**
+         * Add fresh item.
+         */
+        triggerAdd: function () {
+            this.addItem();
+            this.trigger('items:add', this);
+        },
+        /**
+         * Save all models.
+         */
+        triggerSave: function () {
+            var view = this;
+
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.items.forEach(function (item) {
+                item.triggerCancel.apply(item);
+            });
+
+            if (_.isFunction(this.formCollection.save)) {
+                this.formCollection.save({
+                    success: function () {
+                        reset();
+                        view.trigger('items:save_all', view);
+                    },
+                    error: reset
+                });
+            } else {
+                reset();
+                this.trigger('items:error:save_all', this);
+            }
+        },
+        /**
+         * Destroy all models.
+         */
+        triggerRemove: function () {
+            var view = this;
+
+            this.clear();
+
+            if (_.isFunction(this.formCollection.destroy)) {
+                this.formCollection.destroy({
+                    success: function () {
+                        view.trigger('items:remove_all', view);
+                    }
+                });
+            } else {
+                this.formCollection.reset();
+                this.formCollection.trigger('update', this.formCollection, this.options);
+                this.trigger('items:error:remove_all', this);
             }
         },
         /**
@@ -2527,10 +2666,19 @@ if (typeof exports === 'object') {
          */
         _addViewListeners: function (view) {
             var that = this;
+
             view.on('item:destroy', function () {
                 that.items = _.reject(that.items, function (item) {
                     return item === view;
                 });
+            });
+
+            view.on('server:validation', function (valid, response, view) {
+                that.trigger('server:validation', valid, response, view);
+            });
+
+            view.on('server:invalid:message', function (message, response, view) {
+                that.trigger('server:invalid:message', message, response, view);
             });
         },
         /**
@@ -2544,8 +2692,12 @@ if (typeof exports === 'object') {
                 name: String(this.index),
                 formModel: formModel,
                 htmlAttr: this.htmlAttr,
+                isValidAttr: this.isValidAttr,
+                messageAttr: this.messageAttr,
                 editClick: this.editClick,
-                editDblClick: this.editDblClick
+                editDblClick: this.editDblClick,
+                bindingOptions: this.bindingOptions,
+                removeConfirmation: this.removeConfirmation
             };
         },
         /**
@@ -2569,13 +2721,23 @@ if (typeof exports === 'object') {
             }
         },
         /**
+         * @param {Backbone.form.CollectionItemView} view
+         * @private
+         */
+        _initItemView: function (view) {
+            view.doBackup();
+            this._addViewListeners(view);
+            this.items.push(view);
+            ++this.index;
+            this.trigger('items:add', this, view);
+        },
+        /**
          * @param {Event} e
          * @private
          */
         _onClickAdd: function (e) {
             e.stopPropagation();
-            this.addItem();
-            this.trigger('items:click:add', this);
+            this.triggerAdd();
         },
         /**
          * @private
@@ -2595,24 +2757,8 @@ if (typeof exports === 'object') {
          * @private
          */
         _onClickSaveAll: function (e) {
-            var view = this;
             e.stopPropagation();
-
-            this.disabled(true);
-            function reset () {
-                view.disabled(false);
-            }
-
-            if (_.isFunction(this.formCollection.save)) {
-                this.formCollection.save({
-                    success: reset,
-                    error: reset
-                });
-                this.trigger('items:click:save_all', this);
-            } else {
-                reset();
-                this.trigger('items:error:save_all', this);
-            }
+            this.triggerSave();
         },
         /**
          * @param {Event} e
@@ -2620,15 +2766,11 @@ if (typeof exports === 'object') {
          */
         _onClickRemoveAll: function (e) {
             e.stopPropagation();
-            this.clear();
 
-            if (_.isFunction(this.formCollection.destroy)) {
-                this.formCollection.destroy();
-                this.trigger('items:click:remove_all', this);
+            if (_.isFunction(this.removeConfirmation)) {
+                this.removeConfirmation(this, this.formModel);
             } else {
-                this.formCollection.reset();
-                this.formCollection.trigger('update', this.formCollection, this.options);
-                this.trigger('items:error:remove_all', this);
+                this.triggerRemove();
             }
         },
         /**
