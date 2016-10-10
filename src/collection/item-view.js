@@ -242,11 +242,74 @@
             }
 
             this.formModel.destroy({
-                success: reset,
+                success: function () {
+                    reset();
+                    view.trigger('item:remove', view);
+                },
                 error: reset
             });
+        },
+        /**
+         * Save model.
+         */
+        triggerSave: function () {
+            var view = this;
+            this.disabled(true);
+            this._serverIsValid = false;
+            this._serverMessage = null;
 
-            this.trigger('item:remove', this);
+            function reset () {
+                view.disabled(false);
+            }
+
+            this.formModel.save({}, {
+                success: function (model, response) {
+                    if (_.isBoolean(response[view.isValidAttr])) {
+                        view._serverIsValid = response[view.isValidAttr];
+                        if (!_.isUndefined(response[view.messageAttr])) {
+                            view._serverMessage = response[view.messageAttr];
+                        }
+                    } else {
+                        view._serverIsValid = true;
+                    }
+
+                    if (view._serverIsValid) {
+                        view.doBackup();
+                    }
+
+                    reset();
+                    view.changeState(view._serverIsValid ? 'preview' : 'form');
+
+                    view.trigger('server:validation', view._serverIsValid, response, view);
+
+                    if (!view._serverIsValid && view._serverMessage) {
+                        view.trigger('server:invalid:message', view._serverMessage, response, view);
+                    }
+
+                    view.trigger('item:save', view);
+                },
+                error: reset
+            });
+        },
+        /**
+         * Open edit view.
+         */
+        triggerEdit: function () {
+            this.doBackup();
+            this.changeState('form');
+            this.trigger('item:edit', this);
+        },
+        /**
+         * Cancel edit.
+         */
+        triggerCancel: function () {
+            if (!_.isNull(this._backup)) {
+                this.formModel.set(this._backup);
+            }
+            this.renderAll();
+            this.getBinding().getModelToForm().bind();
+            this.changeState('preview');
+            this.trigger('item:cancel', this);
         },
         /**
          * @returns {Function}
@@ -303,43 +366,7 @@
          */
         _onClickSave: function (e) {
             e.stopPropagation();
-            var view = this;
-            this.disabled(true);
-            this._serverIsValid = false;
-            this._serverMessage = null;
-
-            function reset () {
-                view.disabled(false);
-            }
-
-            this.formModel.save({}, {
-                success: function (model, response) {
-                    if (_.isBoolean(response[view.isValidAttr])) {
-                        view._serverIsValid = response[view.isValidAttr];
-                        if (!_.isUndefined(response[view.messageAttr])) {
-                            view._serverMessage = response[view.messageAttr];
-                        }
-                    } else {
-                        view._serverIsValid = true;
-                    }
-
-                    if (view._serverIsValid) {
-                        view.doBackup();
-                    }
-
-                    reset();
-                    view.changeState(view._serverIsValid ? 'preview' : 'form');
-
-                    view.trigger('server:validation', view._serverIsValid, response, view);
-
-                    if (!view._serverIsValid && view._serverMessage) {
-                        view.trigger('server:invalid:message', view._serverMessage, response, view);
-                    }
-                },
-                error: reset
-            });
-
-            this.trigger('item:click:save', this);
+            this.triggerSave();
         },
         /**
          * @param {Event} e
@@ -347,9 +374,7 @@
          */
         _onClickEdit: function (e) {
             e.stopPropagation();
-            this.doBackup();
-            this.changeState('form');
-            this.trigger('item:click:edit', this);
+            this.triggerEdit();
         },
         /**
          * @param {Event} e
@@ -357,13 +382,7 @@
          */
         _onClickCancel: function (e) {
             e.stopPropagation();
-            if (!_.isNull(this._backup)) {
-                this.formModel.set(this._backup);
-            }
-            this.renderAll();
-            this.getBinding().getModelToForm().bind();
-            this.changeState('preview');
-            this.trigger('item:click:cancel', this);
+            this.triggerCancel();
         },
         /**
          * @param {Event} e

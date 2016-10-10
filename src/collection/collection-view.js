@@ -161,6 +161,57 @@
             }
         },
         /**
+         * Add fresh item.
+         */
+        triggerAdd: function () {
+            this.addItem();
+            this.trigger('items:add', this);
+        },
+        /**
+         * Save all models.
+         */
+        triggerSave: function () {
+            var view = this;
+
+            this.disabled(true);
+            function reset () {
+                view.disabled(false);
+            }
+
+            if (_.isFunction(this.formCollection.save)) {
+                this.formCollection.save({
+                    success: function () {
+                        reset();
+                        view.trigger('items:save_all', view);
+                    },
+                    error: reset
+                });
+            } else {
+                reset();
+                this.trigger('items:error:save_all', this);
+            }
+        },
+        /**
+         * Destroy all models.
+         */
+        triggerRemove: function () {
+            var view = this;
+
+            this.clear();
+
+            if (_.isFunction(this.formCollection.destroy)) {
+                this.formCollection.destroy({
+                    success: function () {
+                        view.trigger('items:remove_all', view);
+                    }
+                });
+            } else {
+                this.formCollection.reset();
+                this.formCollection.trigger('update', this.formCollection, this.options);
+                this.trigger('items:error:remove_all', this);
+            }
+        },
+        /**
          * Initialize items from element content.
          *
          * @private
@@ -278,8 +329,7 @@
          */
         _onClickAdd: function (e) {
             e.stopPropagation();
-            this.addItem();
-            this.trigger('items:click:add', this);
+            this.triggerAdd();
         },
         /**
          * @private
@@ -299,24 +349,8 @@
          * @private
          */
         _onClickSaveAll: function (e) {
-            var view = this;
             e.stopPropagation();
-
-            this.disabled(true);
-            function reset () {
-                view.disabled(false);
-            }
-
-            if (_.isFunction(this.formCollection.save)) {
-                this.formCollection.save({
-                    success: reset,
-                    error: reset
-                });
-                this.trigger('items:click:save_all', this);
-            } else {
-                reset();
-                this.trigger('items:error:save_all', this);
-            }
+            this.triggerSave();
         },
         /**
          * @param {Event} e
@@ -324,15 +358,11 @@
          */
         _onClickRemoveAll: function (e) {
             e.stopPropagation();
-            this.clear();
 
-            if (_.isFunction(this.formCollection.destroy)) {
-                this.formCollection.destroy();
-                this.trigger('items:click:remove_all', this);
+            if (_.isFunction(this.removeConfirmation)) {
+                this.removeConfirmation(this, this.formModel);
             } else {
-                this.formCollection.reset();
-                this.formCollection.trigger('update', this.formCollection, this.options);
-                this.trigger('items:error:remove_all', this);
+                this.triggerRemove();
             }
         },
         /**
