@@ -9,6 +9,16 @@
         view, collection, Model, Collection;
 
     Model = Backbone.Model.extend({
+        validation: {
+            email: {
+                required: true,
+                msg: '__none'
+            },
+            name: {
+                required: true,
+                msg: '__none'
+            }
+        },
         sync: function(method, model, options) {
             switch (method) {
                 case 'update':

@@ -142,6 +142,12 @@
             return this.twoWayBinding;
         },
         /**
+         * @return {Backbone.form.ValidationView}
+         */
+        getValidation: function () {
+            return this.validation;
+        },
+        /**
          * Destroy only view without model.
          *
          * @param {Boolean} [silent]
@@ -233,7 +239,12 @@
             }
 
             this.formModel = model;
-            this.twoWayBinding = new Backbone.form.TwoWayBinding(this.formModel, this.$el);
+            this.validation = new Backbone.form.ValidationView({
+                el: this.$el,
+                model: this.formModel,
+                autoBinding: false
+            });
+            this.twoWayBinding = this.validation.getBinding();
             this.formToModel = this.twoWayBinding.getFormToModel();
             this.formToModel.setFileModel(new Backbone.Model());
             this.twoWayBinding.auto(true);
