@@ -231,6 +231,12 @@
         doBackup: function () {
             this._backup = this.formModel.toJSON();
         },
+        restoreBackup: function () {
+            if (!_.isNull(this._backup)) {
+                this.formModel.clear();
+                this.formModel.set(this._backup);
+            }
+        },
         /**
          * Absolutely destroy model.
          */
@@ -254,6 +260,7 @@
          */
         triggerSave: function () {
             var view = this;
+
             this.disabled(true);
             this._serverIsValid = false;
             this._serverMessage = null;
@@ -262,34 +269,43 @@
                 view.disabled(false);
             }
 
-            this.formModel.save({}, {
-                success: function (model, response) {
-                    if (_.isBoolean(response[view.isValidAttr])) {
-                        view._serverIsValid = response[view.isValidAttr];
-                        if (!_.isUndefined(response[view.messageAttr])) {
-                            view._serverMessage = response[view.messageAttr];
+            this.$el.find(':input').data('ready-to-validation', true);
+
+            if (this.formModel.isValid(true)) {
+                this.formModel.save({}, {
+                    success: function (model, response) {
+                        if (_.isBoolean(response[view.isValidAttr])) {
+                            view._serverIsValid = response[view.isValidAttr];
+                            if (!_.isUndefined(response[view.messageAttr])) {
+                                view._serverMessage = response[view.messageAttr];
+                            }
+                        } else {
+                            view._serverIsValid = true;
                         }
-                    } else {
-                        view._serverIsValid = true;
-                    }
 
-                    if (view._serverIsValid) {
-                        view.doBackup();
-                    }
+                        if (view._serverIsValid) {
+                            view.doBackup();
+                        }
 
-                    reset();
-                    view.changeState(view._serverIsValid ? 'preview' : 'form');
+                        reset();
+                        view.changeState(view._serverIsValid ? 'preview' : 'form');
 
-                    view.trigger('server:validation', view._serverIsValid, response, view);
+                        view.trigger('server:validation', view._serverIsValid, response, view);
 
-                    if (!view._serverIsValid && view._serverMessage) {
-                        view.trigger('server:invalid:message', view._serverMessage, response, view);
-                    }
+                        if (!view._serverIsValid && view._serverMessage) {
+                            view.trigger('server:invalid:message', view._serverMessage, response, view);
+                        }
 
-                    view.trigger('item:save', view);
-                },
-                error: reset
-            });
+                        view.trigger('item:save', view);
+                    },
+                    error: reset
+                });
+            } else {
+                reset();
+                setTimeout(function () {
+                    view.validation.getFirstErrorInput().focus();
+                }, 50);
+            }
         },
         /**
          * Open edit view.
@@ -303,9 +319,7 @@
          * Cancel edit.
          */
         triggerCancel: function () {
-            if (!_.isNull(this._backup)) {
-                this.formModel.set(this._backup);
-            }
+            this.restoreBackup();
             this.renderAll();
             this.getBinding().getModelToForm().bind();
             this.changeState('preview');
