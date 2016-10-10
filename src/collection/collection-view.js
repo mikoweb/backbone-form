@@ -23,6 +23,8 @@
             this.items = [];
             this.index = 0;
             this.htmlAttr = options.htmlAttr || '_html';
+            this.isValidAttr = options.isValidAttr || '_isValid';
+            this.messageAttr = options.messageAttr || '_message';
             this.closeAlert = options.closeAlert || null;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
@@ -204,10 +206,19 @@
          */
         _addViewListeners: function (view) {
             var that = this;
+
             view.on('item:destroy', function () {
                 that.items = _.reject(that.items, function (item) {
                     return item === view;
                 });
+            });
+
+            view.on('server:validation', function (valid, response, view) {
+                that.trigger('server:validation', valid, response, view);
+            });
+
+            view.on('server:invalid:message', function (message, response, view) {
+                that.trigger('server:invalid:message', message, response, view);
             });
         },
         /**
@@ -221,6 +232,8 @@
                 name: String(this.index),
                 formModel: formModel,
                 htmlAttr: this.htmlAttr,
+                isValidAttr: this.isValidAttr,
+                messageAttr: this.messageAttr,
                 editClick: this.editClick,
                 editDblClick: this.editDblClick,
                 bindingOptions: this.bindingOptions

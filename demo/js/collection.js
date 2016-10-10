@@ -69,6 +69,10 @@
         toastr.warning('You must implement destroy method to synchronize the collection with server.');
     });
 
+    view.on('server:invalid:message', function (message) {
+        sweetAlert('The server did not accept the data.', message, 'error');
+    });
+
     view.on('model:change', function () {
         renderJson();
     });

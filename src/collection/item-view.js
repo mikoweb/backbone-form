@@ -23,6 +23,8 @@
 
             this.bindingOptions = options.bindingOptions || {};
             this.htmlAttr = options.htmlAttr || '_html';
+            this.isValidAttr = options.isValidAttr || '_isValid';
+            this.messageAttr = options.messageAttr || '_message';
             this.currentState = null;
             this.name = options.name;
             this.removeConfirmation = options.removeConfirmation || null;
@@ -30,6 +32,8 @@
             this._compiledTemplate = null;
             this._removeConfirm = false;
             this._backup = null;
+            this._serverIsValid = true;
+            this._serverMessage = null;
 
             this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
@@ -213,8 +217,15 @@
          * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
         loadHtml: function () {
+            var html;
             if (this.formModel.has(this.htmlAttr)) {
-                this.$el.html(this.formModel.get(this.htmlAttr));
+                html = this.formModel.get(this.htmlAttr);
+
+                if (!_.isString(html)) {
+                    throw new TypeError('Html data is not string!');
+                }
+
+                this.$el.html(html);
                 this.formModel.unset(this.htmlAttr);
             }
         },
@@ -284,17 +295,35 @@
             e.stopPropagation();
             var view = this;
             this.disabled(true);
+            this._serverIsValid = false;
+            this._serverMessage = null;
+
             function reset () {
                 view.disabled(false);
             }
 
-            this._backup = null;
             this.formModel.save({}, {
                 success: function (model, response) {
-                    if (!response[view.htmlAttr]) {
-                        reset();
+                    if (_.isBoolean(response[view.isValidAttr])) {
+                        view._serverIsValid = response[view.isValidAttr];
+                        if (!_.isUndefined(response[view.messageAttr])) {
+                            view._serverMessage = response[view.messageAttr];
+                        }
+                    } else {
+                        view._serverIsValid = true;
+                    }
+
+                    if (view._serverIsValid) {
                         view.doBackup();
-                        view.changeState('preview');
+                    }
+
+                    reset();
+                    view.changeState(view._serverIsValid ? 'preview' : 'form');
+
+                    view.trigger('server:validation', view._serverIsValid, response, view);
+
+                    if (!view._serverIsValid && view._serverMessage) {
+                        view.trigger('server:invalid:message', view._serverMessage, response, view);
                     }
                 },
                 error: reset
@@ -321,6 +350,8 @@
             if (!_.isNull(this._backup)) {
                 this.formModel.set(this._backup);
             }
+            this.renderAll();
+            this.getBinding().getModelToForm().bind();
             this.changeState('preview');
             this.trigger('item:click:cancel', this);
         },
@@ -338,6 +369,9 @@
             if (this.formModel.has(this.htmlAttr)) {
                 this.loadHtml();
             }
+
+            this.formModel.unset(this.isValidAttr);
+            this.formModel.unset(this.messageAttr);
         },
         /**
          * @private
