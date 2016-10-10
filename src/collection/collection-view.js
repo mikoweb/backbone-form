@@ -178,6 +178,10 @@
                 view.disabled(false);
             }
 
+            this.items.forEach(function (item) {
+                item.triggerCancel.apply(item);
+            });
+
             if (_.isFunction(this.formCollection.save)) {
                 this.formCollection.save({
                     success: function () {
