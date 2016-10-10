@@ -5,9 +5,10 @@ module.exports = function (grunt) {
         concat: {
             dist: {
                 src: [
-                    'bower_components/deep-diff/releases/deep-diff-0.3.3.min.js',
                     'bower_components/backbone-validation/dist/backbone-validation.js',
                     'src/namespace.js',
+                    'src/module.js',
+                    'bower_components/deep-diff/releases/deep-diff-0.3.3.min.js',
                     'src/methods.js',
                     'src/mixins/related.js',
                     'src/mixins/related-silent.js',

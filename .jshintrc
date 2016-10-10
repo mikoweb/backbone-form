@@ -10,7 +10,9 @@
     "module",
     "grunt",
     "sweetAlert",
-    "toastr"
+    "toastr",
+    "require",
+    "define"
   ],
   "boss": true,
   "browser": true,
