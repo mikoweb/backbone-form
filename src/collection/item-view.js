@@ -22,14 +22,17 @@
             }
 
             this.bindingOptions = options.bindingOptions || {};
-            this.backup = null;
             this.htmlAttr = options.htmlAttr || '_html';
             this.currentState = null;
-            this.$el.addClass('form-collection__item');
-            this._initFormModel(options.formModel);
+            this.name = options.name;
+            this.removeConfirmation = options.removeConfirmation || null;
             this._templateRequest = true;
             this._compiledTemplate = null;
-            this.name = options.name;
+            this._removeConfirm = false;
+            this._backup = null;
+
+            this.$el.addClass('form-collection__item');
+            this._initFormModel(options.formModel);
             this.setPlaceholder(options.placeholder || '__name__');
             this.setTemplate(options.template);
 
@@ -215,6 +218,9 @@
                 this.formModel.unset(this.htmlAttr);
             }
         },
+        doBackup: function () {
+            this._backup = this.formModel.toJSON();
+        },
         /**
          * @returns {Function}
          * @private
@@ -282,11 +288,12 @@
                 view.disabled(false);
             }
 
-            this.backup = null;
+            this._backup = null;
             this.formModel.save({}, {
                 success: function (model, response) {
                     if (!response[view.htmlAttr]) {
                         reset();
+                        view.doBackup();
                         view.changeState('preview');
                     }
                 },
@@ -301,7 +308,7 @@
          */
         _onClickEdit: function (e) {
             e.stopPropagation();
-            this.backup = this.formModel.toJSON();
+            this.doBackup();
             this.changeState('form');
             this.trigger('item:click:edit', this);
         },
@@ -311,8 +318,8 @@
          */
         _onClickCancel: function (e) {
             e.stopPropagation();
-            if (!_.isNull(this.backup)) {
-                this.formModel.set(this.backup);
+            if (!_.isNull(this._backup)) {
+                this.formModel.set(this._backup);
             }
             this.changeState('preview');
             this.trigger('item:click:cancel', this);

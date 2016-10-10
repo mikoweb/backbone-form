@@ -93,10 +93,7 @@
                 this._attachView(view);
             }
 
-            this._addViewListeners(view);
-            this.items.push(view);
-            ++this.index;
-            this.trigger('items:add', this, view);
+            this._initItemView(view);
         },
         /**
          * @param {Backbone.Model} model
@@ -117,10 +114,7 @@
             }
 
             this._attachView(view);
-            this._addViewListeners(view);
-            this.items.push(view);
-            ++this.index;
-            this.trigger('items:add', this, view);
+            this._initItemView(view);
         },
         /**
          * @param {String} template
@@ -251,6 +245,17 @@
             if (this.autofocus) {
                 view.getElement().find(':input:not(button)').eq(0).focus();
             }
+        },
+        /**
+         * @param {Backbone.form.CollectionItemView} view
+         * @private
+         */
+        _initItemView: function (view) {
+            view.doBackup();
+            this._addViewListeners(view);
+            this.items.push(view);
+            ++this.index;
+            this.trigger('items:add', this, view);
         },
         /**
          * @param {Event} e
