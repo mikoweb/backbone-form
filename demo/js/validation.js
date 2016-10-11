@@ -42,7 +42,8 @@
         initialize: function () {
             this.validation = new Backbone.form.ValidationView({
                 el: this.$el,
-                model: this.model
+                model: this.model,
+                popoverErrors: true
             });
 
             this.validation.bindToModel();

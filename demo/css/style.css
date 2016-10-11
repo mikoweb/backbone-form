@@ -14,3 +14,27 @@
 .form-collection__item_form--disabled, .form-collection__item_preview--disabled {
     display: none;
 }
+
+.form__errors--popover {
+    background: #fafafa;
+    border: 1px solid #E6E6E6;
+    padding: 8px;
+    margin-top: 10px;
+}
+
+.form__errors--popover::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 10px 10px 10px;
+    border-color: transparent transparent #E6E6E6 transparent;
+}
+
+.form__errors--popover-hidden {
+    display: none;
+}

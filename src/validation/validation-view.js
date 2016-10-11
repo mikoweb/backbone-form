@@ -8,7 +8,8 @@
     Backbone.form.ValidationView = Backbone.View.extend({
         events: {
             'submit': '_onSubmit',
-            'click :input': '_onClickInput'
+            'focusin :input': '_onFocusIn',
+            'focusout :input': '_onFocusOut'
         },
         /**
          * @param {Object} options
@@ -25,6 +26,7 @@
             this.validPercent = 0;
             this.errors = {};
             this.autoBinding = options.autoBinding || true;
+            this.popoverErrors = options.popoverErrors || false;
 
             this.classFormErrors = 'form__errors';
             this.classFormError = 'form__error form-control-feedback';
@@ -33,6 +35,7 @@
 
             this.listenTo(this.model, 'change', this._onModelChange);
             this.listenTo(this.model, 'validated', this._onModelValidated);
+            $(window).resize($.proxy(this._onWindowResize, this));
 
             if (this.autoBinding) {
                 this.binding.auto(true);
@@ -89,6 +92,16 @@
                         container.insertAfter(element);
                         break;
                 }
+            }
+
+            if (this.popoverErrors && !container.data('is-popover')) {
+                container.addClass(this.classFormErrors + '--popover');
+                container.addClass(this.classFormErrors + '--popover-hidden');
+                container.attr('data-is-popover', 'true');
+                container.data('popover-related', element);
+                element.attr('data-has-popover', 'true');
+                element.data('popover-element', container);
+                this.popoverPosition(element, container);
             }
 
             return container;
@@ -151,6 +164,51 @@
             }
         },
         /**
+         * @param {jQuery} control
+         * @param {jQuery} element
+         */
+        popoverPosition: function (control, element) {
+            var position = control.position(),
+                height = control.outerHeight();
+
+            if (element.data('is-popover')) {
+                element.css({
+                    position: 'absolute',
+                    left: position.left,
+                    top: position.top + height
+                });
+            }
+        },
+        /**
+         * @param {jQuery} input
+         */
+        inputShowPopover: function (input) {
+            var popover = input.data('popover-element');
+
+            if (input.has('has-popover') && input.attr('data-has-error') && popover && popover.children().length) {
+                popover.removeClass(this.classFormErrors + '--popover-hidden');
+                this.popoverPosition(input, popover);
+            }
+        },
+        /**
+         * @param {jQuery} input
+         */
+        inputHidePopover: function (input) {
+            var popover = input.data('popover-element');
+
+            if (input.has('has-popover') && popover) {
+                popover.addClass(this.classFormErrors + '--popover-hidden');
+            }
+        },
+        hideAllPopovers: function () {
+            var view = this,
+                elements = this.$el.find('[data-has-popover]');
+
+            elements.each(function () {
+                view.inputHidePopover($(this));
+            });
+        },
+        /**
          * @param {Object} errors
          * @private
          */
@@ -195,12 +253,16 @@
                 formToModel = this.binding.getModelToForm();
 
             this.clearAllErrors();
+            this.hideAllPopovers();
             _.mapObject(errors, function(val, attr) {
                 var modelValue = model.get(attr),
                     control = view.$el.find('[name="' + formToModel.getControleName([attr], modelValue) + '"]');
 
                 if (control.length && control.data('ready-to-validation')) {
                     view.addError(control, val);
+                    if (control.data('is-focused')) {
+                        view.inputShowPopover(control);
+                    }
                 }
             });
         },
@@ -219,12 +281,37 @@
             }
         },
         /**
+         * @private
+         */
+        _onWindowResize: function () {
+            var view = this;
+            this.$el.find('[data-is-popover]').each(function () {
+                var popover = $(this),
+                    related = popover.data('popover-related');
+
+                if (related) {
+                    view.popoverPosition(related, popover);
+                }
+            });
+        },
+        /**
          * @param {Event} e
          * @private
          */
-        _onClickInput: function (e) {
-            $(e.target).data('ready-to-validation', true);
+        _onFocusIn: function (e) {
+            var input = $(e.target);
+            input.data('ready-to-validation', true);
+            input.data('is-focused', true);
             this.model.isValid(true);
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onFocusOut: function (e) {
+            var input = $(e.target);
+            input.data('is-focused', false);
+            this.inputHidePopover(input);
         }
     });
 }());
