@@ -729,8 +729,13 @@ if (typeof exports === 'object') {
 (function () {
     "use strict";
 
-    var formToModelDefaults = {},
-        modelToFormDefaults = {};
+    var defaults = {
+        formToModel: {},
+        modelToForm: {},
+        collectionView: {},
+        collectionItemView: {},
+        validationView: {}
+    };
 
     /**
      * @param {Backbone.Model} model
@@ -766,41 +771,84 @@ if (typeof exports === 'object') {
     };
 
     /**
+     * @param {String} name
+     */
+    function throwDefaultsNotFound (name) {
+        if (_.isUndefined(defaults[name])) {
+            throw new TypeError('Defaults ' + name + ' not found.');
+        }
+    }
+
+    /**
+     * @param {String} name
      * @returns {Object}
      */
-    Backbone.form.getFormToModelDefaults = function () {
-        return formToModelDefaults;
+    Backbone.form.getDefaults = function (name) {
+        throwDefaultsNotFound(name);
+        return defaults[name];
     };
 
     /**
+     * @param {String} name
      * @param {Object} [options]
      */
-    Backbone.form.setFormToModelDefaults = function (options) {
-        formToModelDefaults = _.defaults(options || {}, {
-            naming: Backbone.form.FormHelper.MODES.brackets,
-            separator: null,
-            auto: false,
-            keepPrefix: true
-        });
-    };
+    Backbone.form.setDefaults = function (name, options) {
+        throwDefaultsNotFound(name);
+        var values = {};
+        switch (name) {
+            case 'formToModel':
+                values = {
+                    naming: Backbone.form.FormHelper.MODES.brackets,
+                    separator: null,
+                    auto: false,
+                    keepPrefix: true
+                };
+                break;
+            case 'modelToForm':
+                values = {
+                    naming: Backbone.form.FormHelper.MODES.brackets,
+                    separator: null,
+                    auto: false,
+                    prefix: null
+                };
+                break;
+            case 'collectionView':
+                values = {
+                    htmlAttr: '_html',
+                    isValidAttr: '_isValid',
+                    messageAttr: '_message',
+                    closeAlert: null,
+                    removeConfirmation: null,
+                    newElementPlace: 'last',
+                    prototypeAttr: 'data-prototype',
+                    autofocus: true,
+                    editClick: false,
+                    editDblClick: false,
+                    bindingOptions: {},
+                    itemPlaceholder: '__name__'
+                };
+                break;
+            case 'collectionItemView':
+                values = {
+                    bindingOptions: {},
+                    htmlAttr: '_html',
+                    isValidAttr: '_isValid',
+                    messageAttr: '_message',
+                    removeConfirmation: null,
+                    placeholder: '__name__'
+                };
+                break;
+            case 'validationView':
+                values = {
+                    errorsPlace: 'after',
+                    bindingOptions: {},
+                    autoBinding: true,
+                    popoverErrors: false
+                };
+                break;
+        }
 
-    /**
-     * @returns {Object}
-     */
-    Backbone.form.getModelToFormDefaults = function () {
-        return modelToFormDefaults;
-    };
-
-    /**
-     * @param {Object} [options]
-     */
-    Backbone.form.setModelToFormDefaults = function (options) {
-        modelToFormDefaults = _.defaults(options || {}, {
-            naming: Backbone.form.FormHelper.MODES.brackets,
-            separator: null,
-            auto: false,
-            prefix: null
-        });
+        defaults[name] = _.defaults(options || {}, values);
     };
 }());
 
@@ -1406,7 +1454,7 @@ if (typeof exports === 'object') {
         this._toSynchronize = {};
         this.model = data.model;
         this.form = data.form;
-        this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
+        this.options = _.defaults(options || {}, Backbone.form.getDefaults('formToModel'));
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
         this.$form = $(this.form);
         this.fileModel = null;
@@ -1706,7 +1754,7 @@ if (typeof exports === 'object') {
         this._silent = false;
         this.model = data.model;
         this.form = data.form;
-        this.options = _.defaults(options || {}, Backbone.form.getModelToFormDefaults());
+        this.options = _.defaults(options || {}, Backbone.form.getDefaults('modelToForm'));
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
         this.prefix = this.options.prefix;
         this.$form = $(this.form);
@@ -1997,13 +2045,15 @@ if (typeof exports === 'object') {
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
-            this.bindingOptions = options.bindingOptions || {};
-            this.htmlAttr = options.htmlAttr || '_html';
-            this.isValidAttr = options.isValidAttr || '_isValid';
-            this.messageAttr = options.messageAttr || '_message';
+            var values = _.defaults(options, Backbone.form.getDefaults('collectionItemView'));
+
+            this.bindingOptions = values.bindingOptions;
+            this.htmlAttr = values.htmlAttr;
+            this.isValidAttr = values.isValidAttr;
+            this.messageAttr = values.messageAttr;
             this.currentState = null;
             this.name = options.name;
-            this.removeConfirmation = options.removeConfirmation || null;
+            this.removeConfirmation = values.removeConfirmation;
             this._templateRequest = true;
             this._compiledTemplate = null;
             this._backup = null;
@@ -2012,7 +2062,7 @@ if (typeof exports === 'object') {
 
             this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
-            this.setPlaceholder(options.placeholder || '__name__');
+            this.setPlaceholder(values.placeholder);
             this.setTemplate(options.template);
 
             if (options.editClick === true) {
@@ -2424,21 +2474,24 @@ if (typeof exports === 'object') {
                 this.itemView = Backbone.form.CollectionItemView;
             }
 
+            var values = _.defaults(options, Backbone.form.getDefaults('collectionView'));
+
             this.items = [];
             this.index = 0;
-            this.htmlAttr = options.htmlAttr || '_html';
-            this.isValidAttr = options.isValidAttr || '_isValid';
-            this.messageAttr = options.messageAttr || '_message';
-            this.closeAlert = options.closeAlert || null;
-            this.removeConfirmation = options.removeConfirmation || null;
+            this.htmlAttr = values.htmlAttr;
+            this.isValidAttr = values.isValidAttr;
+            this.messageAttr = values.messageAttr;
+            this.closeAlert = values.closeAlert;
+            this.removeConfirmation = values.removeConfirmation;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
-            this.newElementPlace = options.newElementPlace || 'last';
-            this.prototypeAttr = options.prototypeAttr || 'data-prototype';
-            this.autofocus = options.autofocus || true;
-            this.editClick = options.editClick || false;
-            this.editDblClick = options.editDblClick || false;
-            this.bindingOptions = options.bindingOptions || {};
+            this.newElementPlace = values.newElementPlace;
+            this.prototypeAttr = values.prototypeAttr;
+            this.autofocus = values.autofocus;
+            this.editClick = values.editClick;
+            this.editDblClick = values.editDblClick;
+            this.bindingOptions = values.bindingOptions;
+            this.itemPlaceholder = values.itemPlaceholder;
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -2697,7 +2750,8 @@ if (typeof exports === 'object') {
                 editClick: this.editClick,
                 editDblClick: this.editDblClick,
                 bindingOptions: this.bindingOptions,
-                removeConfirmation: this.removeConfirmation
+                removeConfirmation: this.removeConfirmation,
+                placeholder: this.itemPlaceholder
             };
         },
         /**
@@ -2810,7 +2864,8 @@ if (typeof exports === 'object') {
     Backbone.form.ValidationView = Backbone.View.extend({
         events: {
             'submit': '_onSubmit',
-            'click :input': '_onClickInput'
+            'focusin :input': '_onFocusIn',
+            'focusout :input': '_onFocusOut'
         },
         /**
          * @param {Object} options
@@ -2820,13 +2875,16 @@ if (typeof exports === 'object') {
                 model: this.model
             });
 
-            this.errorsPlace = options.errorsPlace || 'after';
-            this.bindingOptions = options.bindingOptions || {};
+            var values = _.defaults(options || {}, Backbone.form.getDefaults('validationView'));
+
+            this.errorsPlace = values.errorsPlace;
+            this.bindingOptions = values.bindingOptions;
             this.binding = new Backbone.form.TwoWayBinding(this.model, this.$el, this.bindingOptions);
             this.validValue = 0;
             this.validPercent = 0;
             this.errors = {};
-            this.autoBinding = options.autoBinding || true;
+            this.autoBinding = values.autoBinding;
+            this.popoverErrors = values.popoverErrors;
 
             this.classFormErrors = 'form__errors';
             this.classFormError = 'form__error form-control-feedback';
@@ -2835,6 +2893,7 @@ if (typeof exports === 'object') {
 
             this.listenTo(this.model, 'change', this._onModelChange);
             this.listenTo(this.model, 'validated', this._onModelValidated);
+            $(window).resize($.proxy(this._onWindowResize, this));
 
             if (this.autoBinding) {
                 this.binding.auto(true);
@@ -2891,6 +2950,16 @@ if (typeof exports === 'object') {
                         container.insertAfter(element);
                         break;
                 }
+            }
+
+            if (this.popoverErrors && !container.data('is-popover')) {
+                container.addClass(this.classFormErrors + '--popover');
+                container.addClass(this.classFormErrors + '--popover-hidden');
+                container.attr('data-is-popover', 'true');
+                container.data('popover-related', element);
+                element.attr('data-has-popover', 'true');
+                element.data('popover-element', container);
+                this.popoverPosition(element, container);
             }
 
             return container;
@@ -2953,6 +3022,51 @@ if (typeof exports === 'object') {
             }
         },
         /**
+         * @param {jQuery} control
+         * @param {jQuery} element
+         */
+        popoverPosition: function (control, element) {
+            var position = control.position(),
+                height = control.outerHeight();
+
+            if (element.data('is-popover')) {
+                element.css({
+                    position: 'absolute',
+                    left: position.left,
+                    top: position.top + height
+                });
+            }
+        },
+        /**
+         * @param {jQuery} input
+         */
+        inputShowPopover: function (input) {
+            var popover = input.data('popover-element');
+
+            if (input.has('has-popover') && input.attr('data-has-error') && popover && popover.children().length) {
+                popover.removeClass(this.classFormErrors + '--popover-hidden');
+                this.popoverPosition(input, popover);
+            }
+        },
+        /**
+         * @param {jQuery} input
+         */
+        inputHidePopover: function (input) {
+            var popover = input.data('popover-element');
+
+            if (input.has('has-popover') && popover) {
+                popover.addClass(this.classFormErrors + '--popover-hidden');
+            }
+        },
+        hideAllPopovers: function () {
+            var view = this,
+                elements = this.$el.find('[data-has-popover]');
+
+            elements.each(function () {
+                view.inputHidePopover($(this));
+            });
+        },
+        /**
          * @param {Object} errors
          * @private
          */
@@ -2997,12 +3111,16 @@ if (typeof exports === 'object') {
                 formToModel = this.binding.getModelToForm();
 
             this.clearAllErrors();
+            this.hideAllPopovers();
             _.mapObject(errors, function(val, attr) {
                 var modelValue = model.get(attr),
                     control = view.$el.find('[name="' + formToModel.getControleName([attr], modelValue) + '"]');
 
                 if (control.length && control.data('ready-to-validation')) {
                     view.addError(control, val);
+                    if (control.data('is-focused')) {
+                        view.inputShowPopover(control);
+                    }
                 }
             });
         },
@@ -3021,15 +3139,43 @@ if (typeof exports === 'object') {
             }
         },
         /**
+         * @private
+         */
+        _onWindowResize: function () {
+            var view = this;
+            this.$el.find('[data-is-popover]').each(function () {
+                var popover = $(this),
+                    related = popover.data('popover-related');
+
+                if (related) {
+                    view.popoverPosition(related, popover);
+                }
+            });
+        },
+        /**
          * @param {Event} e
          * @private
          */
-        _onClickInput: function (e) {
-            $(e.target).data('ready-to-validation', true);
+        _onFocusIn: function (e) {
+            var input = $(e.target);
+            input.data('ready-to-validation', true);
+            input.data('is-focused', true);
             this.model.isValid(true);
+        },
+        /**
+         * @param {Event} e
+         * @private
+         */
+        _onFocusOut: function (e) {
+            var input = $(e.target);
+            input.data('is-focused', false);
+            this.inputHidePopover(input);
         }
     });
 }());
 
-Backbone.form.setFormToModelDefaults();
-Backbone.form.setModelToFormDefaults();
+Backbone.form.setDefaults('formToModel');
+Backbone.form.setDefaults('modelToForm');
+Backbone.form.setDefaults('collectionView');
+Backbone.form.setDefaults('collectionItemView');
+Backbone.form.setDefaults('validationView');
