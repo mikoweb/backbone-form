@@ -19,14 +19,16 @@
                 model: this.model
             });
 
-            this.errorsPlace = options.errorsPlace || 'after';
-            this.bindingOptions = options.bindingOptions || {};
+            var values = _.defaults(options || {}, Backbone.form.getDefaults('validationView'));
+
+            this.errorsPlace = values.errorsPlace;
+            this.bindingOptions = values.bindingOptions;
             this.binding = new Backbone.form.TwoWayBinding(this.model, this.$el, this.bindingOptions);
             this.validValue = 0;
             this.validPercent = 0;
             this.errors = {};
-            this.autoBinding = options.autoBinding || true;
-            this.popoverErrors = options.popoverErrors || false;
+            this.autoBinding = values.autoBinding;
+            this.popoverErrors = values.popoverErrors;
 
             this.classFormErrors = 'form__errors';
             this.classFormError = 'form__error form-control-feedback';

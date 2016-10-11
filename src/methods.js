@@ -9,7 +9,8 @@
         formToModel: {},
         modelToForm: {},
         collectionView: {},
-        collectionItemView: {}
+        collectionItemView: {},
+        validationView: {}
     };
 
     /**
@@ -111,6 +112,14 @@
                     messageAttr: '_message',
                     removeConfirmation: null,
                     placeholder: '__name__'
+                };
+                break;
+            case 'validationView':
+                values = {
+                    errorsPlace: 'after',
+                    bindingOptions: {},
+                    autoBinding: true,
+                    popoverErrors: false
                 };
                 break;
         }
