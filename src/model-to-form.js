@@ -24,7 +24,7 @@
         this._silent = false;
         this.model = data.model;
         this.form = data.form;
-        this.options = _.defaults(options || {}, Backbone.form.getModelToFormDefaults());
+        this.options = _.defaults(options || {}, Backbone.form.getDefaults('modelToForm'));
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
         this.prefix = this.options.prefix;
         this.$form = $(this.form);

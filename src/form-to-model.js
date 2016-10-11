@@ -34,7 +34,7 @@
         this._toSynchronize = {};
         this.model = data.model;
         this.form = data.form;
-        this.options = _.defaults(options || {}, Backbone.form.getFormToModelDefaults());
+        this.options = _.defaults(options || {}, Backbone.form.getDefaults('formToModel'));
         this.formHelper = new Backbone.form.FormHelper(this.form, this.options.naming, this.options.separator);
         this.$form = $(this.form);
         this.fileModel = null;

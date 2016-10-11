@@ -34,7 +34,7 @@
         });
 
         describe('Domyślne opcje klasy FormToModel', function () {
-            var defaults = $.extend(true, {}, Backbone.form.getFormToModelDefaults());
+            var defaults = $.extend(true, {}, Backbone.form.getDefaults('formToModel'));
 
             it('Sprawdzanie czy domyślne opcje są jak być powinny', function () {
                 expect(defaults).to.eql({
@@ -46,13 +46,13 @@
             });
 
             it('Sprawdzanie czy można zmienić opcje', function () {
-                Backbone.form.setFormToModelDefaults({
+                Backbone.form.setDefaults('formToModel', {
                     keepPrefix: false,
                     naming: Backbone.form.FormHelper.MODES.separator,
                     separator: '.'
                 });
 
-                expect(Backbone.form.getFormToModelDefaults()).to.eql({
+                expect(Backbone.form.getDefaults('formToModel')).to.eql({
                     naming: Backbone.form.FormHelper.MODES.separator,
                     separator: '.',
                     auto: false,
@@ -61,13 +61,13 @@
             });
 
             it('Sprawdzanie czy można przywrócić opcje domyślne', function () {
-                Backbone.form.setFormToModelDefaults();
-                expect(Backbone.form.getFormToModelDefaults()).to.eql(defaults);
+                Backbone.form.setDefaults('formToModel');
+                expect(Backbone.form.getDefaults('formToModel')).to.eql(defaults);
             });
         });
 
         describe('Domyślne opcje klasy ModelToForm', function () {
-            var defaults = $.extend(true, {}, Backbone.form.getModelToFormDefaults());
+            var defaults = $.extend(true, {}, Backbone.form.getDefaults('modelToForm'));
 
             it('Sprawdzanie czy domyślne opcje są jak być powinny', function () {
                 expect(defaults).to.eql({
@@ -79,12 +79,12 @@
             });
 
             it('Sprawdzanie czy można zmienić opcje', function () {
-                Backbone.form.setModelToFormDefaults({
+                Backbone.form.setDefaults('modelToForm', {
                     auto: true,
                     prefix: 'lorem'
                 });
 
-                expect(Backbone.form.getModelToFormDefaults()).to.eql({
+                expect(Backbone.form.getDefaults('modelToForm')).to.eql({
                     naming: Backbone.form.FormHelper.MODES.brackets,
                     separator: null,
                     auto: true,
@@ -93,8 +93,8 @@
             });
 
             it('Sprawdzanie czy można przywrócić opcje domyślne', function () {
-                Backbone.form.setModelToFormDefaults();
-                expect(Backbone.form.getModelToFormDefaults()).to.eql(defaults);
+                Backbone.form.setDefaults('modelToForm');
+                expect(Backbone.form.getDefaults('modelToForm')).to.eql(defaults);
             });
         });
     });

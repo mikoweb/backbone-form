@@ -5,8 +5,10 @@
 (function () {
     "use strict";
 
-    var formToModelDefaults = {},
-        modelToFormDefaults = {};
+    var defaults = {
+        formToModel: {},
+        modelToForm: {}
+    };
 
     /**
      * @param {Backbone.Model} model
@@ -42,40 +44,49 @@
     };
 
     /**
+     * @param {String} name
+     */
+    function throwDefaultsNotFound (name) {
+        if (_.isUndefined(defaults[name])) {
+            throw new TypeError('Defaults ' + name + ' not found.');
+        }
+    }
+
+    /**
+     * @param {String} name
      * @returns {Object}
      */
-    Backbone.form.getFormToModelDefaults = function () {
-        return formToModelDefaults;
+    Backbone.form.getDefaults = function (name) {
+        throwDefaultsNotFound(name);
+        return defaults[name];
     };
 
     /**
+     * @param {String} name
      * @param {Object} [options]
      */
-    Backbone.form.setFormToModelDefaults = function (options) {
-        formToModelDefaults = _.defaults(options || {}, {
-            naming: Backbone.form.FormHelper.MODES.brackets,
-            separator: null,
-            auto: false,
-            keepPrefix: true
-        });
-    };
+    Backbone.form.setDefaults = function (name, options) {
+        throwDefaultsNotFound(name);
+        var values = {};
+        switch (name) {
+            case 'formToModel':
+                values = {
+                    naming: Backbone.form.FormHelper.MODES.brackets,
+                    separator: null,
+                    auto: false,
+                    keepPrefix: true
+                };
+                break;
+            case 'modelToForm':
+                values = {
+                    naming: Backbone.form.FormHelper.MODES.brackets,
+                    separator: null,
+                    auto: false,
+                    prefix: null
+                };
+                break;
+        }
 
-    /**
-     * @returns {Object}
-     */
-    Backbone.form.getModelToFormDefaults = function () {
-        return modelToFormDefaults;
-    };
-
-    /**
-     * @param {Object} [options]
-     */
-    Backbone.form.setModelToFormDefaults = function (options) {
-        modelToFormDefaults = _.defaults(options || {}, {
-            naming: Backbone.form.FormHelper.MODES.brackets,
-            separator: null,
-            auto: false,
-            prefix: null
-        });
+        defaults[name] = _.defaults(options || {}, values);
     };
 }());

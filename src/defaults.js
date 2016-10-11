@@ -1,2 +1,2 @@
-Backbone.form.setFormToModelDefaults();
-Backbone.form.setModelToFormDefaults();
+Backbone.form.setDefaults('formToModel');
+Backbone.form.setDefaults('modelToForm');
