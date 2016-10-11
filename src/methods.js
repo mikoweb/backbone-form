@@ -7,7 +7,9 @@
 
     var defaults = {
         formToModel: {},
-        modelToForm: {}
+        modelToForm: {},
+        collectionView: {},
+        collectionItemView: {}
     };
 
     /**
@@ -83,6 +85,32 @@
                     separator: null,
                     auto: false,
                     prefix: null
+                };
+                break;
+            case 'collectionView':
+                values = {
+                    htmlAttr: '_html',
+                    isValidAttr: '_isValid',
+                    messageAttr: '_message',
+                    closeAlert: null,
+                    removeConfirmation: null,
+                    newElementPlace: 'last',
+                    prototypeAttr: 'data-prototype',
+                    autofocus: true,
+                    editClick: false,
+                    editDblClick: false,
+                    bindingOptions: {},
+                    itemPlaceholder: '__name__'
+                };
+                break;
+            case 'collectionItemView':
+                values = {
+                    bindingOptions: {},
+                    htmlAttr: '_html',
+                    isValidAttr: '_isValid',
+                    messageAttr: '_message',
+                    removeConfirmation: null,
+                    placeholder: '__name__'
                 };
                 break;
         }

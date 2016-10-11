@@ -20,21 +20,24 @@
                 this.itemView = Backbone.form.CollectionItemView;
             }
 
+            var values = _.defaults(options, Backbone.form.getDefaults('collectionView'));
+
             this.items = [];
             this.index = 0;
-            this.htmlAttr = options.htmlAttr || '_html';
-            this.isValidAttr = options.isValidAttr || '_isValid';
-            this.messageAttr = options.messageAttr || '_message';
-            this.closeAlert = options.closeAlert || null;
-            this.removeConfirmation = options.removeConfirmation || null;
+            this.htmlAttr = values.htmlAttr;
+            this.isValidAttr = values.isValidAttr;
+            this.messageAttr = values.messageAttr;
+            this.closeAlert = values.closeAlert;
+            this.removeConfirmation = values.removeConfirmation;
             this._onRuquestError = options.onRuquestError;
             this.setElContainer(options.elContainer);
-            this.newElementPlace = options.newElementPlace || 'last';
-            this.prototypeAttr = options.prototypeAttr || 'data-prototype';
-            this.autofocus = options.autofocus || true;
-            this.editClick = options.editClick || false;
-            this.editDblClick = options.editDblClick || false;
-            this.bindingOptions = options.bindingOptions || {};
+            this.newElementPlace = values.newElementPlace;
+            this.prototypeAttr = values.prototypeAttr;
+            this.autofocus = values.autofocus;
+            this.editClick = values.editClick;
+            this.editDblClick = values.editDblClick;
+            this.bindingOptions = values.bindingOptions;
+            this.itemPlaceholder = values.itemPlaceholder;
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -293,7 +296,8 @@
                 editClick: this.editClick,
                 editDblClick: this.editDblClick,
                 bindingOptions: this.bindingOptions,
-                removeConfirmation: this.removeConfirmation
+                removeConfirmation: this.removeConfirmation,
+                placeholder: this.itemPlaceholder
             };
         },
         /**

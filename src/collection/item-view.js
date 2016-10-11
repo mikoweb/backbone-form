@@ -21,13 +21,15 @@
                 throw new TypeError('CollectionItemView: option name is not string.');
             }
 
-            this.bindingOptions = options.bindingOptions || {};
-            this.htmlAttr = options.htmlAttr || '_html';
-            this.isValidAttr = options.isValidAttr || '_isValid';
-            this.messageAttr = options.messageAttr || '_message';
+            var values = _.defaults(options, Backbone.form.getDefaults('collectionItemView'));
+
+            this.bindingOptions = values.bindingOptions;
+            this.htmlAttr = values.htmlAttr;
+            this.isValidAttr = values.isValidAttr;
+            this.messageAttr = values.messageAttr;
             this.currentState = null;
             this.name = options.name;
-            this.removeConfirmation = options.removeConfirmation || null;
+            this.removeConfirmation = values.removeConfirmation;
             this._templateRequest = true;
             this._compiledTemplate = null;
             this._backup = null;
@@ -36,7 +38,7 @@
 
             this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
-            this.setPlaceholder(options.placeholder || '__name__');
+            this.setPlaceholder(values.placeholder);
             this.setTemplate(options.template);
 
             if (options.editClick === true) {
