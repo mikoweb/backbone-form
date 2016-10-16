@@ -4,4 +4,6 @@ if (typeof exports === 'object') {
     define('backbone.form', ['backbone'], function () {
         return Backbone.form;
     });
+    Backbone.form.amd = define.amd;
+    define.amd = false;
 }

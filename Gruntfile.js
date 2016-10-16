@@ -9,6 +9,7 @@ module.exports = function (grunt) {
                     'src/namespace.js',
                     'src/module.js',
                     'bower_components/deep-diff/releases/deep-diff-0.3.3.min.js',
+                    'src/enable-define.js',
                     'src/methods.js',
                     'src/mixins/related.js',
                     'src/mixins/related-silent.js',
