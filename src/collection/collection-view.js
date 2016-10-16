@@ -337,6 +337,7 @@
          */
         _onClickAdd: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerAdd();
         },
         /**
@@ -358,6 +359,7 @@
          */
         _onClickSaveAll: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerSave();
         },
         /**
@@ -366,6 +368,7 @@
          */
         _onClickRemoveAll: function (e) {
             e.stopPropagation();
+            e.preventDefault();
 
             if (_.isFunction(this.removeConfirmation)) {
                 this.removeConfirmation(this, this.formModel);

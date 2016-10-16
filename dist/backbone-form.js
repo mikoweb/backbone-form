@@ -2393,6 +2393,7 @@ if (typeof exports === 'object') {
          */
         _onClickRemove: function (e) {
             e.stopPropagation();
+            e.preventDefault();
 
             if (_.isFunction(this.removeConfirmation)) {
                 this.removeConfirmation(this, this.formModel);
@@ -2406,6 +2407,7 @@ if (typeof exports === 'object') {
          */
         _onClickSave: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerSave();
         },
         /**
@@ -2414,6 +2416,7 @@ if (typeof exports === 'object') {
          */
         _onClickEdit: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerEdit();
         },
         /**
@@ -2422,6 +2425,7 @@ if (typeof exports === 'object') {
          */
         _onClickCancel: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerCancel();
         },
         /**
@@ -2791,6 +2795,7 @@ if (typeof exports === 'object') {
          */
         _onClickAdd: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerAdd();
         },
         /**
@@ -2812,6 +2817,7 @@ if (typeof exports === 'object') {
          */
         _onClickSaveAll: function (e) {
             e.stopPropagation();
+            e.preventDefault();
             this.triggerSave();
         },
         /**
@@ -2820,6 +2826,7 @@ if (typeof exports === 'object') {
          */
         _onClickRemoveAll: function (e) {
             e.stopPropagation();
+            e.preventDefault();
 
             if (_.isFunction(this.removeConfirmation)) {
                 this.removeConfirmation(this, this.formModel);
