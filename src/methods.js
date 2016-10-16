@@ -91,6 +91,7 @@
             case 'collectionView':
                 values = {
                     itemTagName: 'div',
+                    itemClass: null,
                     htmlAttr: '_html',
                     isValidAttr: '_isValid',
                     messageAttr: '_message',

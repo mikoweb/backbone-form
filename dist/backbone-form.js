@@ -815,6 +815,7 @@ if (typeof exports === 'object') {
             case 'collectionView':
                 values = {
                     itemTagName: 'div',
+                    itemClass: null,
                     htmlAttr: '_html',
                     isValidAttr: '_isValid',
                     messageAttr: '_message',
@@ -2483,6 +2484,7 @@ if (typeof exports === 'object') {
             this.items = [];
             this.index = 0;
             this.itemTagName = values.itemTagName;
+            this.itemClass = values.itemClass;
             this.htmlAttr = values.htmlAttr;
             this.isValidAttr = values.isValidAttr;
             this.messageAttr = values.messageAttr;
@@ -2747,6 +2749,10 @@ if (typeof exports === 'object') {
         _itemViewCommonOptions: function (formModel) {
             var $el = $('<' + this.itemTagName + ' />').addClass('form-collection__item');
 
+            if (_.isString(this.itemClass)) {
+                $el.addClass(this.itemClass);
+            }
+
             return {
                 el: $el,
                 template: this.itemTemplate,
@@ -2775,7 +2781,11 @@ if (typeof exports === 'object') {
                     view.getElement().prependTo(this.elContainer);
                     break;
                 default:
-                    view.getElement().appendTo(this.elContainer);
+                    if (this.newElementPlace[0] === '.') {
+                        view.getElement().insertAfter(this.elContainer.find(this.newElementPlace).eq(0));
+                    } else {
+                        view.getElement().appendTo(this.elContainer);
+                    }
             }
 
             if (this.autofocus) {
