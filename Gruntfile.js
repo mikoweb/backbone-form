@@ -17,6 +17,7 @@ module.exports = function (grunt) {
                     'src/form-to-model.js',
                     'src/model-to-form.js',
                     'src/two-way-binding.js',
+                    'src/model/form-model.js',
                     'src/collection/item-view.js',
                     'src/collection/collection-view.js',
                     'src/validation/validation-view.js',
