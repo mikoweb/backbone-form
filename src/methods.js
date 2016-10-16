@@ -90,6 +90,7 @@
                 break;
             case 'collectionView':
                 values = {
+                    itemTagName: 'div',
                     htmlAttr: '_html',
                     isValidAttr: '_isValid',
                     messageAttr: '_message',

@@ -24,6 +24,7 @@
 
             this.items = [];
             this.index = 0;
+            this.itemTagName = values.itemTagName;
             this.htmlAttr = values.htmlAttr;
             this.isValidAttr = values.isValidAttr;
             this.messageAttr = values.messageAttr;
@@ -286,7 +287,10 @@
          * @private
          */
         _itemViewCommonOptions: function (formModel) {
+            var $el = $('<' + this.itemTagName + ' />').addClass('form-collection__item');
+
             return {
+                el: $el,
                 template: this.itemTemplate,
                 name: String(this.index),
                 formModel: formModel,

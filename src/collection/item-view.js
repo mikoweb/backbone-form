@@ -36,7 +36,6 @@
             this._serverIsValid = true;
             this._serverMessage = null;
 
-            this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
             this.setPlaceholder(values.placeholder);
             this.setTemplate(options.template);

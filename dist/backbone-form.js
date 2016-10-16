@@ -814,6 +814,7 @@ if (typeof exports === 'object') {
                 break;
             case 'collectionView':
                 values = {
+                    itemTagName: 'div',
                     htmlAttr: '_html',
                     isValidAttr: '_isValid',
                     messageAttr: '_message',
@@ -2060,7 +2061,6 @@ if (typeof exports === 'object') {
             this._serverIsValid = true;
             this._serverMessage = null;
 
-            this.$el.addClass('form-collection__item');
             this._initFormModel(options.formModel);
             this.setPlaceholder(values.placeholder);
             this.setTemplate(options.template);
@@ -2482,6 +2482,7 @@ if (typeof exports === 'object') {
 
             this.items = [];
             this.index = 0;
+            this.itemTagName = values.itemTagName;
             this.htmlAttr = values.htmlAttr;
             this.isValidAttr = values.isValidAttr;
             this.messageAttr = values.messageAttr;
@@ -2744,7 +2745,10 @@ if (typeof exports === 'object') {
          * @private
          */
         _itemViewCommonOptions: function (formModel) {
+            var $el = $('<' + this.itemTagName + ' />').addClass('form-collection__item');
+
             return {
+                el: $el,
                 template: this.itemTemplate,
                 name: String(this.index),
                 formModel: formModel,
