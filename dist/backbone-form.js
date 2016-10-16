@@ -2047,7 +2047,7 @@ if (typeof define === 'function') {
                 return null;
             }
 
-            var items = this._path(this.attributes, this.keyPrefix, null),
+            var items = this.path(this.keyPrefix, null),
                 values, item = null;
 
             if (_.isArray(items) && items.length) {
@@ -2058,6 +2058,16 @@ if (typeof define === 'function') {
             }
 
             return item ? (item[key] ? item[key] : null) : null;
+        },
+        /**
+         * Retrieve nested item from object/array
+         *
+         * @param {String} path dot separated
+         * @param {*} def default value ( if result undefined )
+         * @returns {*}
+         */
+        path: function (path, def) {
+            return this._path(this.attributes, path, def);
         },
         /**
          * Retrieve nested item from object/array
