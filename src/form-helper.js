@@ -150,11 +150,13 @@
 
     /**
      * @param {String} name
+     * @param {Object} [info]
      *
      * @returns {undefined|null|String|Array}
      */
-    FormHelper.prototype.getControlValue = function (name) {
-        var info = controlInfo.call(this, name), value, arr, type = info.getType();
+    FormHelper.prototype.getControlValue = function (name, info) {
+        info = info || controlInfo.call(this, name);
+        var value, arr, type = info.getType();
 
         if (!info.isDisabled()) {
             switch (info.getTagName()) {
@@ -326,13 +328,37 @@
     };
 
     /**
+     * @param {Object} cursor
+     * @param {Object} copy
+     * @param {Function} findValue
+     * @param {String} [lastKey]
+     */
+    function deepEach (cursor, copy, findValue, lastKey) {
+        var keys = _.keys(cursor), key,
+            current = _.isString(lastKey) ? copy[lastKey] : copy;
+
+        if (keys.length) {
+            key = keys[0];
+
+            if (cursor[key] === findValue) {
+                current[key] = findValue();
+            } else {
+                current[key] = {};
+                deepEach(cursor[key], current, findValue, key);
+            }
+        }
+    }
+
+    /**
      * @param {String} name
      * @param {Boolean} keepPrefix
+     * @param {Object} [obj]
      *
      * @returns {Object}
      */
-    FormHelper.prototype.getObjectFromName = function (name, keepPrefix) {
-        var obj = {}, prefix = this.getPrefix(name), cursor = obj, lastItem = null, lastName = null, value;
+    FormHelper.prototype.getObjectFromName = function (name, keepPrefix, obj) {
+        obj = obj || {};
+        var result = {}, prefix = this.getPrefix(name), cursor = obj, lastItem = null, lastName = null, value, info;
 
         if (typeof name !== 'string') {
             throw new TypeError('name is not string');
@@ -342,7 +368,20 @@
             throw new TypeError('keepPrefix is not boolean');
         }
 
-        value = this.getControlValue(name);
+        info = controlInfo.call(this, name);
+        value = this.getControlValue(name, info);
+
+        function getValue (key) {
+            key = key || 'value';
+            switch (key) {
+                case 'value':
+                    return value;
+                case 'control':
+                    return info.getControls();
+                case 'info':
+                    return info;
+            }
+        }
 
         if (hasArrayBrackets(name)) {
             name = name.substr(0, name.length - 2);
@@ -366,10 +405,10 @@
                     }
 
                     if (lastItem !== null && lastName !== null) {
-                        lastItem[lastName] = value;
+                        lastItem[lastName] = getValue;
                     }
                 } else {
-                    cursor[name] = value;
+                    cursor[name] = getValue;
                 }
                 break;
             case FormHelper.MODES.separator:
@@ -383,12 +422,14 @@
                 });
 
                 if (lastItem !== null && lastName !== null) {
-                    lastItem[lastName] = value;
+                    lastItem[lastName] = getValue;
                 }
                 break;
         }
 
-        return obj;
+        deepEach(obj, result, getValue);
+
+        return result;
     };
 
     /**

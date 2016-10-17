@@ -167,7 +167,8 @@
      * @param {String} name
      */
     FormToModel.prototype.bindControl = function (name) {
-        var value = this.formHelper.getObjectFromName(name, this.options.keepPrefix),
+        var valueMore = {},
+            value = this.formHelper.getObjectFromName(name, this.options.keepPrefix, valueMore),
             keys = _.keys(value), key, oldValue, fail = true,
             controls = this.$form.find('[name="' + name + '"]'),
             control = controls.eq(0);
