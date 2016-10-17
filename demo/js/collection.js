@@ -8,7 +8,7 @@
     var container = $('#formCollection'), elCollectionData = $('#collectionData'),
         view, collection, Model, Collection;
 
-    Model = Backbone.Model.extend({
+    Model = Backbone.form.FormModel.extend({
         validation: {
             email: {
                 required: true,

@@ -4,14 +4,14 @@
     describe('methods', function () {
         describe('#validModelForm()', function () {
             it('Przekazanie prawidłowych argumentów nie zgłasza wyjątków', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     htmlElement = document.createElement('DIV');
 
                 expect(Backbone.form.validModelForm).withArgs(new Model(), htmlElement).to.not.throwException();
             });
 
             it('Prawidłowe argumenty z użyciem jQuery', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     element = $('<div />'), data;
 
                 expect(Backbone.form.validModelForm).withArgs(new Model(), element).to.not.throwException();
@@ -24,11 +24,11 @@
             });
 
             it('Niewłaściwy typ modelu rzuci wyjątek', function () {
-                expect(Backbone.form.validModelForm).withArgs(new Date(), document.createElement('FORM')).to.throwException(/expected Backbone.Model/);
+                expect(Backbone.form.validModelForm).withArgs(new Date(), document.createElement('FORM')).to.throwException(/expected Backbone.form.FormModel/);
             });
 
             it('Niewłaściwy typ formularza rzuci wyjątek', function () {
-                var Model = Backbone.Model.extend();
+                var Model = Backbone.form.FormModel.extend();
                 expect(Backbone.form.validModelForm).withArgs(new Model(), new Model()).to.throwException(/expected HTMLElement/);
             });
         });

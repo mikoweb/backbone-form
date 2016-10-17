@@ -28,8 +28,8 @@
             throw new TypeError('form is undefined');
         }
 
-        if (!(model instanceof Backbone.Model)) {
-            throw new TypeError('expected Backbone.Model');
+        if (!(model instanceof Backbone.form.FormModel)) {
+            throw new TypeError('expected Backbone.form.FormModel');
         }
 
         if (!(form instanceof HTMLElement) && _.isFunction(form.get)) {

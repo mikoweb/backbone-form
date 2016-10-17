@@ -19,7 +19,7 @@
         return nodes.find('#form');
     }
 
-    var Model = Backbone.Model.extend({
+    var Model = Backbone.form.FormModel.extend({
         url: 'data/data.json'
     });
 

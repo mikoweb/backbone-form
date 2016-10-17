@@ -23,7 +23,7 @@
         describe('#bindAttribute()', function () {
             describe('Sprawdzanie czy wartości atrybutów modelu zostały prawidłowo naniesione na formularz', function () {
                 it('z nawiasami, z prefiksem', function () {
-                    var Model = Backbone.Model.extend(),
+                    var Model = Backbone.form.FormModel.extend(),
                         modelToForm = new Backbone.form.ModelToForm(new Model(), getForm(), {
                             prefix: 'order'
                         }),
@@ -96,7 +96,7 @@
                 });
 
                 it('z nawiasami, bez prefixu', function () {
-                    var Model = Backbone.Model.extend(),
+                    var Model = Backbone.form.FormModel.extend(),
                         modelToForm = new Backbone.form.ModelToForm(new Model(), getForm()),
                         model = modelToForm.getModel();
 
@@ -181,7 +181,7 @@
                 });
 
                 it('z separatorem, z prefiksem', function () {
-                    var Model = Backbone.Model.extend(),
+                    var Model = Backbone.form.FormModel.extend(),
                         modelToForm = new Backbone.form.ModelToForm(new Model(), getForm(), {
                             prefix: 'order',
                             naming: Backbone.form.FormHelper.MODES.separator,
@@ -215,7 +215,7 @@
                 });
 
                 it('z separatorem, bez prefiksu', function () {
-                    var Model = Backbone.Model.extend(),
+                    var Model = Backbone.form.FormModel.extend(),
                         modelToForm = new Backbone.form.ModelToForm(new Model(), getForm(), {
                             naming: Backbone.form.FormHelper.MODES.separator,
                             separator: '.'
@@ -254,7 +254,7 @@
         describe('#bind()', function () {
             describe('Sprawdzanie czy wartości atrybutów modelu zostały prawidłowo naniesione na formularz', function () {
                 it('z nawiasami, z prefiksem', function () {
-                    var Model = Backbone.Model.extend(),
+                    var Model = Backbone.form.FormModel.extend(),
                         modelToForm = new Backbone.form.ModelToForm(new Model(), getForm(), {
                             prefix: 'order'
                         }),
@@ -309,7 +309,7 @@
                 });
 
                 it('z nawiasami, bez prefiksu', function () {
-                    var Model = Backbone.Model.extend(),
+                    var Model = Backbone.form.FormModel.extend(),
                         modelToForm = new Backbone.form.ModelToForm(new Model(), getForm()),
                         model = modelToForm.getModel();
 

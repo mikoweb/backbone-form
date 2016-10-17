@@ -59,7 +59,7 @@
         }
     });
 
-    Model = Backbone.Model.extend({
+    Model = Backbone.form.FormModel.extend({
         url: 'data/form.json'
     });
 

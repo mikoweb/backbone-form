@@ -7,7 +7,7 @@
 
     var model, Model, View;
 
-    Model = Backbone.Model.extend({
+    Model = Backbone.form.FormModel.extend({
         validation: {
             email: [{
                 required: true,

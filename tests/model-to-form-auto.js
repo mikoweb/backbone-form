@@ -34,7 +34,7 @@
     }
 
     describe('ModelToForm - autobinding', function () {
-        var Model = Backbone.Model.extend(),
+        var Model = Backbone.form.FormModel.extend(),
             modelToForm = new Backbone.form.ModelToForm(new Model(), getForm(), {
                 auto: true
             }),

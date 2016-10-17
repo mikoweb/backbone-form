@@ -2,7 +2,7 @@
     "use strict";
 
     var container = $('<div />').hide(), form, formToModel, model,
-        Model = Backbone.Model.extend();
+        Model = Backbone.form.FormModel.extend();
 
     function loadForm () {
         $.ajax({

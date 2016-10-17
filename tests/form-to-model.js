@@ -49,7 +49,7 @@
 
     describe('FormToModel', function () {
         describe('#bindControl() - z nawiasami, bez prefiksu', function () {
-            var Model = Backbone.Model.extend(),
+            var Model = Backbone.form.FormModel.extend(),
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                     keepPrefix: false,
                     auto: false
@@ -108,7 +108,7 @@
             test('order.item[]', 'order.item', ['item3', 'item5', 'item6']);
         });
         describe('#bindControl() - z nawiasami, z prefiksem', function () {
-            var Model = Backbone.Model.extend(),
+            var Model = Backbone.form.FormModel.extend(),
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                     auto: false
                 }),
@@ -196,7 +196,7 @@
         });
 
         describe('#bindControl() - z separatorem, bez prefiksu', function () {
-            var Model = Backbone.Model.extend(),
+            var Model = Backbone.form.FormModel.extend(),
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                     keepPrefix: false,
                     naming: Backbone.form.FormHelper.MODES.separator,
@@ -227,7 +227,7 @@
         });
 
         describe('#bindControl() - z separatorem, z prefiksem', function () {
-            var Model = Backbone.Model.extend(),
+            var Model = Backbone.form.FormModel.extend(),
                 formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                     naming: Backbone.form.FormHelper.MODES.separator,
                     separator: '.',
@@ -278,7 +278,7 @@
 
         describe('#bind()', function () {
             it('Weryfikacja danych - naming: brackets, keepPrefix: true', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {auto: false}),
                     model = formToModel.getModel(), order;
 
@@ -320,7 +320,7 @@
             });
 
             it('Weryfikacja danych - naming: brackets, keepPrefix: false', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                         auto: false,
                         keepPrefix: false
@@ -364,7 +364,7 @@
             });
 
             it('Weryfikacja danych - naming: separator, keepPrefix: true', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                         auto: false,
                         naming: Backbone.form.FormHelper.MODES.separator,
@@ -388,7 +388,7 @@
             });
 
             it('Weryfikacja danych - naming: separator, keepPrefix: false', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
                         auto: false,
                         naming: Backbone.form.FormHelper.MODES.separator,
@@ -413,7 +413,7 @@
 
         describe('#sync()', function () {
             it('Kiedy pole zostanie usunięte jego wartość powinna zostać usunięta z modelu', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
                     model = formToModel.getModel(), order;
 
@@ -440,7 +440,7 @@
             });
 
             it('Kiedy zostanie dodane/usunięte pole wielokrotnego wyboru powinno zostać wywołane bindControl', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
                     model = formToModel.getModel(), order;
 
@@ -465,7 +465,7 @@
             });
 
             it('Usunięcie wszystkich kontrolek powinno wyczyścić model.', function () {
-                var Model = Backbone.Model.extend(),
+                var Model = Backbone.form.FormModel.extend(),
                     formToModel = new Backbone.form.FormToModel(new Model(), formOrder),
                     model = formToModel.getModel();
 
