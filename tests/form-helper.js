@@ -160,6 +160,33 @@
             testFormControl('order[rules]', '[rules]', null);
         });
 
+        describe('#getObjectFromName - obj argument test', function () {
+            var value = {};
+            formOrderHelper.getObjectFromName('simple_name', true, value);
+
+            it('Ostatni klucz to funkcja', function () {
+                expect(_.isFunction(value.simple_name)).to.be(true);
+            });
+
+            it('Test wartości ostatniego klucza', function () {
+                expect(value.simple_name()).to.eql('lorem ipsum');
+                expect(value.simple_name('value')).to.eql('lorem ipsum');
+            });
+
+            it('Porównywanie atrybutu name', function () {
+                expect(value.simple_name('control').attr('name')).to.be('simple_name');
+            });
+
+            it('Test właściwości controlInfo', function () {
+                var info = value.simple_name('info');
+                expect(info.getControls().attr('name')).to.be('simple_name');
+                expect(info.getControl().attr('name')).to.be('simple_name');
+                expect(info.getType()).to.be('text');
+                expect(info.getTagName()).to.be('input');
+                expect(info.isDisabled()).to.be(false);
+            });
+        });
+
         describe('#getObjectFromName - w konwencji nazwenictwa z nawiasami', function () {
             it('Sprawdzanie wartości pola "simple_name" z prefiksem', function () {
                 expect(formOrderHelper.getObjectFromName('simple_name', true)).to.eql({
