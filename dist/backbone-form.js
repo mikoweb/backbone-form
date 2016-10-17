@@ -757,8 +757,8 @@ if (typeof define === 'function') {
             throw new TypeError('form is undefined');
         }
 
-        if (!(model instanceof Backbone.Model)) {
-            throw new TypeError('expected Backbone.Model');
+        if (!(model instanceof Backbone.form.FormModel)) {
+            throw new TypeError('expected Backbone.form.FormModel');
         }
 
         if (!(form instanceof HTMLElement) && _.isFunction(form.get)) {
@@ -1105,11 +1105,13 @@ if (typeof define === 'function') {
 
     /**
      * @param {String} name
+     * @param {Object} [info]
      *
      * @returns {undefined|null|String|Array}
      */
-    FormHelper.prototype.getControlValue = function (name) {
-        var info = controlInfo.call(this, name), value, arr, type = info.getType();
+    FormHelper.prototype.getControlValue = function (name, info) {
+        info = info || controlInfo.call(this, name);
+        var value, arr, type = info.getType();
 
         if (!info.isDisabled()) {
             switch (info.getTagName()) {
@@ -1281,13 +1283,37 @@ if (typeof define === 'function') {
     };
 
     /**
+     * @param {Object} cursor
+     * @param {Object} copy
+     * @param {Function} findValue
+     * @param {String} [lastKey]
+     */
+    function deepEach (cursor, copy, findValue, lastKey) {
+        var keys = _.keys(cursor), key,
+            current = _.isString(lastKey) ? copy[lastKey] : copy;
+
+        if (keys.length) {
+            key = keys[0];
+
+            if (cursor[key] === findValue) {
+                current[key] = findValue();
+            } else {
+                current[key] = {};
+                deepEach(cursor[key], current, findValue, key);
+            }
+        }
+    }
+
+    /**
      * @param {String} name
      * @param {Boolean} keepPrefix
+     * @param {Object} [obj]
      *
      * @returns {Object}
      */
-    FormHelper.prototype.getObjectFromName = function (name, keepPrefix) {
-        var obj = {}, prefix = this.getPrefix(name), cursor = obj, lastItem = null, lastName = null, value;
+    FormHelper.prototype.getObjectFromName = function (name, keepPrefix, obj) {
+        obj = obj || {};
+        var result = {}, prefix = this.getPrefix(name), cursor = obj, lastItem = null, lastName = null, value, info;
 
         if (typeof name !== 'string') {
             throw new TypeError('name is not string');
@@ -1297,7 +1323,20 @@ if (typeof define === 'function') {
             throw new TypeError('keepPrefix is not boolean');
         }
 
-        value = this.getControlValue(name);
+        info = controlInfo.call(this, name);
+        value = this.getControlValue(name, info);
+
+        function getValue (key) {
+            key = key || 'value';
+            switch (key) {
+                case 'value':
+                    return value;
+                case 'control':
+                    return info.getControls();
+                case 'info':
+                    return info;
+            }
+        }
 
         if (hasArrayBrackets(name)) {
             name = name.substr(0, name.length - 2);
@@ -1321,10 +1360,10 @@ if (typeof define === 'function') {
                     }
 
                     if (lastItem !== null && lastName !== null) {
-                        lastItem[lastName] = value;
+                        lastItem[lastName] = getValue;
                     }
                 } else {
-                    cursor[name] = value;
+                    cursor[name] = getValue;
                 }
                 break;
             case FormHelper.MODES.separator:
@@ -1338,12 +1377,14 @@ if (typeof define === 'function') {
                 });
 
                 if (lastItem !== null && lastName !== null) {
-                    lastItem[lastName] = value;
+                    lastItem[lastName] = getValue;
                 }
                 break;
         }
 
-        return obj;
+        deepEach(obj, result, getValue);
+
+        return result;
     };
 
     /**
@@ -1423,6 +1464,203 @@ if (typeof define === 'function') {
     };
 
     Backbone.form.FormHelper = FormHelper;
+}());
+
+/**
+ * @author Rafał Mikołajun <rafal@mikoweb.pl>
+ * @license LGPLv3
+ */
+(function () {
+    "use strict";
+
+    Backbone.form.FormModel = Backbone.Model.extend({
+        formData: {},
+        pathPrefix: null,
+        /**
+         * Get attribute by string path eg. "foo.bar".
+         *
+         * @param {String} path dot separated.
+         * @param {*} [def] default value (if result undefined).
+         *
+         * @returns {*}
+         */
+        value: function (path, def) {
+            return this._path(this.attributes, this._pathWithPrefix(path), def || null);
+        },
+        /**
+         * Get attribute from first key in array/object.
+         *
+         * @param {String} path dot separated.
+         * @param {*} [def] default value (if result undefined).
+         *
+         * @returns {*}
+         */
+        firstValue: function (path, def) {
+            var firstLevel = _.isString(this.pathPrefix) && this.pathPrefix.length
+                ? this._path(this.attributes, this.pathPrefix, def || null)
+                : this.attributes;
+
+            return this._firstKeyPath(firstLevel, path, def || null);
+        },
+        /**
+         * Get form control by path.
+         *
+         * @param {String} path dot separated.
+         *
+         * @returns {jQuery|null}
+         */
+        input: function (path) {
+            var data = this._path(this.formData, this._pathWithPrefix(path), null), input = null;
+
+            if (_.isFunction(data)) {
+                input = data('control');
+            }
+
+            return input;
+        },
+        /**
+         * Get form control from first key in array/object.
+         *
+         * @param {String} path dot separated.
+         *
+         * @returns {*}
+         */
+        firstInput: function (path) {
+            var firstLevel = _.isString(this.pathPrefix) && this.pathPrefix.length
+                ? this._path(this.formData, this.pathPrefix, null)
+                : this.formData;
+
+            var input = null, data = this._firstKeyPath(firstLevel, path, null);
+
+            if (_.isFunction(data)) {
+                input = data('control');
+            }
+
+            return input;
+        },
+        /**
+         * @param {String} key
+         * @return {*}
+         */
+        getData: function (key) {
+            return this.formData[key];
+        },
+        /**
+         * @param {String} key
+         * @param {*} value
+         */
+        setData: function (key, value) {
+            this.formData[key] = value;
+        },
+        /**
+         * @param {String} key
+         */
+        unsetData: function (key) {
+            if (this.hasData(key)) {
+                delete this.formData[key];
+            }
+        },
+        /**
+         * @param {String} key
+         * @return {boolean}
+         */
+        hasData: function (key) {
+            return !_.isUndefined(this.formData[key]);
+        },
+        /**
+         * Retrieve nested item from object/array.
+         *
+         * @param {Object|Array} obj
+         * @param {String} path dot separated
+         * @param {*} def default value ( if result undefined )
+         *
+         * @returns {*}
+         *
+         * @private
+         */
+        _path: function (obj, path, def){
+            var i, len;
+
+            path = path.split('.');
+            len = path.length;
+            for (i = 0; i < len; i++) {
+                if (!obj || typeof obj !== 'object') {
+                    return def;
+                }
+                obj = obj[path[i]];
+            }
+
+            if (_.isUndefined(obj)) {
+                return def;
+            }
+
+            return obj;
+        },
+        /**
+         * @param {String} path
+         *
+         * @returns {String}
+         *
+         * @private
+         */
+        _pathWithPrefix: function (path) {
+            var value = null;
+
+            if (!_.isString(path)) {
+                throw new TypeError('Path is not string.');
+            }
+
+            if (_.isString(this.pathPrefix) && this.pathPrefix.length) {
+                value = this.pathPrefix + '.' + path;
+            } else {
+                value = path;
+            }
+
+            return value;
+        },
+        /**
+         * Get first element from array/object.
+         *
+         * @param {Object} obj
+         *
+         * @return {*}
+         *
+         * @private
+         */
+        _firstKey: function (obj) {
+            var values, first = null;
+
+            if (_.isArray(obj)) {
+                if (obj.length) {
+                    first = _.first(obj);
+                }
+            } else if (_.isObject(obj)) {
+                values = _.values(obj);
+                first = values.length ? values[0] : null;
+            }
+
+            return first;
+        },
+        /**
+         * Mix functions _firstKey and _path.
+         *
+         * @param {Object} obj
+         * @param {String} path
+         * @param {*} def
+         * @return {*}
+         *
+         * @private
+         */
+        _firstKeyPath: function (obj, path, def) {
+            var value = null, data = this._firstKey(obj);
+
+            if (_.isObject(data)) {
+                value = this._path(data, path, def);
+            }
+
+            return value;
+        }
+    });
 }());
 
 /**
@@ -1567,6 +1805,24 @@ if (typeof define === 'function') {
     }
 
     /**
+     * @param {Backbone.form.FormModel} model
+     * @param {String} key
+     * @param value
+     * @param oldValue
+     */
+    function setModelData (model, key, value, oldValue) {
+        if (_.isNull(value)) {
+            model.unsetData(key);
+        } else if (_.isObject(oldValue) && !_.isArray(oldValue) && _.isObject(value) && !_.isArray(value)) {
+            model.setData(key, mergeObject($.extend(true, {}, oldValue), value));
+        } else if (_.isUndefined(oldValue) && _.isObject(value) && !_.isArray(value)) {
+            model.setData(key, mergeObject({}, value));
+        } else {
+            model.setData(key, value);
+        }
+    }
+
+    /**
      * @param {String} message
      * @constructor
      */
@@ -1594,7 +1850,8 @@ if (typeof define === 'function') {
      * @param {String} name
      */
     FormToModel.prototype.bindControl = function (name) {
-        var value = this.formHelper.getObjectFromName(name, this.options.keepPrefix),
+        var valueMore = {},
+            value = this.formHelper.getObjectFromName(name, this.options.keepPrefix, valueMore),
             keys = _.keys(value), key, oldValue, fail = true,
             controls = this.$form.find('[name="' + name + '"]'),
             control = controls.eq(0);
@@ -1619,6 +1876,8 @@ if (typeof define === 'function') {
                         setModelValue(this.fileModel, key, value[key], oldValue);
                         this.fileModel.trigger('change', this.fileModel, {});
                     }
+
+                    setModelData(this.model, key, valueMore[key], this.model.getData(key));
                 } catch (e) {
                     this.silentRelated(false);
                     throw e;
@@ -1641,7 +1900,7 @@ if (typeof define === 'function') {
     };
 
     /**
-     * @return {Backbone.Model}
+     * @return {Backbone.form.FormModel}
      */
     FormToModel.prototype.getModel = function () {
         return this.model;
@@ -1920,7 +2179,7 @@ if (typeof define === 'function') {
     };
 
     /**
-     * @return {Backbone.Model}
+     * @return {Backbone.form.FormModel}
      */
     ModelToForm.prototype.getModel = function () {
         return this.model;
@@ -2036,74 +2295,6 @@ if (typeof define === 'function') {
 (function () {
     "use strict";
 
-    Backbone.form.FormModel = Backbone.Model.extend({
-        keyPrefix: null,
-        /**
-         * @param {String} key
-         * @returns {*}
-         */
-        data: function (key) {
-            if (_.isNull(this.keyPrefix)) {
-                return null;
-            }
-
-            var items = this.path(this.keyPrefix, null),
-                values, item = null;
-
-            if (_.isArray(items) && items.length) {
-                item = _.first(items);
-            } else if (_.isObject(items)) {
-                values = _.values(items);
-                item = values.length ? values[0] : null;
-            }
-
-            return item ? (item[key] ? item[key] : null) : null;
-        },
-        /**
-         * Retrieve nested item from object/array
-         *
-         * @param {String} path dot separated
-         * @param {*} def default value ( if result undefined )
-         * @returns {*}
-         */
-        path: function (path, def) {
-            return this._path(this.attributes, path, def);
-        },
-        /**
-         * Retrieve nested item from object/array
-         *
-         * @param {Object|Array} obj
-         * @param {String} path dot separated
-         * @param {*} def default value ( if result undefined )
-         * @returns {*}
-         */
-        _path: function (obj, path, def){
-            var i, len;
-
-            path = path.split('.');
-            for (i = 0, len = path.length; i < len; i++){
-                if (!obj || typeof obj !== 'object') {
-                    return def;
-                }
-                obj = obj[path[i]];
-            }
-
-            if (_.isUndefined(obj)) {
-                return def;
-            }
-
-            return obj;
-        }
-    });
-}());
-
-/**
- * @author Rafał Mikołajun <rafal@mikoweb.pl>
- * @license LGPLv3
- */
-(function () {
-    "use strict";
-
     Backbone.form.CollectionItemView = Backbone.View.extend({
         events: {
             'submit form': '_onFormSubmit'
@@ -2173,7 +2364,7 @@ if (typeof define === 'function') {
 
             if (preview.length) {
                 template = $('<div />').html(this.getTemplate()(this.renderParams()));
-                fresh = template.find('.' + this.getPreviewElementClass());
+                fresh = this.getPreviewElement(template);
                 fresh.attr('class', preview.attr('class'));
                 preview.replaceWith(fresh);
             }
@@ -2270,19 +2461,15 @@ if (typeof define === 'function') {
          * @returns {jQuery}
          */
         getFormElement: function () {
-            return this.$el.find('.form-collection__item_form');
+            return this.$el.find('.form-collection__item_form:eq(0)');
         },
         /**
+         * @param {jQuery} [el]
+         *
          * @returns {jQuery}
          */
-        getPreviewElement: function () {
-            return this.$el.find('.' + this.getPreviewElementClass());
-        },
-        /**
-         * @returns {string}
-         */
-        getPreviewElementClass: function () {
-            return 'form-collection__item_preview';
+        getPreviewElement: function (el) {
+            return (el || this.$el).find('.form-collection__item_preview:eq(0)');
         },
         /**
          * @param {String} state
@@ -2716,7 +2903,7 @@ if (typeof define === 'function') {
             }
 
             this.items.forEach(function (item) {
-                item.triggerCancel.apply(item);
+                item.changeState('preview');
             });
 
             if (_.isFunction(this.formCollection.save)) {
