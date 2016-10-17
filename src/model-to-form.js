@@ -183,7 +183,7 @@
     };
 
     /**
-     * @return {Backbone.Model}
+     * @return {Backbone.form.FormModel}
      */
     ModelToForm.prototype.getModel = function () {
         return this.model;

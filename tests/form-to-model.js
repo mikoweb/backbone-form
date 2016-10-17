@@ -276,6 +276,35 @@
             });
         });
 
+        describe('#bindControl() - test FormModel', function () {
+            var Model = Backbone.form.FormModel.extend(),
+                formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                    keepPrefix: false,
+                    auto: false
+                }),
+                model = formToModel.getModel();
+
+            formToModel.bindControl('order[address][street]');
+
+            it('hasData test', function () {
+                expect(model.hasData('address')).to.be(true);
+                expect(model.hasData('marian')).to.be(false);
+            });
+
+            it('getData test', function () {
+                var data = model.getData('address');
+                expect(data.street()).to.eql('Mickiewicza 45');
+            });
+
+            it('setData && unsetData test', function () {
+                model.setData('microsoft', 'ok');
+                expect(model.getData('microsoft')).to.eql('ok');
+                expect(model.hasData('microsoft')).to.be(true);
+                model.unsetData('microsoft');
+                expect(model.hasData('microsoft')).to.be(false);
+            });
+        });
+
         describe('#bind()', function () {
             it('Weryfikacja danych - naming: brackets, keepPrefix: true', function () {
                 var Model = Backbone.form.FormModel.extend(),

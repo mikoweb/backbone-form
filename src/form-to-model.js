@@ -140,6 +140,24 @@
     }
 
     /**
+     * @param {Backbone.form.FormModel} model
+     * @param {String} key
+     * @param value
+     * @param oldValue
+     */
+    function setModelData (model, key, value, oldValue) {
+        if (_.isNull(value)) {
+            model.unsetData(key);
+        } else if (_.isObject(oldValue) && !_.isArray(oldValue) && _.isObject(value) && !_.isArray(value)) {
+            model.setData(key, mergeObject($.extend(true, {}, oldValue), value));
+        } else if (_.isUndefined(oldValue) && _.isObject(value) && !_.isArray(value)) {
+            model.setData(key, mergeObject({}, value));
+        } else {
+            model.setData(key, value);
+        }
+    }
+
+    /**
      * @param {String} message
      * @constructor
      */
@@ -193,6 +211,8 @@
                         setModelValue(this.fileModel, key, value[key], oldValue);
                         this.fileModel.trigger('change', this.fileModel, {});
                     }
+
+                    setModelData(this.model, key, valueMore[key], this.model.getData(key));
                 } catch (e) {
                     this.silentRelated(false);
                     throw e;
@@ -215,7 +235,7 @@
     };
 
     /**
-     * @return {Backbone.Model}
+     * @return {Backbone.form.FormModel}
      */
     FormToModel.prototype.getModel = function () {
         return this.model;
