@@ -74,7 +74,7 @@
 
             if (preview.length) {
                 template = $('<div />').html(this.getTemplate()(this.renderParams()));
-                fresh = template.find('.' + this.getPreviewElementClass());
+                fresh = this.getPreviewElement(template);
                 fresh.attr('class', preview.attr('class'));
                 preview.replaceWith(fresh);
             }
@@ -171,19 +171,15 @@
          * @returns {jQuery}
          */
         getFormElement: function () {
-            return this.$el.find('.form-collection__item_form');
+            return this.$el.find('.form-collection__item_form:eq(0)');
         },
         /**
+         * @param {jQuery} [el]
+         *
          * @returns {jQuery}
          */
-        getPreviewElement: function () {
-            return this.$el.find('.' + this.getPreviewElementClass());
-        },
-        /**
-         * @returns {string}
-         */
-        getPreviewElementClass: function () {
-            return 'form-collection__item_preview';
+        getPreviewElement: function (el) {
+            return (el || this.$el).find('.form-collection__item_preview:eq(0)');
         },
         /**
          * @param {String} state

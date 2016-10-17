@@ -184,7 +184,7 @@
             }
 
             this.items.forEach(function (item) {
-                item.triggerCancel.apply(item);
+                item.changeState('preview');
             });
 
             if (_.isFunction(this.formCollection.save)) {
