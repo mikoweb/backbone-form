@@ -1474,8 +1474,11 @@ if (typeof define === 'function') {
     "use strict";
 
     Backbone.form.FormModel = Backbone.Model.extend({
-        formData: {},
         pathPrefix: null,
+        initialize: function () {
+            Backbone.Model.prototype.initialize.apply(this, arguments);
+            this.formData = {};
+        },
         /**
          * Get attribute by string path eg. "foo.bar".
          *
