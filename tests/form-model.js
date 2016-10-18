@@ -31,6 +31,10 @@
                 expect(model.input('foo.items.0.address.street').val()).to.be('ok');
                 expect(model.input('foo.items.0.address')).to.be(null);
             });
+
+            it('firstInput method', function () {
+                expect(model.firstInput('items.0.address.street').val()).to.be('ok');
+            });
         });
 
         describe('with pathPrefix', function () {
