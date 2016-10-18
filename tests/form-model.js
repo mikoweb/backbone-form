@@ -28,8 +28,11 @@
             });
 
             it('input method', function () {
-                expect(model.input('foo.items.0.address.street').val()).to.be('ok');
-                expect(model.input('foo.items.0.address')).to.be(null);
+                var input = model.input('foo.items.0.address.street');
+                expect(input.val()).to.be('ok');
+                expect(input.parent().length).to.be(1);
+                input = model.input('foo.items.0.address');
+                expect(input.parent().length).to.be(0);
             });
 
             it('firstInput method', function () {
@@ -65,7 +68,7 @@
 
             it('firstInput method', function () {
                 expect(model.firstInput('address.street').val()).to.be('ok');
-                expect(model.firstInput('gfdgfdg.fgfdg')).to.be(null);
+                expect(model.firstInput('gfdgfdg.fgfdg').parent().length).to.be(0);
             });
         });
 
@@ -92,12 +95,12 @@
             });
 
             it('input method', function () {
-                expect(model.input('0.address.street')).to.be(null);
+                expect(model.input('0.address.street').parent().length).to.be(0);
             });
 
             it('firstInput method', function () {
-                expect(model.firstInput('address.street')).to.be(null);
-                expect(model.firstInput('gfdgfdg.fgfdg')).to.be(null);
+                expect(model.firstInput('address.street').parent().length).to.be(0);
+                expect(model.firstInput('gfdgfdg.fgfdg').parent().length).to.be(0);
             });
         });
     });

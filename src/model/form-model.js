@@ -42,7 +42,7 @@
          *
          * @param {String} path dot separated.
          *
-         * @returns {jQuery|null}
+         * @returns {jQuery}
          */
         input: function (path) {
             var data = this._path(this.formData, this._pathWithPrefix(path), null), input = null;
@@ -51,14 +51,14 @@
                 input = data('control');
             }
 
-            return input;
+            return _.isObject(input) ? input : $('<input />');
         },
         /**
          * Get form control from first key in array/object.
          *
          * @param {String} path dot separated.
          *
-         * @returns {*}
+         * @returns {jQuery}
          */
         firstInput: function (path) {
             var firstLevel = _.isString(this.pathPrefix) && this.pathPrefix.length
@@ -71,7 +71,7 @@
                 input = data('control');
             }
 
-            return input;
+            return _.isObject(input) ? input : $('<input />');
         },
         /**
          * @param {String} key
