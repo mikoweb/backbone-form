@@ -2736,7 +2736,7 @@ if (typeof define === 'function') {
                 throw new TypeError('CollectionView: Options is required.');
             }
 
-            if (options.itemView && options.itemView instanceof Backbone.form.CollectionItemView) {
+            if (options.itemView) {
                 this.itemView = options.itemView;
             } else {
                 this.itemView = Backbone.form.CollectionItemView;
@@ -2812,11 +2812,11 @@ if (typeof define === 'function') {
 
             if (el) {
                 viewOptions.el = el;
-                view = new this.itemView(viewOptions);
+                view = this._newItemView(viewOptions);
                 view.disabled(false);
                 view.getBinding().getFormToModel().bind();
             } else {
-                view = new this.itemView(viewOptions);
+                view = this._newItemView(viewOptions);
                 view.renderAll();
                 view.disabled(false);
                 view.getBinding().getFormToModel().bind();
@@ -2833,7 +2833,7 @@ if (typeof define === 'function') {
 
             this._addModelListeners(model);
 
-            view = new this.itemView(this._itemViewCommonOptions(model));
+            view = this._newItemView(this._itemViewCommonOptions(model));
 
             if (model.has(this.htmlAttr)) {
                 view.loadHtml();
@@ -2941,6 +2941,22 @@ if (typeof define === 'function') {
                 this.formCollection.trigger('update', this.formCollection, this.options);
                 this.trigger('items:error:remove_all', this);
             }
+        },
+        /**
+         * @param {Object} options
+         *
+         * @returns {Backbone.form.CollectionItemView}
+         *
+         * @private
+         */
+        _newItemView: function (options) {
+            var view = new this.itemView(options);
+
+            if (!(view instanceof Backbone.form.CollectionItemView)) {
+                throw new TypeError('CollectionView: Item is not instanceof Backbone.form.CollectionItemView.');
+            }
+
+            return view;
         },
         /**
          * Initialize items from element content.
