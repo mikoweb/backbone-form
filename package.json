@@ -4,7 +4,7 @@
         "name": "Rafał Mikołajun"
     },
     "license": "LGPL-3.0",
-    "version": "v0.0.15",
+    "version": "v0.0.16",
     "keywords": [
         "backbone",
         "backbone form",
@@ -19,7 +19,7 @@
         "node": ">4.2.0"
     },
     "dependencies": {
-        "backbone": "~1.2",
+        "backbone": "^1.2",
         "backbone-validation": "~0.11.5",
         "deep-diff": "0.3.3"
     },
