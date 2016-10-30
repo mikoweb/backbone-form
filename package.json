@@ -1,11 +1,40 @@
 {
+    "name": "backbone-form",
+    "author": {
+        "name": "Rafał Mikołajun"
+    },
+    "license": "LGPL-3.0",
+    "version": "v0.0.15",
+    "keywords": [
+        "backbone",
+        "backbone form",
+        "bind form to model"
+    ],
+    "main": "dist/backbone-form.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mikoweb/backbone-form.git"
+    },
     "engines": {
         "node": ">4.2.0"
+    },
+    "dependencies": {
+        "backbone": "~1.2",
+        "backbone-validation": "~0.11.5",
+        "deep-diff": "0.3.3"
     },
     "devDependencies": {
         "grunt": "~1.0",
         "grunt-contrib-uglify": "~1.0",
         "grunt-contrib-concat": "~1.0",
         "grunt-contrib-copy": "~1.0"
-    }
+    },
+    "files": [
+        "demo",
+        "dist",
+        "src",
+        "tests",
+        "LICENSE",
+        "README.md"
+    ]
 }
