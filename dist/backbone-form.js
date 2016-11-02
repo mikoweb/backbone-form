@@ -2372,6 +2372,10 @@ if (typeof define === 'function') {
                 preview.replaceWith(fresh);
             }
         },
+        /**
+         * "Virtual" method. It's call after fully render.
+         */
+        onRender: function () {},
         btnUpdate: function () {
             var btnRemove = this.$el.find('.form-collection__btn-remove'),
                 btnCancel = this.$el.find('.form-collection__btn-cancel');
@@ -2611,9 +2615,16 @@ if (typeof define === 'function') {
         triggerCancel: function () {
             this.restoreBackup();
             this.renderAll();
-            this.getBinding().getModelToForm().bind();
+            this.bindModelToForm();
             this.changeState('preview');
+            this.onRender();
             this.trigger('item:cancel', this);
+        },
+        bindModelToForm: function () {
+            this.getBinding().getModelToForm().bind();
+        },
+        bindFormToModel: function () {
+            this.getBinding().getFormToModel().bind();
         },
         /**
          * @returns {Function}
@@ -2814,16 +2825,17 @@ if (typeof define === 'function') {
                 viewOptions.el = el;
                 view = this._newItemView(viewOptions);
                 view.disabled(false);
-                view.getBinding().getFormToModel().bind();
+                view.bindFormToModel();
             } else {
                 view = this._newItemView(viewOptions);
                 view.renderAll();
                 view.disabled(false);
-                view.getBinding().getFormToModel().bind();
+                view.bindFormToModel();
                 this._attachView(view);
             }
 
             this._initItemView(view);
+            view.onRender();
         },
         /**
          * @param {Backbone.Model} model
@@ -2840,11 +2852,12 @@ if (typeof define === 'function') {
             } else {
                 view.renderAll();
                 view.disabled(false);
-                view.getBinding().getModelToForm().bind();
+                view.bindModelToForm();
             }
 
             this._attachView(view);
             this._initItemView(view);
+            view.onRender();
         },
         /**
          * @param {String} template
