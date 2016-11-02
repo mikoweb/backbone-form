@@ -92,16 +92,17 @@
                 viewOptions.el = el;
                 view = this._newItemView(viewOptions);
                 view.disabled(false);
-                view.getBinding().getFormToModel().bind();
+                view.bindFormToModel();
             } else {
                 view = this._newItemView(viewOptions);
                 view.renderAll();
                 view.disabled(false);
-                view.getBinding().getFormToModel().bind();
+                view.bindFormToModel();
                 this._attachView(view);
             }
 
             this._initItemView(view);
+            view.onRender();
         },
         /**
          * @param {Backbone.Model} model
@@ -118,11 +119,12 @@
             } else {
                 view.renderAll();
                 view.disabled(false);
-                view.getBinding().getModelToForm().bind();
+                view.bindModelToForm();
             }
 
             this._attachView(view);
             this._initItemView(view);
+            view.onRender();
         },
         /**
          * @param {String} template

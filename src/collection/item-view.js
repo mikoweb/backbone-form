@@ -79,6 +79,10 @@
                 preview.replaceWith(fresh);
             }
         },
+        /**
+         * "Virtual" method. It's call after fully render.
+         */
+        onRender: function () {},
         btnUpdate: function () {
             var btnRemove = this.$el.find('.form-collection__btn-remove'),
                 btnCancel = this.$el.find('.form-collection__btn-cancel');
@@ -318,9 +322,16 @@
         triggerCancel: function () {
             this.restoreBackup();
             this.renderAll();
-            this.getBinding().getModelToForm().bind();
+            this.bindModelToForm();
             this.changeState('preview');
+            this.onRender();
             this.trigger('item:cancel', this);
+        },
+        bindModelToForm: function () {
+            this.getBinding().getModelToForm().bind();
+        },
+        bindFormToModel: function () {
+            this.getBinding().getFormToModel().bind();
         },
         /**
          * @returns {Function}
