@@ -227,6 +227,7 @@
 
                 this.$el.html(html);
                 this.formModel.unset(this.htmlAttr);
+                this.onRender();
             }
         },
         doBackup: function () {
