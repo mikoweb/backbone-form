@@ -77,47 +77,58 @@
             throw new TypeError('Name must be string');
         }
 
-        var controls = this.form.find('[name="' + name + '"]'),
-            control = controls.eq(0),
-            type = null, tagName = null,
-            disabled = false;
+        var form = this.form,
+            selector = '[name="' + name + '"]',
+            controls, control;
 
-        if (control.length) {
-            type = control.attr('type');
-            tagName = control.prop('tagName').toLowerCase();
-            disabled = control.is(':disabled');
+        function load () {
+            controls = form.find(selector);
+            control = controls.eq(0);
         }
 
+        load();
+
         return {
+            reload: load,
             /**
+             * @param {boolean} [reload]
              * @returns {jQuery}
              */
-            getControls: function () {
+            getControls: function (reload) {
+                if (reload) {
+                    load();
+                }
+
                 return controls;
             },
             /**
+             * @param {boolean} [reload]
              * @returns {jQuery}
              */
-            getControl: function () {
+            getControl: function (reload) {
+                if (reload) {
+                    load();
+                }
+
                 return control;
             },
             /**
              * @returns {String|null}
              */
             getType: function () {
-                return type;
+                return control.length ? control.attr('type') : null;
             },
             /**
              * @returns {String|null}
              */
             getTagName: function () {
-                return tagName;
+                return control.length ? control.prop('tagName').toLowerCase() : null;
             },
             /**
              * @returns {Boolean}
              */
             isDisabled: function () {
-                return disabled;
+                return control.length ? control.is(':disabled') : false;
             }
         };
     }
@@ -253,7 +264,7 @@
                     } else {
                         info.getControls().val(_.isArray(value) ? value : [value]);
                     }
-                } else if (type !== 'button' && type !== 'submit' && type !== 'image' 
+                } else if (type !== 'button' && type !== 'submit' && type !== 'image'
                     && type !== 'file' && type !== 'reset'
                 ) {
                     info.getControl().val(_.isArray(value) ? (value.length ? value[0] : '') : value);
@@ -377,7 +388,7 @@
                 case 'value':
                     return value;
                 case 'control':
-                    return info.getControls();
+                    return info.getControls(true);
                 case 'info':
                     return info;
             }
