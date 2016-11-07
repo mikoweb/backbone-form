@@ -2370,14 +2370,14 @@ if (typeof define === 'function') {
             };
         },
         renderAll: function () {
-            this.$el.html(this.getTemplate()(this.renderParams()));
+            this._renderTemplate();
             this.changeState(this.formModel.isNew() ? 'form' : 'preview');
         },
         renderPreview: function () {
             var preview = this.getPreviewElement(), template, fresh;
 
             if (preview.length) {
-                template = $('<div />').html(this.getTemplate()(this.renderParams()));
+                template = this._renderTemplate($('<div />'));
                 fresh = this.getPreviewElement(template);
                 fresh.attr('class', preview.attr('class'));
                 preview.replaceWith(fresh);
@@ -2637,6 +2637,18 @@ if (typeof define === 'function') {
         },
         bindFormToModel: function () {
             this.getBinding().getFormToModel().bind();
+        },
+        /**
+         * @param {jQuery} [el]
+         *
+         * @returns {jQuery}
+         */
+        _renderTemplate: function (el) {
+            var html = $('<div />');
+            el = el || this.$el;
+            html.html(this.getTemplate()(this.renderParams()));
+            el.empty().append(html.children());
+            return el;
         },
         /**
          * @returns {Function}
