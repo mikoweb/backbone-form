@@ -70,9 +70,10 @@
 
     /**
      * @param {String} name
+     *
      * @returns {Object}
      */
-    function controlInfo (name) {
+    FormHelper.prototype.getControlInfo = function (name) {
         if (!_.isString(name)) {
             throw new TypeError('Name must be string');
         }
@@ -131,7 +132,7 @@
                 return control.length ? control.is(':disabled') : false;
             }
         };
-    }
+    };
 
     /**
      * @param {String|jQuery} selector
@@ -166,7 +167,7 @@
      * @returns {undefined|null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (name, info) {
-        info = info || controlInfo.call(this, name);
+        info = info || this.getControlInfo(name);
         var value, arr, type = info.getType();
 
         if (!info.isDisabled()) {
@@ -242,7 +243,7 @@
      * @param {String|Array|Boolean} value
      */
     FormHelper.prototype.setControlValue = function (name, value) {
-        var info = controlInfo.call(this, name), type = info.getType();
+        var info = this.getControlInfo(name), type = info.getType();
 
         if ((_.isObject(value) && !_.isArray(value)) || _.isFunction(value) || _.isUndefined(value)) {
             throw new TypeError('Unexpected value with name ' + name);
@@ -379,7 +380,7 @@
             throw new TypeError('keepPrefix is not boolean');
         }
 
-        info = controlInfo.call(this, name);
+        info = this.getControlInfo(name);
         value = this.getControlValue(name, info);
 
         function getValue (key) {
