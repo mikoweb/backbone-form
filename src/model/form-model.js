@@ -103,6 +103,24 @@
             return !_.isUndefined(this.formData[key]);
         },
         /**
+         * @return {boolean}
+         */
+        hasShadow: function () {
+            return this.shadow instanceof Backbone.Model;
+        },
+        /**
+         * @return {Backbone.Model|null}
+         */
+        getShadow: function () {
+            var shadow = null;
+
+            if (this.hasShadow()) {
+                shadow = this.shadow;
+            }
+
+            return shadow;
+        },
+        /**
          * Retrieve nested item from object/array.
          *
          * @param {Object|Array} obj

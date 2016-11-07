@@ -438,6 +438,29 @@
 
                 expect(model.get('order[address][street]')).to.be('Mickiewicza 45');
             });
+
+            it('Shadow Model test', function () {
+                var Model = Backbone.form.FormModel.extend({
+                        initialize: function () {
+                            Backbone.form.FormModel.prototype.initialize.apply(this, arguments);
+                            this.shadow = new (Backbone.Model.extend({
+                            }))();
+                        }
+                    }),
+                    formToModel = new Backbone.form.FormToModel(new Model(), formOrder, {
+                        auto: false,
+                        keepPrefix: false
+                    }),
+                    model = formToModel.getModel(),
+                    shadow = model.getShadow();
+
+                expect(true).to.be(model.hasShadow());
+                expect({}).to.eql(shadow.attributes);
+                formToModel.bind();
+                expect('Warszawa').to.be(shadow.get('order.address.city'));
+                expect('gdynia').to.be(shadow.get('order[address][city]'));
+                expect('lorem ipsum').to.be(shadow.get('simple_name'));
+            });
         });
 
         describe('#sync()', function () {

@@ -188,11 +188,16 @@
         var valueMore = {},
             value = this.formHelper.getObjectFromName(name, this.options.keepPrefix, valueMore),
             keys = _.keys(value), key, oldValue, fail = true,
-            controls = this.$form.find('[name="' + name + '"]'),
-            control = controls.eq(0);
+            info = this.formHelper.getControlInfo(name),
+            controls = info.getControls(),
+            control = info.getControl();
 
         if (keys.length > 1) {
             throw new this.WildcardValueError('Control "' + name + '" has ' + keys.length + ' values');
+        }
+
+        if (this.model.hasShadow()) {
+            this.model.getShadow().set(name, this.formHelper.getControlValue(name, info));
         }
 
         if (keys.length) {
