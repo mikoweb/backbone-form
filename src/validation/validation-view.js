@@ -28,9 +28,10 @@
             this.popoverErrors = values.popoverErrors;
 
             this.classFormErrors = 'form__errors';
-            this.classFormError = 'form__error form-control-feedback';
-            this.classInputError = 'form-control-danger';
-            this.classFormGroupError = 'has-danger';
+            this.classFormError = 'form__error ' + values.classFormError;
+            this.classFormErrorInitial = 'form__error--initial';
+            this.classInputError = values.classInputError;
+            this.classFormGroupError = values.classFormGroupError;
 
             Backbone.Validation.bind(this, {
                 model: this.getValidationModel()
@@ -43,6 +44,8 @@
             if (this.autoBinding) {
                 this.binding.auto(true);
             }
+
+            this._initialErrors();
         },
         /**
          * @return {Boolean}
@@ -116,29 +119,41 @@
                 this.popoverPosition(element, container);
             }
 
+            container.find('.' + this.classFormErrorInitial).remove();
+
             return container;
         },
         /**
          * @param {jQuery} element
          * @param {String} message
+         * @param {boolean} [initial]
          */
-        addError: function (element, message) {
-            var container = this.getErrorsContainer(element);
+        addError: function (element, message, initial) {
+            var container = this.getErrorsContainer(element), item;
+            initial = initial || false;
 
             if (message && message !== '__none') {
-                $('<div />')
+                item = $('<div />')
                     .addClass(this.classFormError)
-                    .appendTo(container)
                     .text(message)
                 ;
+
+                if (initial) {
+                    item.addClass(this.classFormErrorInitial);
+                }
+
+                item.appendTo(container);
             }
 
             element
-                .attr('data-has-error', 'yes')
                 .addClass(this.classInputError)
                 .parent()
                 .addClass(this.classFormGroupError)
             ;
+
+            if (!initial) {
+                element.attr('data-has-error', 'yes');
+            }
         },
         /**
          * @param {jQuery} element
@@ -148,7 +163,11 @@
             this._removeErrorState(element);
         },
         clearAllErrors: function () {
-            this.$el.find('.' + this.classFormErrors).empty();
+            this.$el.find('.' + this.classFormErrors)
+                .children()
+                .not('.' + this.classFormErrorInitial)
+                .remove()
+            ;
             this._removeErrorState(this.getItemsWithErrors());
         },
         /**
@@ -193,11 +212,13 @@
         },
         /**
          * @param {jQuery} input
+         * @param {boolean} [force]
          */
-        inputShowPopover: function (input) {
+        inputShowPopover: function (input, force) {
             var popover = input.data('popover-element');
+            force = force || false;
 
-            if (input.has('has-popover') && input.attr('data-has-error') && popover && popover.children().length) {
+            if (force || (input.has('has-popover') && input.attr('data-has-error') && popover && popover.children().length)) {
                 popover.removeClass(this.classFormErrors + '--popover-hidden');
                 this.popoverPosition(input, popover);
             }
@@ -208,7 +229,7 @@
         inputHidePopover: function (input) {
             var popover = input.data('popover-element');
 
-            if (input.has('has-popover') && popover) {
+            if (input.has('has-popover') && popover && popover.find('.' + this.classFormErrorInitial).length === 0) {
                 popover.addClass(this.classFormErrors + '--popover-hidden');
             }
         },
@@ -244,6 +265,18 @@
                 .parent()
                 .removeClass(this.classFormGroupError)
             ;
+        },
+        _initialErrors: function () {
+            var view = this;
+            this.$el.find('[name][data-initial-error]').each(function () {
+                var control = $(this),
+                    error = control.data('initial-error');
+
+                if (error) {
+                    view.addError(control, error, true);
+                    view.inputShowPopover(control, true);
+                }
+            });
         },
         /**
          * @param {Backbone.Model} model

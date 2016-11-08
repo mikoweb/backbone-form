@@ -124,7 +124,10 @@
                     bindingOptions: {},
                     autoBinding: true,
                     popoverErrors: false,
-                    useShadow: false
+                    useShadow: false,
+                    classFormError: 'form-control-feedback',
+                    classInputError: 'form-control-danger',
+                    classFormGroupError: 'has-danger'
                 };
                 break;
         }
