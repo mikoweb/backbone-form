@@ -832,7 +832,8 @@ if (typeof define === 'function') {
                     editClick: false,
                     editDblClick: false,
                     bindingOptions: {},
-                    itemPlaceholder: '__name__'
+                    itemPlaceholder: '__name__',
+                    validationOptions: {}
                 };
                 break;
             case 'collectionItemView':
@@ -842,7 +843,8 @@ if (typeof define === 'function') {
                     isValidAttr: '_isValid',
                     messageAttr: '_message',
                     removeConfirmation: null,
-                    placeholder: '__name__'
+                    placeholder: '__name__',
+                    validationOptions: {}
                 };
                 break;
             case 'validationView':
@@ -850,7 +852,11 @@ if (typeof define === 'function') {
                     errorsPlace: 'after',
                     bindingOptions: {},
                     autoBinding: true,
-                    popoverErrors: false
+                    popoverErrors: false,
+                    useShadow: false,
+                    classFormError: 'form-control-feedback',
+                    classInputError: 'form-control-danger',
+                    classFormGroupError: 'has-danger'
                 };
                 break;
         }
@@ -1025,9 +1031,10 @@ if (typeof define === 'function') {
 
     /**
      * @param {String} name
+     *
      * @returns {Object}
      */
-    function controlInfo (name) {
+    FormHelper.prototype.getControlInfo = function (name) {
         if (!_.isString(name)) {
             throw new TypeError('Name must be string');
         }
@@ -1086,7 +1093,7 @@ if (typeof define === 'function') {
                 return control.length ? control.is(':disabled') : false;
             }
         };
-    }
+    };
 
     /**
      * @param {String|jQuery} selector
@@ -1121,7 +1128,7 @@ if (typeof define === 'function') {
      * @returns {undefined|null|String|Array}
      */
     FormHelper.prototype.getControlValue = function (name, info) {
-        info = info || controlInfo.call(this, name);
+        info = info || this.getControlInfo(name);
         var value, arr, type = info.getType();
 
         if (!info.isDisabled()) {
@@ -1197,7 +1204,7 @@ if (typeof define === 'function') {
      * @param {String|Array|Boolean} value
      */
     FormHelper.prototype.setControlValue = function (name, value) {
-        var info = controlInfo.call(this, name), type = info.getType();
+        var info = this.getControlInfo(name), type = info.getType();
 
         if ((_.isObject(value) && !_.isArray(value)) || _.isFunction(value) || _.isUndefined(value)) {
             throw new TypeError('Unexpected value with name ' + name);
@@ -1334,7 +1341,7 @@ if (typeof define === 'function') {
             throw new TypeError('keepPrefix is not boolean');
         }
 
-        info = controlInfo.call(this, name);
+        info = this.getControlInfo(name);
         value = this.getControlValue(name, info);
 
         function getValue (key) {
@@ -1580,6 +1587,24 @@ if (typeof define === 'function') {
          */
         hasData: function (key) {
             return !_.isUndefined(this.formData[key]);
+        },
+        /**
+         * @return {boolean}
+         */
+        hasShadow: function () {
+            return this.shadow instanceof Backbone.Model;
+        },
+        /**
+         * @return {Backbone.Model|null}
+         */
+        getShadow: function () {
+            var shadow = null;
+
+            if (this.hasShadow()) {
+                shadow = this.shadow;
+            }
+
+            return shadow;
         },
         /**
          * Retrieve nested item from object/array.
@@ -1867,11 +1892,16 @@ if (typeof define === 'function') {
         var valueMore = {},
             value = this.formHelper.getObjectFromName(name, this.options.keepPrefix, valueMore),
             keys = _.keys(value), key, oldValue, fail = true,
-            controls = this.$form.find('[name="' + name + '"]'),
-            control = controls.eq(0);
+            info = this.formHelper.getControlInfo(name),
+            controls = info.getControls(),
+            control = info.getControl();
 
         if (keys.length > 1) {
             throw new this.WildcardValueError('Control "' + name + '" has ' + keys.length + ' values');
+        }
+
+        if (this.model.hasShadow()) {
+            this.model.getShadow().set(name, this.formHelper.getControlValue(name, info));
         }
 
         if (keys.length) {
@@ -2334,6 +2364,7 @@ if (typeof define === 'function') {
             this.currentState = null;
             this.name = options.name;
             this.removeConfirmation = values.removeConfirmation;
+            this.validationOptions = values.validationOptions;
             this._templateRequest = true;
             this._compiledTemplate = null;
             this._backup = null;
@@ -2675,12 +2706,12 @@ if (typeof define === 'function') {
             }
 
             this.formModel = model;
-            this.validation = new Backbone.form.ValidationView({
+            this.validation = new Backbone.form.ValidationView(_.defaults({
                 el: this.$el,
                 model: this.formModel,
                 autoBinding: false,
                 bindingOptions: this.bindingOptions
-            });
+            }, this.validationOptions));
             this.twoWayBinding = this.validation.getBinding();
             this.formToModel = this.twoWayBinding.getFormToModel();
             this.formToModel.setFileModel(new Backbone.Model());
@@ -2797,6 +2828,7 @@ if (typeof define === 'function') {
             this.editDblClick = values.editDblClick;
             this.bindingOptions = values.bindingOptions;
             this.itemPlaceholder = values.itemPlaceholder;
+            this.validationOptions = values.validationOptions;
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -3081,7 +3113,8 @@ if (typeof define === 'function') {
                 editDblClick: this.editDblClick,
                 bindingOptions: this.bindingOptions,
                 removeConfirmation: this.removeConfirmation,
-                placeholder: this.itemPlaceholder
+                placeholder: this.itemPlaceholder,
+                validationOptions: this.validationOptions
             };
         },
         /**
@@ -3208,12 +3241,9 @@ if (typeof define === 'function') {
          * @param {Object} options
          */
         initialize: function (options) {
-            Backbone.Validation.bind(this, {
-                model: this.model
-            });
-
             var values = _.defaults(options || {}, Backbone.form.getDefaults('validationView'));
 
+            this.useShadow = values.useShadow;
             this.errorsPlace = values.errorsPlace;
             this.bindingOptions = values.bindingOptions;
             this.binding = new Backbone.form.TwoWayBinding(this.model, this.$el, this.bindingOptions);
@@ -3224,17 +3254,33 @@ if (typeof define === 'function') {
             this.popoverErrors = values.popoverErrors;
 
             this.classFormErrors = 'form__errors';
-            this.classFormError = 'form__error form-control-feedback';
-            this.classInputError = 'form-control-danger';
-            this.classFormGroupError = 'has-danger';
+            this.classFormError = 'form__error ' + values.classFormError;
+            this.classFormErrorInitial = 'form__error--initial';
+            this.classInputError = values.classInputError;
+            this.classFormGroupError = values.classFormGroupError;
 
-            this.listenTo(this.model, 'change', this._onModelChange);
-            this.listenTo(this.model, 'validated', this._onModelValidated);
+            Backbone.Validation.bind(this, {
+                model: this.getValidationModel()
+            });
+
+            this.listenTo(this.getValidationModel(), 'change', this._onModelChange);
+            this.listenTo(this.getValidationModel(), 'validated', this._onModelValidated);
             $(window).resize($.proxy(this._onWindowResize, this));
 
             if (this.autoBinding) {
                 this.binding.auto(true);
             }
+
+            this._initialErrors();
+        },
+        /**
+         * @return {Boolean}
+         */
+        isUseShadow: function () {
+            return Boolean(this.useShadow);
+        },
+        getValidationModel: function () {
+            return this.isUseShadow() ? this.model.getShadow() : this.model;
         },
         bindToModel: function () {
             this.binding.formToModel.bind();
@@ -3299,29 +3345,41 @@ if (typeof define === 'function') {
                 this.popoverPosition(element, container);
             }
 
+            container.find('.' + this.classFormErrorInitial).remove();
+
             return container;
         },
         /**
          * @param {jQuery} element
          * @param {String} message
+         * @param {boolean} [initial]
          */
-        addError: function (element, message) {
-            var container = this.getErrorsContainer(element);
+        addError: function (element, message, initial) {
+            var container = this.getErrorsContainer(element), item;
+            initial = initial || false;
 
             if (message && message !== '__none') {
-                $('<div />')
+                item = $('<div />')
                     .addClass(this.classFormError)
-                    .appendTo(container)
                     .text(message)
                 ;
+
+                if (initial) {
+                    item.addClass(this.classFormErrorInitial);
+                }
+
+                item.appendTo(container);
             }
 
             element
-                .attr('data-has-error', 'yes')
                 .addClass(this.classInputError)
                 .parent()
                 .addClass(this.classFormGroupError)
             ;
+
+            if (!initial) {
+                element.attr('data-has-error', 'yes');
+            }
         },
         /**
          * @param {jQuery} element
@@ -3331,7 +3389,11 @@ if (typeof define === 'function') {
             this._removeErrorState(element);
         },
         clearAllErrors: function () {
-            this.$el.find('.' + this.classFormErrors).empty();
+            this.$el.find('.' + this.classFormErrors)
+                .children()
+                .not('.' + this.classFormErrorInitial)
+                .remove()
+            ;
             this._removeErrorState(this.getItemsWithErrors());
         },
         /**
@@ -3376,11 +3438,13 @@ if (typeof define === 'function') {
         },
         /**
          * @param {jQuery} input
+         * @param {boolean} [force]
          */
-        inputShowPopover: function (input) {
+        inputShowPopover: function (input, force) {
             var popover = input.data('popover-element');
+            force = force || false;
 
-            if (input.has('has-popover') && input.attr('data-has-error') && popover && popover.children().length) {
+            if (force || (input.has('has-popover') && input.attr('data-has-error') && popover && popover.children().length)) {
                 popover.removeClass(this.classFormErrors + '--popover-hidden');
                 this.popoverPosition(input, popover);
             }
@@ -3391,7 +3455,7 @@ if (typeof define === 'function') {
         inputHidePopover: function (input) {
             var popover = input.data('popover-element');
 
-            if (input.has('has-popover') && popover) {
+            if (input.has('has-popover') && popover && popover.find('.' + this.classFormErrorInitial).length === 0) {
                 popover.addClass(this.classFormErrors + '--popover-hidden');
             }
         },
@@ -3428,6 +3492,18 @@ if (typeof define === 'function') {
                 .removeClass(this.classFormGroupError)
             ;
         },
+        _initialErrors: function () {
+            var view = this;
+            this.$el.find('[name][data-initial-error]').each(function () {
+                var control = $(this),
+                    error = control.data('initial-error');
+
+                if (error) {
+                    view.addError(control, error, true);
+                    view.inputShowPopover(control, true);
+                }
+            });
+        },
         /**
          * @param {Backbone.Model} model
          *
@@ -3451,7 +3527,13 @@ if (typeof define === 'function') {
             this.hideAllPopovers();
             _.mapObject(errors, function(val, attr) {
                 var modelValue = model.get(attr),
+                    control;
+
+                if (view.isUseShadow()) {
+                    control = view.$el.find('[name="' + attr + '"]');
+                } else {
                     control = view.$el.find('[name="' + formToModel.getControleName([attr], modelValue) + '"]');
+                }
 
                 if (control.length && control.data('ready-to-validation')) {
                     view.addError(control, val);
@@ -3468,7 +3550,7 @@ if (typeof define === 'function') {
         _onSubmit: function (e) {
             var view = this;
             this.$el.find(':input').data('ready-to-validation', true);
-            if (!this.model.isValid(true)) {
+            if (!this.getValidationModel().isValid(true)) {
                 e.preventDefault();
                 setTimeout(function () {
                     view.getFirstErrorInput().focus();
@@ -3497,7 +3579,7 @@ if (typeof define === 'function') {
             var input = $(e.target);
             input.data('ready-to-validation', true);
             input.data('is-focused', true);
-            this.model.isValid(true);
+            this.getValidationModel().isValid(true);
         },
         /**
          * @param {Event} e
