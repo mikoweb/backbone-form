@@ -121,7 +121,8 @@
                     errorsPlace: 'after',
                     bindingOptions: {},
                     autoBinding: true,
-                    popoverErrors: false
+                    popoverErrors: false,
+                    useShadow: false
                 };
                 break;
         }

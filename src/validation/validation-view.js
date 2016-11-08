@@ -15,12 +15,9 @@
          * @param {Object} options
          */
         initialize: function (options) {
-            Backbone.Validation.bind(this, {
-                model: this.model
-            });
-
             var values = _.defaults(options || {}, Backbone.form.getDefaults('validationView'));
 
+            this.useShadow = values.useShadow;
             this.errorsPlace = values.errorsPlace;
             this.bindingOptions = values.bindingOptions;
             this.binding = new Backbone.form.TwoWayBinding(this.model, this.$el, this.bindingOptions);
@@ -35,13 +32,26 @@
             this.classInputError = 'form-control-danger';
             this.classFormGroupError = 'has-danger';
 
-            this.listenTo(this.model, 'change', this._onModelChange);
-            this.listenTo(this.model, 'validated', this._onModelValidated);
+            Backbone.Validation.bind(this, {
+                model: this.getValidationModel()
+            });
+
+            this.listenTo(this.getValidationModel(), 'change', this._onModelChange);
+            this.listenTo(this.getValidationModel(), 'validated', this._onModelValidated);
             $(window).resize($.proxy(this._onWindowResize, this));
 
             if (this.autoBinding) {
                 this.binding.auto(true);
             }
+        },
+        /**
+         * @return {Boolean}
+         */
+        isUseShadow: function () {
+            return Boolean(this.useShadow);
+        },
+        getValidationModel: function () {
+            return this.isUseShadow() ? this.model.getShadow() : this.model;
         },
         bindToModel: function () {
             this.binding.formToModel.bind();
@@ -258,7 +268,13 @@
             this.hideAllPopovers();
             _.mapObject(errors, function(val, attr) {
                 var modelValue = model.get(attr),
+                    control;
+
+                if (view.isUseShadow()) {
+                    control = view.$el.find('[name="' + attr + '"]');
+                } else {
                     control = view.$el.find('[name="' + formToModel.getControleName([attr], modelValue) + '"]');
+                }
 
                 if (control.length && control.data('ready-to-validation')) {
                     view.addError(control, val);
@@ -275,7 +291,7 @@
         _onSubmit: function (e) {
             var view = this;
             this.$el.find(':input').data('ready-to-validation', true);
-            if (!this.model.isValid(true)) {
+            if (!this.getValidationModel().isValid(true)) {
                 e.preventDefault();
                 setTimeout(function () {
                     view.getFirstErrorInput().focus();
@@ -304,7 +320,7 @@
             var input = $(e.target);
             input.data('ready-to-validation', true);
             input.data('is-focused', true);
-            this.model.isValid(true);
+            this.getValidationModel().isValid(true);
         },
         /**
          * @param {Event} e
