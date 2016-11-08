@@ -40,6 +40,7 @@
             this.editDblClick = values.editDblClick;
             this.bindingOptions = values.bindingOptions;
             this.itemPlaceholder = values.itemPlaceholder;
+            this.validationOptions = values.validationOptions;
 
             if (options.itemTemplate) {
                 this.setItemTemplate(options.itemTemplate);
@@ -324,7 +325,8 @@
                 editDblClick: this.editDblClick,
                 bindingOptions: this.bindingOptions,
                 removeConfirmation: this.removeConfirmation,
-                placeholder: this.itemPlaceholder
+                placeholder: this.itemPlaceholder,
+                validationOptions: this.validationOptions
             };
         },
         /**

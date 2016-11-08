@@ -30,6 +30,7 @@
             this.currentState = null;
             this.name = options.name;
             this.removeConfirmation = values.removeConfirmation;
+            this.validationOptions = values.validationOptions;
             this._templateRequest = true;
             this._compiledTemplate = null;
             this._backup = null;
@@ -371,12 +372,12 @@
             }
 
             this.formModel = model;
-            this.validation = new Backbone.form.ValidationView({
+            this.validation = new Backbone.form.ValidationView(_.defaults({
                 el: this.$el,
                 model: this.formModel,
                 autoBinding: false,
                 bindingOptions: this.bindingOptions
-            });
+            }, this.validationOptions));
             this.twoWayBinding = this.validation.getBinding();
             this.formToModel = this.twoWayBinding.getFormToModel();
             this.formToModel.setFileModel(new Backbone.Model());

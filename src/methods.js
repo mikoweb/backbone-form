@@ -103,7 +103,8 @@
                     editClick: false,
                     editDblClick: false,
                     bindingOptions: {},
-                    itemPlaceholder: '__name__'
+                    itemPlaceholder: '__name__',
+                    validationOptions: {}
                 };
                 break;
             case 'collectionItemView':
@@ -113,7 +114,8 @@
                     isValidAttr: '_isValid',
                     messageAttr: '_message',
                     removeConfirmation: null,
-                    placeholder: '__name__'
+                    placeholder: '__name__',
+                    validationOptions: {}
                 };
                 break;
             case 'validationView':
