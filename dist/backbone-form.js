@@ -3426,7 +3426,15 @@ if (typeof define === 'function') {
          */
         popoverPosition: function (control, element) {
             var position = control.position(),
+                height;
+
+            if (control.hasClass('select2-hidden-accessible')) {
+                control.removeClass('select2-hidden-accessible');
                 height = control.outerHeight();
+                control.addClass('select2-hidden-accessible');
+            } else {
+                height = control.outerHeight();
+            }
 
             if (element.data('is-popover')) {
                 element.css({
