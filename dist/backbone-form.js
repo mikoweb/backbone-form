@@ -2608,7 +2608,7 @@ if (typeof define === 'function') {
 
             this.$el.find(':input').data('ready-to-validation', true);
 
-            if (this.formModel.isValid(true)) {
+            if (this.validation.getValidationModel().isValid(true)) {
                 this.formModel.save({}, {
                     success: function (model, response) {
                         if (_.isBoolean(response[view.isValidAttr])) {
