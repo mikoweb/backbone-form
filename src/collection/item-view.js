@@ -218,7 +218,7 @@
          * Load html to this.$el from model html attribute. After load html attribute will be unset.
          */
         loadHtml: function () {
-            var html;
+            var html, view = this;
             if (this.formModel.has(this.htmlAttr)) {
                 html = this.formModel.get(this.htmlAttr);
 
@@ -228,6 +228,9 @@
 
                 this.$el.html(html);
                 this.formModel.unset(this.htmlAttr);
+                setTimeout(function () {
+                    view.validation._initialErrors();
+                }, 100);
                 this.onRender();
             }
         },
