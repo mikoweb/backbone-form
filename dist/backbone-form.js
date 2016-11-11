@@ -2210,6 +2210,9 @@ if (typeof define === 'function') {
 
             try {
                 this.formHelper.setControlValue(name, current);
+                if (this.model.hasShadow()) {
+                    this.model.getShadow().set(name, current);
+                }
             } catch (e) {
                 this.silentRelated(false);
                 throw e;
