@@ -2400,7 +2400,8 @@ if (typeof define === 'function') {
         renderParams: function () {
             return {
                 name: this.name,
-                form: this.formModel
+                form: this.formModel,
+                el: this.$el
             };
         },
         renderAll: function () {
