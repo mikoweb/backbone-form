@@ -2871,6 +2871,8 @@ if (typeof define === 'function') {
         /**
          * @param {String} [modelKey]
          * @param {jQuery} [el]
+         *
+         * @return {Backbone.form.CollectionItemView}
          */
         addItem: function (modelKey, el) {
             var view, viewOptions, model = new this.formCollection.model();
@@ -2899,9 +2901,13 @@ if (typeof define === 'function') {
 
             this._initItemView(view);
             view.onRender();
+
+            return view;
         },
         /**
          * @param {Backbone.Model} model
+         *
+         * @return {Backbone.form.CollectionItemView}
          */
         addItemWithModel: function (model) {
             var view;
@@ -2921,6 +2927,8 @@ if (typeof define === 'function') {
             this._attachView(view);
             this._initItemView(view);
             view.onRender();
+
+            return view;
         },
         /**
          * @param {String} template
@@ -2967,8 +2975,8 @@ if (typeof define === 'function') {
          * Add fresh item.
          */
         triggerAdd: function () {
-            this.addItem();
-            this.trigger('items:add', this);
+            var view = this.addItem();
+            this.trigger('items:add', view, this);
         },
         /**
          * Save all models.
@@ -3157,7 +3165,7 @@ if (typeof define === 'function') {
             this._addViewListeners(view);
             this.items.push(view);
             ++this.index;
-            this.trigger('items:add', this, view);
+            this.trigger('items:init', view, this);
         },
         /**
          * @param {Event} e
